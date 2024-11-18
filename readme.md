@@ -1,0 +1,9 @@
+# PROJECT APAYA
+
+technology =
+- backend LARAVEL 11
+- WEBSERVER NGINX STABLE ALPHINE
+- PHP 8.3 
+- FLUTTER (MOBILE APPS)
+
+# HAPPY CODINGGGGG !!!!!!!!!!!!!!
