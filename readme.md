@@ -1,6 +1,6 @@
 # PROJECT APAYA
 
-technology =
+ Teknologi :
 - backend LARAVEL 11
 - WEBSERVER NGINX STABLE ALPHINE
 - PHP 8.3 
