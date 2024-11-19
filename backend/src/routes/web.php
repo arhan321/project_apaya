@@ -2,11 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\NilaiController;
 use App\Http\Controllers\DataDosenController;
-use App\Http\Controllers\DataStaffController;
-use App\Http\Controllers\DataMatkulController;
-use App\Http\Controllers\DataMahasiswaController;
+
 
 Route::get('/', function () {
     return view('welcome');
