@@ -1,22 +1,31 @@
 import 'package:get/get.dart';
-import '../welcome.dart'; 
-import '../login.dart';
-import '../register.dart';
-import '../mainpage.dart';
-import '../kalkulator.dart';
-import '../forgetpassword.dart';
-import '../newpassword.dart';
-import '../profile.dart'; 
+import '../page_global/welcome.dart'; // Halaman Welcome
+import '../page_global/login.dart'; // Halaman Login
+import '../page_global/register.dart'; // Halaman Register
+import '../page_global/forgetpassword.dart'; // Halaman Lupa Password
+import '../page_global/newpassword.dart'; // Halaman Reset Password
+import '../page_siswa/mainpage.dart'; // Halaman Utama Siswa
+import '../page_siswa/kalkulator.dart'; // Halaman Kalkulator
+import '../page_siswa/profile.dart'; // Halaman Profil Siswa
+import '../page_siswa/listabsen.dart'; // Halaman Daftar Absen
+import '../page_siswa/formabsen.dart'; // Halaman Form Absen
+import '../page_siswa/viewdetail.dart'; // Halaman Detail Absen
+import '../page_guru/mainpage_guru.dart'; // Halaman Utama Guru
 
 class AppRoutes {
-  static const welcome = '/welcome'; // Rute untuk WelcomeScreen
-  static const login = '/login';
-  static const register = '/register';
-  static const mainPage = '/mainPage';
-  static const kalkulator = '/kalkulator';
-  static const forgotPassword = '/forget-password';
-  static const newPassword = '/new-password';
-  static const profile = '/profile'; // Rute untuk ProfilePage
+  // Daftar Konstanta Rute
+  static const welcome = '/welcome'; // Rute Welcome
+  static const login = '/login'; // Rute Login
+  static const register = '/register'; // Rute Register
+  static const forgotPassword = '/forget-password'; // Rute Lupa Password
+  static const newPassword = '/new-password'; // Rute Reset Password
+  static const mainPage = '/mainPage'; // Rute Halaman Utama Siswa
+  static const mainPageGuru = '/mainPageGuru'; // Rute Halaman Utama Guru
+  static const kalkulator = '/kalkulator'; // Rute Kalkulator
+  static const profile = '/profile'; // Rute Profil
+  static const listAbsen = '/listAbsen'; // Rute Daftar Absen
+  static const formAbsen = '/formAbsen'; // Rute Form Absen
+  static const viewDetail = '/viewDetail'; // Rute Detail Absen
 
   static List<GetPage> routes = [
     GetPage(
@@ -32,14 +41,6 @@ class AppRoutes {
       page: () => RegisterScreen(),
     ),
     GetPage(
-      name: mainPage,
-      page: () => MainPage(userName: ''),
-    ),
-    GetPage(
-      name: kalkulator,
-      page: () => KalkulatorPage(userName: 'Guest'),
-    ),
-    GetPage(
       name: forgotPassword,
       page: () => ForgotPasswordScreen(),
     ),
@@ -48,8 +49,32 @@ class AppRoutes {
       page: () => NewPasswordScreen(),
     ),
     GetPage(
-    name: profile,
-    page: () => ProfilePage(),
+      name: mainPage,
+      page: () => MainPage(userName: ''), // Rute Halaman Siswa
+    ),
+    GetPage(
+      name: mainPageGuru,
+      page: () => MainPageGuru(), // Rute Halaman Guru
+    ),
+    GetPage(
+      name: kalkulator,
+      page: () => KalkulatorPage(userName: 'Guest'), // Rute Kalkulator
+    ),
+    GetPage(
+      name: profile,
+      page: () => ProfilePage(), // Rute Profil
+    ),
+    GetPage(
+      name: listAbsen,
+      page: () => ListAbsenPage(className: 'Default Class'), // Rute Daftar Absen
+    ),
+    GetPage(
+      name: formAbsen,
+      page: () => FormAbsenPage(), // Rute Form Absen
+    ),
+    GetPage(
+      name: viewDetail,
+      page: () => ViewDetailPage(), // Rute Detail Absen
     ),
   ];
 }

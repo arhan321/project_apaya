@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'listabsen.dart'; // Impor ListAbsenPage
 import 'profile.dart'; // Impor ProfilePage
-import 'login.dart';
+import '../page_global/login.dart';
 import 'kalkulator.dart'; // Impor KalkulatorPage
 
 class MainPage extends StatelessWidget {
@@ -14,6 +15,15 @@ class MainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blueAccent, Colors.lightBlueAccent],
+              begin: Alignment.centerLeft, // Mulai gradasi dari kiri
+              end: Alignment.centerRight, // Akhiri gradasi di kanan
+            ),
+          ),
+        ),
         title: Text(
           'Absenku.',
           style: GoogleFonts.poppins(
@@ -22,7 +32,9 @@ class MainPage extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        backgroundColor: const Color.fromARGB(255, 0, 170, 255),
+        backgroundColor: Colors.transparent, // Transparan karena ada gradasi
+        elevation: 0, // Hilangkan bayangan AppBar
+        iconTheme: IconThemeData(color: Colors.white), // Ubah warna ikon drawer menjadi putih
         actions: [
           IconButton(
             icon: Icon(Icons.account_circle),
@@ -60,12 +72,18 @@ class MainPage extends StatelessWidget {
                       title: 'Kelas 6A',
                       subtitle: 'SD NEGERI RANCAGONG 1',
                       teacher: 'Tatang Sutarman',
+                      onTap: () {
+                        Get.to(() => ListAbsenPage(className: 'Kelas 6A'));
+                      },
                     ),
                     SizedBox(height: 10),
                     _buildCard(
                       title: 'Kelas 6B',
                       subtitle: 'SD NEGERI RANCAGONG 1',
                       teacher: 'Budiono Siregar',
+                      onTap: () {
+                        Get.to(() => ListAbsenPage(className: 'Kelas 6B'));
+                      },
                     ),
                   ],
                 ),
@@ -110,7 +128,7 @@ class MainPage extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.home),
+            leading: Icon(Icons.home, color: Colors.blueAccent), // Warna ikon menjadi biru
             title: Text(
               'Home',
               style: GoogleFonts.poppins(),
@@ -120,7 +138,7 @@ class MainPage extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: Icon(Icons.calculate),
+            leading: Icon(Icons.calculate, color: Colors.blueAccent), // Warna ikon menjadi biru
             title: Text(
               'Kalkulator',
               style: GoogleFonts.poppins(),
@@ -131,7 +149,7 @@ class MainPage extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: Icon(Icons.logout),
+            leading: Icon(Icons.logout, color: Colors.blueAccent), // Warna ikon menjadi biru
             title: Text(
               'Logout',
               style: GoogleFonts.poppins(),
@@ -153,52 +171,56 @@ class MainPage extends StatelessWidget {
     required String title,
     required String subtitle,
     required String teacher,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.purpleAccent, Colors.lightBlue],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.purpleAccent, Colors.lightBlue],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 5,
+              offset: Offset(0, 3),
+            ),
+          ],
         ),
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 5,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
             ),
-          ),
-          Text(
-            subtitle,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: Colors.white,
+            Text(
+              subtitle,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.white,
+              ),
             ),
-          ),
-          SizedBox(height: 10),
-          Text(
-            teacher,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontStyle: FontStyle.italic,
-              color: Colors.white,
+            SizedBox(height: 10),
+            Text(
+              teacher,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontStyle: FontStyle.italic,
+                color: Colors.white,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

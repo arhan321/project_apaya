@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:forum/welcome.dart';
+import 'page_global/welcome.dart';
 import 'package:get/get.dart';
 import 'routes/routes.dart';
 

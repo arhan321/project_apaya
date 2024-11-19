@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'login.dart';
+import '../page_global/login.dart';
 import 'mainpage.dart';
 
 class KalkulatorPage extends StatefulWidget {

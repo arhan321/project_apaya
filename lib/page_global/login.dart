@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'routes/routes.dart';
+import '../routes/routes.dart';
 
 class LoginScreen extends StatelessWidget {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final FocusNode usernameFocus = FocusNode(); // Tambahkan FocusNode
-  final FocusNode passwordFocus = FocusNode(); // Tambahkan FocusNode
+  final FocusNode usernameFocus = FocusNode();
+  final FocusNode passwordFocus = FocusNode();
 
   @override
   Widget build(BuildContext context) {
-    // Tambahkan Listener ke FocusNode Username
+    // Tangkap role dari Get.arguments
+    final role = Get.arguments?['role'] ?? 'siswa'; // Default ke 'siswa' jika tidak ada role
+
     usernameFocus.addListener(() {
       if (usernameFocus.hasFocus) {
-        FocusScope.of(context).requestFocus(usernameFocus); // Paksa fokus
+        FocusScope.of(context).requestFocus(usernameFocus);
       }
     });
 
@@ -74,17 +76,19 @@ class LoginScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 50),
                   _buildTextField(
-                      controller: usernameController,
-                      focusNode: usernameFocus, // Gunakan FocusNode
-                      icon: Icons.person,
-                      hint: 'Username'),
+                    controller: usernameController,
+                    focusNode: usernameFocus,
+                    icon: Icons.person,
+                    hint: 'Username',
+                  ),
                   SizedBox(height: 15),
                   _buildTextField(
-                      controller: passwordController,
-                      focusNode: passwordFocus, // Gunakan FocusNode
-                      icon: Icons.lock,
-                      hint: 'Password',
-                      isPassword: true),
+                    controller: passwordController,
+                    focusNode: passwordFocus,
+                    icon: Icons.lock,
+                    hint: 'Password',
+                    isPassword: true,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -103,11 +107,12 @@ class LoginScreen extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 30),
-                  _buildLoginButton(context),
+                  _buildLoginButton(context, role),
                   SizedBox(height: 20),
                   TextButton(
                     onPressed: () {
-                      Get.toNamed(AppRoutes.register);
+                      // Kirim role ke halaman RegisterScreen
+                      Get.toNamed(AppRoutes.register, arguments: {'role': role});
                     },
                     child: Text(
                       'Don\'t have an account? Register here',
@@ -128,7 +133,7 @@ class LoginScreen extends StatelessWidget {
 
   Widget _buildTextField({
     required TextEditingController controller,
-    required FocusNode focusNode, // Tambahkan FocusNode
+    required FocusNode focusNode,
     required IconData icon,
     required String hint,
     bool isPassword = false,
@@ -148,7 +153,7 @@ class LoginScreen extends StatelessWidget {
       ),
       child: TextField(
         controller: controller,
-        focusNode: focusNode, // Gunakan FocusNode
+        focusNode: focusNode,
         obscureText: isPassword,
         decoration: InputDecoration(
           isDense: true,
@@ -162,12 +167,26 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLoginButton(BuildContext context) {
+  Widget _buildLoginButton(BuildContext context, String role) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          Get.toNamed(AppRoutes.mainPage, arguments: 'Guest');
+          // Arahkan ke halaman sesuai dengan role
+          if (role == 'guru') {
+            Get.toNamed(AppRoutes.mainPageGuru);
+          } else if (role == 'siswa') {
+            Get.toNamed(AppRoutes.mainPage);
+          } else {
+            // Role admin dan orang tua dinonaktifkan sementara
+            Get.snackbar(
+              'Info',
+              'Halaman untuk role $role belum tersedia.',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.orangeAccent,
+              colorText: Colors.white,
+            );
+          }
         },
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.symmetric(vertical: 15),

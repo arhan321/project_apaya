@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'routes/routes.dart';
+import '../routes/routes.dart';
+
 
 class NewPasswordScreen extends StatelessWidget {
   final TextEditingController usernameController = TextEditingController();

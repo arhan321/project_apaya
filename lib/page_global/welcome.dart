@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -46,28 +47,32 @@ class WelcomeScreen extends StatelessWidget {
                     icon: Icons.admin_panel_settings,
                     label: 'Admin',
                     onTap: () {
-                      Navigator.pushNamed(context, '/login');
+                      // Mengarahkan ke login.dart dengan role admin
+                      Get.toNamed('/login', arguments: {'role': 'admin'});
                     },
                   ),
                   _buildLoginOption(
                     icon: Icons.school,
                     label: 'Siswa',
                     onTap: () {
-                      Navigator.pushNamed(context, '/login');
+                      // Mengarahkan ke login.dart dengan role siswa
+                      Get.toNamed('/login', arguments: {'role': 'siswa'});
                     },
                   ),
                   _buildLoginOption(
                     icon: Icons.person,
                     label: 'Guru',
                     onTap: () {
-                      Navigator.pushNamed(context, '/login');
+                      // Mengarahkan ke login.dart dengan role guru
+                      Get.toNamed('/login', arguments: {'role': 'guru'});
                     },
                   ),
                   _buildLoginOption(
                     icon: Icons.family_restroom,
                     label: 'Orang Tua',
                     onTap: () {
-                      Navigator.pushNamed(context, '/login');
+                      // Mengarahkan ke login.dart dengan role orang tua
+                      Get.toNamed('/login', arguments: {'role': 'orangtua'});
                     },
                   ),
                 ],
