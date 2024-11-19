@@ -6,7 +6,7 @@ services:
     container_name: php_absen
     hostname: "php"
     volumes:
-      - ./src:/var/www/html
+      - ./src_sample:/var/www/html
       - ./php/www.conf:/usr/local/etc/php-fpm.d/www.conf
     working_dir: /var/www/html
     depends_on: 
@@ -39,7 +39,23 @@ services:
     ports:
       - "77:80"
     volumes:
-      - ./src:/var/www/html
+      - ./src_sample:/var/www/html
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - php_absen
+
+    # mailpit:
+    #   image: axllent/mailpit
+    #   container_name: mailpit
+    #   restart: unless-stopped
+    #   volumes:
+    #     - ./mailpit-data:/data
+    #   ports:
+    #     - 8025:8025
+    #     - 1025:1025
+    #   environment:
+    #     - MP_MAX_MESSAGES=5000
+    #     - MP_DATABASE=/data/mailpit.db
+    #     - MP_SMTP_AUTH_ACCEPT_ANY=1
+    #     - MP_SMTP_AUTH_ALLOW_INSECURE=1
+    #     - TZ=Europe/Madrid
