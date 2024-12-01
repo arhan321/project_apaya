@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:forum/page_global/login.dart';
+import 'package:forum/routes/routes.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../page_global/login.dart'; // Pastikan jalur impor benar
+import 'listabsensiswa.dart';
+import 'profileguru.dart'; // Import halaman ProfileGuru
 
 class MainPageGuru extends StatelessWidget {
   final String userName;
@@ -37,11 +40,12 @@ class MainPageGuru extends StatelessWidget {
             icon: Icon(Icons.account_circle),
             color: Colors.white,
             onPressed: () {
-              Get.snackbar(
-                'Info',
-                'Halaman Profile Guru belum tersedia.',
-                snackPosition: SnackPosition.BOTTOM,
-              );
+              // Navigasi ke halaman profile guru
+              Get.to(() => ProfileGuruPage(
+                guruName: 'Tatang Sutarman', // Nama guru
+                kelas: 'Kelas 6A', // Kelas yang diajar
+                waliKelas: 'Tatang Sutarman', // Nama wali kelas
+              ));
             },
           ),
         ],
@@ -50,7 +54,7 @@ class MainPageGuru extends StatelessWidget {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        padding: EdgeInsets.all(16), // Tambahkan padding global
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Colors.blueAccent, Colors.lightBlueAccent],
@@ -62,31 +66,17 @@ class MainPageGuru extends StatelessWidget {
           children: [
             Expanded(
               child: ListView(
-                padding: EdgeInsets.zero, // Hilangkan padding bawaan ListView
+                padding: EdgeInsets.zero,
                 children: [
-                  _buildCard(
-                    title: 'Jadwal Mengajar',
-                    description: 'Lihat dan kelola jadwal mengajar Anda.',
-                    icon: Icons.calendar_today,
-                    onTap: () {
-                      Get.snackbar(
-                        'Info',
-                        'Halaman Jadwal Mengajar belum tersedia.',
-                        snackPosition: SnackPosition.BOTTOM,
-                      );
-                    },
-                  ),
                   SizedBox(height: 10),
                   _buildCard(
                     title: 'Absensi Siswa',
                     description: 'Kelola absensi siswa Anda.',
                     icon: Icons.check_circle_outline,
                     onTap: () {
-                      Get.snackbar(
-                        'Info',
-                        'Halaman Absensi Siswa belum tersedia.',
-                        snackPosition: SnackPosition.BOTTOM,
-                      );
+                      Get.to(() => ListAbsenSiswaPage(
+                        className: 'Kelas 6A',
+                      ));
                     },
                   ),
                 ],
@@ -137,7 +127,17 @@ class MainPageGuru extends StatelessWidget {
               style: GoogleFonts.poppins(),
             ),
             onTap: () {
-              Navigator.pop(context); // Tutup drawer
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.download, color: Colors.blueAccent),
+            title: Text(
+              'Unduh Rekap Absen',
+              style: GoogleFonts.poppins(),
+            ),
+            onTap: () {
+              Get.toNamed(AppRoutes.rekapAbsen);
             },
           ),
           ListTile(
@@ -168,8 +168,8 @@ class MainPageGuru extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 8), // Margin antar kartu
-        padding: EdgeInsets.all(16), // Padding dalam kartu
+        margin: EdgeInsets.symmetric(vertical: 8),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Colors.purpleAccent, Colors.lightBlue],
@@ -193,7 +193,7 @@ class MainPageGuru extends StatelessWidget {
               color: Colors.white,
             ),
             SizedBox(width: 16),
-            Expanded( // Tambahkan Expanded agar teks tidak keluar batas
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

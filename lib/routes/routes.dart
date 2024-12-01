@@ -10,7 +10,9 @@ import '../page_siswa/profile.dart'; // Halaman Profil Siswa
 import '../page_siswa/listabsen.dart'; // Halaman Daftar Absen
 import '../page_siswa/formabsen.dart'; // Halaman Form Absen
 import '../page_siswa/viewdetail.dart'; // Halaman Detail Absen
+import '../page_guru/listabsensiswa.dart'; // Halaman Daftar Absen Siswa
 import '../page_guru/mainpage_guru.dart'; // Halaman Utama Guru
+import '../page_guru/rekapabsen.dart'; // Halaman Rekap Absen
 
 class AppRoutes {
   // Daftar Konstanta Rute
@@ -26,6 +28,8 @@ class AppRoutes {
   static const listAbsen = '/listAbsen'; // Rute Daftar Absen
   static const formAbsen = '/formAbsen'; // Rute Form Absen
   static const viewDetail = '/viewDetail'; // Rute Detail Absen
+  static const listAbsenSiswa = '/listAbsenSiswa'; // Rute Daftar Absen Siswa
+  static const rekapAbsen = '/rekapAbsen'; // Rute Rekap Absen (NEW)
 
   static List<GetPage> routes = [
     GetPage(
@@ -75,6 +79,14 @@ class AppRoutes {
     GetPage(
       name: viewDetail,
       page: () => ViewDetailPage(), // Rute Detail Absen
+    ),
+    GetPage(
+      name: listAbsenSiswa,
+      page: () => ListAbsenSiswaPage(className: 'Kelas 6A'), // Rute Daftar Absen Siswa
+    ),
+    GetPage(
+      name: rekapAbsen,
+      page: () => RekapAbsenPage(), // Rute Halaman Rekap Absen
     ),
   ];
 }
