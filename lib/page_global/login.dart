@@ -177,8 +177,10 @@ class LoginScreen extends StatelessWidget {
             Get.toNamed(AppRoutes.mainPageGuru);
           } else if (role == 'siswa') {
             Get.toNamed(AppRoutes.mainPage);
+          } else if (role == 'orangtua') {
+            Get.toNamed(AppRoutes.mainPageOrtu);
           } else {
-            // Role admin dan orang tua dinonaktifkan sementara
+            // Role admin dinonaktifkan sementara
             Get.snackbar(
               'Info',
               'Halaman untuk role $role belum tersedia.',

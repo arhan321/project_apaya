@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:get/get.dart'; // Import Get untuk mengambil data
 
 class EditAbsenPage extends StatelessWidget {
-  final String name;
-  final String number;
-  final String badge;
-  final String jamAbsen;
-
-  EditAbsenPage({
-    required this.name,
-    required this.number,
-    required this.badge,
-    required this.jamAbsen,
-  });
-
   @override
   Widget build(BuildContext context) {
+    final arguments = Get.arguments;
+    final name = arguments['name'];
+    final number = arguments['number'];
+    final badge = arguments['badge'];
+    final jamAbsen = arguments['jamAbsen'];
+
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
@@ -60,16 +55,14 @@ class EditAbsenPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField(String label, String initialValue) {
-    return TextField(
-      controller: TextEditingController(text: initialValue),
+  Widget _buildTextField(String label, String value) {
+    return TextFormField(
+      initialValue: value,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: GoogleFonts.poppins(fontSize: 14),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        filled: true,
-        fillColor: Colors.grey[100],
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        border: OutlineInputBorder(),
+        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
       ),
     );
   }
@@ -80,38 +73,33 @@ class EditAbsenPage extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: GoogleFonts.poppins(fontSize: 14),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        filled: true,
-        fillColor: Colors.grey[100],
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        border: OutlineInputBorder(),
       ),
-      items: ['Hadir', 'Izin', 'Sakit', 'Tidak Hadir']
-          .map((status) => DropdownMenuItem<String>(
-                value: status,
-                child: Text(status),
-              ))
-          .toList(),
-      onChanged: (value) {},
+      items: ['Hadir', 'Izin', 'Sakit', 'Tidak Hadir'].map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (String? newValue) {},
     );
   }
 
   Widget _buildSaveButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        // Implement save logic here
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Data berhasil disimpan')));
+        // Save logic here (e.g., update data)
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.blueAccent,
-        padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(10),
         ),
-        elevation: 5,
       ),
       child: Text(
-        'Simpan',
-        style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+        'Simpan Perubahan',
+        style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
       ),
     );
   }

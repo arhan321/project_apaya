@@ -102,9 +102,9 @@ class RekapAbsenPage extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildDownloadButton("Rekap Semester 1", context, className, waliKelas),
+              _buildDownloadButton("Rekap Semester 1", context, className, waliKelas, "1"),
               SizedBox(height: 8),
-              _buildDownloadButton("Rekap Semester 2", context, className, waliKelas),
+              _buildDownloadButton("Rekap Semester 2", context, className, waliKelas, "2"),
             ],
           ),
         ],
@@ -113,19 +113,11 @@ class RekapAbsenPage extends StatelessWidget {
   }
 
   // Function to create download button
-  Widget _buildDownloadButton(String label, BuildContext context, String className, String waliKelas) {
+  Widget _buildDownloadButton(String label, BuildContext context, String className, String waliKelas, String semester) {
     return ElevatedButton.icon(
       onPressed: () {
-        // Navigasi ke halaman DownloadRekapPage dengan passing argument
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DownloadRekapPage(
-              className: className,
-              waliKelas: waliKelas, semester: '',
-            ),
-          ),
-        );
+        // Show alert dialog with PDF or Excel option
+        _showDownloadDialog(context, className, waliKelas, semester);
       },
       style: ElevatedButton.styleFrom(
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -143,6 +135,56 @@ class RekapAbsenPage extends StatelessWidget {
           color: Colors.white,
         ),
       ),
+    );
+  }
+
+  // Show alert dialog with options for PDF or Excel download
+  void _showDownloadDialog(BuildContext context, String className, String waliKelas, String semester) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Pilih Format Pengunduhan',
+            style: GoogleFonts.poppins(),
+          ),
+          content: Text(
+            'Pilih format file untuk rekap absen semester $semester.',
+            style: GoogleFonts.poppins(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Navigate to the DownloadRekapPage when PDF is selected
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DownloadRekapPage(
+                      className: className,
+                      waliKelas: waliKelas,
+                      semester: semester,  // Mengirimkan semester yang dipilih
+                    ),
+                  ),
+                );
+              },
+              child: Text(
+                'PDF',
+                style: GoogleFonts.poppins(color: Colors.blueAccent),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                // Just close the dialog when Excel is selected (no navigation)
+                Navigator.pop(context);
+              },
+              child: Text(
+                'Excel',
+                style: GoogleFonts.poppins(color: Colors.blueAccent),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

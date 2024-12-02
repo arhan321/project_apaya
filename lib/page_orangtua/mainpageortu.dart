@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:forum/page_siswa/listabsen.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'listabsen.dart'; // Impor ListAbsenPage
-import 'profile.dart'; // Impor ProfilePage
-import '../page_global/login.dart';
-import 'kalkulator.dart'; // Impor KalkulatorPage
+import 'viewabsen.dart'; // Impor ListAbsenPage
+import 'profilortu.dart'; // Impor ProfilePage
+import '../page_global/login.dart'; // Impor LoginScreen jika diperlukan
 
-class MainPage extends StatelessWidget {
+class MainPageOrtu extends StatelessWidget {
   final String userName;
 
-  MainPage({Key? key, this.userName = 'Guest'}) : super(key: key);
+  MainPageOrtu({Key? key, this.userName = 'Orang Tua'}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,32 +19,32 @@ class MainPage extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.blueAccent, Colors.lightBlueAccent],
-              begin: Alignment.centerLeft, // Mulai gradasi dari kiri
-              end: Alignment.centerRight, // Akhiri gradasi di kanan
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
             ),
           ),
         ),
         title: Text(
-          'Dashboard Siswa.',
+          'Dashboard Orang Tua',
           style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w700, // Tebal
+            fontWeight: FontWeight.w700,
             fontSize: 20,
             color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.transparent, // Transparan karena ada gradasi
-        elevation: 0, // Hilangkan bayangan AppBar
-        iconTheme: IconThemeData(color: Colors.white), // Ubah warna ikon drawer menjadi putih
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.white),
         actions: [
           IconButton(
             icon: Icon(Icons.account_circle),
             color: Colors.white,
             onPressed: () {
-              // Navigasi ke halaman ProfilePage
-              Get.to(() => ProfilePage(
-                    studentName: 'Budiono Siregar', // Contoh data siswa
-                    studentClass: 'Kelas 6B',        // Contoh data kelas
-                    studentNumber: '2',             // Contoh nomor absen
+              // Navigasi ke halaman ProfilortuPage
+              Get.to(() => ProfilortuPage(
+                    orangTuaName: 'Udin Siregar', // Contoh nama orang tua
+                    waliMurid: 'Budiono Siregar',    // Nama wali murid
+                    email: 'udin@ortu.com',       // Contoh email
                   ));
             },
           ),
@@ -128,7 +128,7 @@ class MainPage extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.home, color: Colors.blueAccent), // Warna ikon menjadi biru
+            leading: Icon(Icons.home, color: Colors.blueAccent),
             title: Text(
               'Home',
               style: GoogleFonts.poppins(),
@@ -138,18 +138,7 @@ class MainPage extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: Icon(Icons.calculate, color: Colors.blueAccent), // Warna ikon menjadi biru
-            title: Text(
-              'Kalkulator',
-              style: GoogleFonts.poppins(),
-            ),
-            onTap: () {
-              Navigator.pop(context); // Tutup drawer
-              Get.to(() => KalkulatorPage(userName: userName)); // Kirim userName ke KalkulatorPage
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.logout, color: Colors.blueAccent), // Warna ikon menjadi biru
+            leading: Icon(Icons.logout, color: Colors.blueAccent),
             title: Text(
               'Logout',
               style: GoogleFonts.poppins(),
@@ -243,7 +232,7 @@ class MainPage extends StatelessWidget {
           'Logout',
           style: GoogleFonts.poppins(
             color: Colors.blueAccent,
-            fontSize: 14, // Ukuran teks lebih kecil
+            fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
         ),

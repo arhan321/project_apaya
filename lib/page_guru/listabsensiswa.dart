@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'editabsen.dart'; // Import halaman EditAbsenPage
+import '../page_guru/profileguru.dart'; // Pastikan ini mengimpor halaman ProfileGuruPage
 
 class ListAbsenSiswaPage extends StatelessWidget {
   final String className;
@@ -32,9 +33,23 @@ class ListAbsenSiswaPage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.account_circle), // Icon person di pojok kanan atas
+            onPressed: () {
+              // Navigasi ke halaman profile guru
+              Get.to(() => ProfileGuruPage(
+                guruName: 'Tatang Sutarman', // Nama guru
+                kelas: 'Kelas 6A', // Kelas yang diajar
+                waliKelas: 'Tatang Sutarman', // Nama wali kelas
+              ));
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
+          // Container untuk menampilkan nama guru dan kolom pencarian
           Container(
             width: double.infinity,
             padding: EdgeInsets.all(16),
@@ -59,6 +74,50 @@ class ListAbsenSiswaPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 10),
+                // Kolom pencarian nama
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Cari Nama?',
+                          hintStyle: GoogleFonts.poppins(
+                            color: Colors.grey[700],
+                            fontSize: 14,
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 15),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(Icons.filter_list, color: Colors.white),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                // Menampilkan tanggal saat ini
+                Text(
+                  DateTime.now().toString().split(' ')[0], // Menampilkan tanggal
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white,
+                  ),
+                ),
               ],
             ),
           ),
@@ -184,7 +243,7 @@ class ListAbsenSiswaPage extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Detail',
+                'Lihat Detail', // Mengubah teks button menjadi 'Lihat Detail'
                 style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 12,
@@ -196,12 +255,13 @@ class ListAbsenSiswaPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 Get.to(
-                  () => EditAbsenPage(
-                    name: name,
-                    number: number,
-                    badge: badge,
-                    jamAbsen: jamAbsen,
-                  ),
+                  () => EditAbsenPage(),
+                  arguments: {
+                    'name': name,
+                    'number': number,
+                    'badge': badge,
+                    'jamAbsen': jamAbsen,
+                  },
                 );
               },
               style: ElevatedButton.styleFrom(

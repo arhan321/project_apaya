@@ -41,13 +41,7 @@ class DownloadRekapPage extends StatelessWidget {
       ),
       body: Container(
         padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blueAccent, Colors.lightBlueAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        color: Colors.white, // Background putih
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -93,7 +87,7 @@ class DownloadRekapPage extends StatelessWidget {
     );
   }
 
-  // Header bagian atas, menampilkan informasi kelas, wali kelas, dan semester
+  // Header bagian atas, menampilkan informasi kelas, wali kelas, semester
   Widget _buildHeader() {
     return Container(
       padding: EdgeInsets.all(16),
@@ -102,8 +96,8 @@ class DownloadRekapPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
-        'Rekap Absen $schoolName\n$className - $semester\nWali Kelas: $waliKelas',
-        textAlign: TextAlign.left,  // Mengubah alignment header menjadi kiri
+        'Rekap Absen $schoolName\n$className - Semester $semester\nWali Kelas: $waliKelas',
+        textAlign: TextAlign.left, // Mengubah alignment header menjadi kiri
         style: GoogleFonts.poppins(
           color: Colors.white,
           fontSize: 18,
@@ -113,18 +107,7 @@ class DownloadRekapPage extends StatelessWidget {
     );
   }
 
-  // Garis bawah untuk pemisah header
-  Widget _buildDivider() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8),
-      child: Divider(
-        color: Colors.grey[300],
-        thickness: 2,
-      ),
-    );
-  }
-
-  // Card untuk menampilkan setiap data siswa dengan latar belakang
+  // Membuat tampilan rekap siswa
   Widget _buildRekapItem({
     required String name,
     required int hadir,
@@ -132,68 +115,46 @@ class DownloadRekapPage extends StatelessWidget {
     required int izin,
     required int sakit,
   }) {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      elevation: 3,
-      child: Container(
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 5,
-              offset: Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              name,
-              style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                _buildStatusBadge('Hadir: $hadir', Colors.green),
-                _buildStatusBadge('Tidak Hadir: $tidakHadir', Colors.red),
-              ],
-            ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                _buildStatusBadge('Izin: $izin', Colors.orange),
-                _buildStatusBadge('Sakit: $sakit', Colors.blue),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Widget untuk menampilkan badge dengan status hadir/tidak hadir/izin/sakit
-  Widget _buildStatusBadge(String label, Color badgeColor) {
     return Container(
-      margin: EdgeInsets.only(right: 8),
-      padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+      margin: EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: badgeColor,
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.transparent, // Tidak ada background color
+        border: Border(bottom: BorderSide(color: Colors.grey[300]!, width: 1)),
       ),
-      child: Text(
-        label,
-        style: GoogleFonts.poppins(
-          color: Colors.white,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            name,
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black, // Teks berwarna hitam
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'Hadir: $hadir',
+                style: GoogleFonts.poppins(fontSize: 14, color: Colors.black), // Teks hitam
+              ),
+              Text(
+                'Tidak Hadir: $tidakHadir',
+                style: GoogleFonts.poppins(fontSize: 14, color: Colors.black), // Teks hitam
+              ),
+              Text(
+                'Izin: $izin',
+                style: GoogleFonts.poppins(fontSize: 14, color: Colors.black), // Teks hitam
+              ),
+              Text(
+                'Sakit: $sakit',
+                style: GoogleFonts.poppins(fontSize: 14, color: Colors.black), // Teks hitam
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

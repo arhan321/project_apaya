@@ -10,9 +10,12 @@ import '../page_siswa/profile.dart'; // Halaman Profil Siswa
 import '../page_siswa/listabsen.dart'; // Halaman Daftar Absen
 import '../page_siswa/formabsen.dart'; // Halaman Form Absen
 import '../page_siswa/viewdetail.dart'; // Halaman Detail Absen
+import '../page_guru/profileguru.dart'; // Halaman Profil Siswa
 import '../page_guru/listabsensiswa.dart'; // Halaman Daftar Absen Siswa
+import '../page_guru/editabsen.dart';
 import '../page_guru/mainpage_guru.dart'; // Halaman Utama Guru
 import '../page_guru/rekapabsen.dart'; // Halaman Rekap Absen
+import '../page_orangtua/mainpageortu.dart'; // Halaman Utama Orang Tua (MainPageOrtu)
 
 class AppRoutes {
   // Daftar Konstanta Rute
@@ -23,12 +26,15 @@ class AppRoutes {
   static const newPassword = '/new-password'; // Rute Reset Password
   static const mainPage = '/mainPage'; // Rute Halaman Utama Siswa
   static const mainPageGuru = '/mainPageGuru'; // Rute Halaman Utama Guru
+  static const mainPageOrtu = '/mainPageOrtu'; // Rute Halaman Utama Orang Tua
   static const kalkulator = '/kalkulator'; // Rute Kalkulator
   static const profile = '/profile'; // Rute Profil
   static const listAbsen = '/listAbsen'; // Rute Daftar Absen
   static const formAbsen = '/formAbsen'; // Rute Form Absen
   static const viewDetail = '/viewDetail'; // Rute Detail Absen
+  static const profileGuru = '/profileGuru'; // Rute Profile Guru
   static const listAbsenSiswa = '/listAbsenSiswa'; // Rute Daftar Absen Siswa
+  static const editAbsen = '/editAbsen'; // Rute untuk Edit Absen
   static const rekapAbsen = '/rekapAbsen'; // Rute Rekap Absen (NEW)
 
   static List<GetPage> routes = [
@@ -61,6 +67,10 @@ class AppRoutes {
       page: () => MainPageGuru(), // Rute Halaman Guru
     ),
     GetPage(
+      name: mainPageOrtu,
+      page: () => MainPageOrtu(), // Rute Halaman Utama Orang Tua
+    ),
+    GetPage(
       name: kalkulator,
       page: () => KalkulatorPage(userName: 'Guest'), // Rute Kalkulator
     ),
@@ -77,12 +87,20 @@ class AppRoutes {
       page: () => FormAbsenPage(), // Rute Form Absen
     ),
     GetPage(
+      name: profileGuru,
+      page: () => ProfileGuruPage(kelas: '',), // Rute Profile Guru
+    ),
+    GetPage(
       name: viewDetail,
       page: () => ViewDetailPage(), // Rute Detail Absen
     ),
     GetPage(
       name: listAbsenSiswa,
       page: () => ListAbsenSiswaPage(className: 'Kelas 6A'), // Rute Daftar Absen Siswa
+    ),
+    GetPage(
+      name: editAbsen,
+      page: () => EditAbsenPage(),
     ),
     GetPage(
       name: rekapAbsen,

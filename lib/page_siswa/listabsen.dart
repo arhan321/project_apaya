@@ -104,6 +104,15 @@ class ListAbsenPage extends StatelessWidget {
                     ),
                   ],
                 ),
+                SizedBox(height: 10),
+                Text(
+                  DateTime.now().toString().split(' ')[0],
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white,
+                  ),
+                ),
               ],
             ),
           ),
@@ -136,6 +145,33 @@ class ListAbsenPage extends StatelessWidget {
                   jamAbsen: 'Tidak Ada',
                 ),
               ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(
+              child: ElevatedButton(
+                     onPressed: () {
+                  // Arahkan ke FormAbsenPage
+                  Get.toNamed('/formAbsen');
+                },
+
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent, // Warna background button
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text(
+                  'Silahkan Absen',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -174,12 +210,17 @@ class ListAbsenPage extends StatelessWidget {
       elevation: 2,
       margin: EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
-        title: Text(
-          name,
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w500,
-            fontSize: 16,
-          ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              name,
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 16,
+              ),
+            ),
+          ],
         ),
         subtitle: Row(
           children: [
