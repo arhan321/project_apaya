@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:forum/page_siswa/listabsen.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'viewabsen.dart'; // Impor ListAbsenPage
-import 'profilortu.dart'; // Impor ProfilePage
-import '../page_global/login.dart'; // Impor LoginScreen jika diperlukan
+import 'package:forum/page_orangtua/listabsenortu.dart'; // Impor ListAbsenOrtu
+import 'profilortu.dart'; // Impor ProfilortuPage
+import '../page_global/login.dart'; // Impor LoginScreen
 
 class MainPageOrtu extends StatelessWidget {
   final String userName;
@@ -43,7 +42,7 @@ class MainPageOrtu extends StatelessWidget {
               // Navigasi ke halaman ProfilortuPage
               Get.to(() => ProfilortuPage(
                     orangTuaName: 'Udin Siregar', // Contoh nama orang tua
-                    waliMurid: 'Budiono Siregar',    // Nama wali murid
+                    waliMurid: 'Budiono Siregar', // Nama wali murid
                     email: 'udin@ortu.com',       // Contoh email
                   ));
             },
@@ -73,7 +72,7 @@ class MainPageOrtu extends StatelessWidget {
                       subtitle: 'SD NEGERI RANCAGONG 1',
                       teacher: 'Tatang Sutarman',
                       onTap: () {
-                        Get.to(() => ListAbsenPage(className: 'Kelas 6A'));
+                        Get.to(() => ListAbsenOrtu()); // Arahkan ke ListAbsenOrtu
                       },
                     ),
                     SizedBox(height: 10),
@@ -82,7 +81,7 @@ class MainPageOrtu extends StatelessWidget {
                       subtitle: 'SD NEGERI RANCAGONG 1',
                       teacher: 'Budiono Siregar',
                       onTap: () {
-                        Get.to(() => ListAbsenPage(className: 'Kelas 6B'));
+                        Get.to(() => ListAbsenOrtu()); // Arahkan ke ListAbsenOrtu
                       },
                     ),
                   ],

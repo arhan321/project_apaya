@@ -35,6 +35,7 @@ dependencies:
   get: ^4.6.5
   google_fonts: ^4.0.3
   cupertino_icons: ^1.0.8
+  intl: ^0.20.1
 
 dev_dependencies:
   flutter_test:
