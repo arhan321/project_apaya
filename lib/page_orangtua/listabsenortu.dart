@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'profilortu.dart'; // Import ProfilortuPage
 
 class ListAbsenOrtu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Ambil tanggal, bulan, tahun, dan hari dari DateTime
     final DateTime now = DateTime.now();
     final String year = now.year.toString();
     final String month = now.month.toString().padLeft(2, '0');
@@ -22,7 +23,7 @@ class ListAbsenOrtu extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-         flexibleSpace: Container(
+        flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.blueAccent, Colors.lightBlueAccent],
@@ -33,14 +34,27 @@ class ListAbsenOrtu extends StatelessWidget {
         ),
         title: Text(
           'Absenku.',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.bold,color: Colors.white),
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
-       
+         leading: IconButton(
+    icon: Icon(Icons.arrow_back, color: Colors.white),  
+    onPressed: () {
+      Navigator.pop(context);
+    },
+  ),
         actions: [
           IconButton(
-            icon: Icon(Icons.filter_alt_rounded),
+            icon: Icon(Icons.account_circle, color: Colors.white),
             onPressed: () {
-              // Tambahkan aksi untuk filter
+              // Navigasi ke ProfilortuPage saat ikon ditekan
+              Get.to(() => ProfilortuPage(
+                orangTuaName: 'Udin Siregar',
+                waliMurid: 'Ilham God',
+                email: 'udin.siregar@email.com',
+              ));
             },
           ),
         ],
@@ -90,18 +104,30 @@ class ListAbsenOrtu extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 16),
-                TextField(
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white,
-                    hintText: 'Cari Nama?',
-                    hintStyle: GoogleFonts.poppins(fontSize: 14),
-                    prefixIcon: Icon(Icons.search, color: Colors.grey),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          hintText: 'Cari Nama?',
+                          hintStyle: GoogleFonts.poppins(fontSize: 14),
+                          prefixIcon: Icon(Icons.search, color: Colors.grey),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    IconButton(
+                      icon: Icon(Icons.filter_list, color: Colors.white),
+                      onPressed: () {
+                        // Tambahkan aksi untuk filter di sini
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -111,7 +137,7 @@ class ListAbsenOrtu extends StatelessWidget {
               padding: EdgeInsets.all(16),
               children: [
                 AbsenCard(
-                  name: 'Randi Praditya',
+                  name: 'Ilham God',
                   status: 'Hadir',
                   statusColor: Colors.green,
                   number: 'No 1',
@@ -121,18 +147,6 @@ class ListAbsenOrtu extends StatelessWidget {
                   status: 'Sakit',
                   statusColor: Colors.blue,
                   number: 'No 2',
-                ),
-                AbsenCard(
-                  name: 'Adi Santoso',
-                  status: 'Izin',
-                  statusColor: Colors.orange,
-                  number: 'No 3',
-                ),
-                AbsenCard(
-                  name: 'Wahyu Kurniawan',
-                  status: 'Tidak Hadir',
-                  statusColor: Colors.red,
-                  number: 'No 4',
                 ),
               ],
             ),
@@ -217,7 +231,16 @@ class AbsenCard extends StatelessWidget {
             children: [
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Get.toNamed(
+                      '/detailAbsenOrtu',
+                      arguments: {
+                        'name': name,
+                        'number': number,
+                        'status': status,
+                      },
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
@@ -236,7 +259,9 @@ class AbsenCard extends StatelessWidget {
               SizedBox(width: 8),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    // Tambahkan aksi untuk tombol "Cek Catatan" di sini.
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     shape: RoundedRectangleBorder(
@@ -244,7 +269,7 @@ class AbsenCard extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Cek Penilaian',
+                    'Cek Catatan',
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       color: Colors.white,

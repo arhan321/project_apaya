@@ -17,6 +17,8 @@ import '../page_guru/mainpage_guru.dart'; // Halaman Utama Guru
 import '../page_guru/rekapabsen.dart'; // Halaman Rekap Absen
 import '../page_orangtua/mainpageortu.dart'; // Halaman Utama Orang Tua (MainPageOrtu)
 import '../page_orangtua/listabsenortu.dart'; // Halaman Daftar Absen Orang Tua
+import '../page_orangtua/detailabsenortu.dart'; // Halaman Detail Absen Orang Tua
+import '../page_guru/catatanguru.dart'; // Halaman Catatan Guru
 
 class AppRoutes {
   // Daftar Konstanta Rute
@@ -38,6 +40,8 @@ class AppRoutes {
   static const editAbsen = '/editAbsen'; // Rute untuk Edit Absen
   static const rekapAbsen = '/rekapAbsen'; // Rute Rekap Absen (NEW)
   static const listAbsenOrtu = '/listAbsenOrtu';// Rute Daftar Absen untuk Orang Tua
+  static const detailAbsenOrtu = '/detailAbsenOrtu'; // Rute Detail Absen Orang Tua
+  static const catatanGuru = '/catatanGuru'; // Rute Catatan Guru
 
   static List<GetPage> routes = [
     GetPage(
@@ -108,11 +112,17 @@ class AppRoutes {
       name: rekapAbsen,
       page: () => RekapAbsenPage(), // Rute Halaman Rekap Absen
     ),
-GetPage(
-  name: listAbsenOrtu,
-  page: () => ListAbsenOrtu(), // Tanpa parameter
-),
-
-
+    GetPage(
+      name: listAbsenOrtu,
+      page: () => ListAbsenOrtu(), // Tanpa parameter
+    ),
+    GetPage(
+      name: detailAbsenOrtu,
+      page: () => DetailAbsenOrtu(),
+    ),
+    GetPage(
+      name: catatanGuru,
+      page: () => CatatanGuruPage(), // Rute Halaman Catatan Guru
+    ),
   ];
 }
