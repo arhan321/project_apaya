@@ -5,19 +5,11 @@ import '../routes/routes.dart';
 class LoginScreen extends StatelessWidget {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final FocusNode usernameFocus = FocusNode();
-  final FocusNode passwordFocus = FocusNode();
 
   @override
   Widget build(BuildContext context) {
     // Tangkap role dari Get.arguments
-    final role = Get.arguments?['role'] ?? 'siswa'; // Default ke 'siswa' jika tidak ada role
-
-    usernameFocus.addListener(() {
-      if (usernameFocus.hasFocus) {
-        FocusScope.of(context).requestFocus(usernameFocus);
-      }
-    });
+    final role = Get.arguments?['role'] ?? 'guest'; // Default role 'guest'
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -52,7 +44,7 @@ class LoginScreen extends StatelessWidget {
                       IconButton(
                         icon: Icon(Icons.arrow_back, color: Colors.white),
                         onPressed: () {
-                          Get.toNamed(AppRoutes.welcome);
+                          Get.offAllNamed(AppRoutes.welcome); // Kembali ke WelcomeScreen
                         },
                       ),
                     ],
@@ -77,41 +69,21 @@ class LoginScreen extends StatelessWidget {
                   SizedBox(height: 50),
                   _buildTextField(
                     controller: usernameController,
-                    focusNode: usernameFocus,
                     icon: Icons.person,
                     hint: 'Username',
                   ),
                   SizedBox(height: 15),
                   _buildTextField(
                     controller: passwordController,
-                    focusNode: passwordFocus,
                     icon: Icons.lock,
                     hint: 'Password',
                     isPassword: true,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          Get.toNamed(AppRoutes.forgotPassword);
-                        },
-                        child: Text(
-                          'Forgot Password?',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                   SizedBox(height: 30),
                   _buildLoginButton(context, role),
                   SizedBox(height: 20),
                   TextButton(
                     onPressed: () {
-                      // Kirim role ke halaman RegisterScreen
                       Get.toNamed(AppRoutes.register, arguments: {'role': role});
                     },
                     child: Text(
@@ -133,7 +105,6 @@ class LoginScreen extends StatelessWidget {
 
   Widget _buildTextField({
     required TextEditingController controller,
-    required FocusNode focusNode,
     required IconData icon,
     required String hint,
     bool isPassword = false,
@@ -143,17 +114,9 @@ class LoginScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 5,
-            offset: Offset(0, 3),
-          ),
-        ],
       ),
       child: TextField(
         controller: controller,
-        focusNode: focusNode,
         obscureText: isPassword,
         decoration: InputDecoration(
           isDense: true,
@@ -172,20 +135,20 @@ class LoginScreen extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          // Arahkan ke halaman sesuai dengan role
           if (role == 'guru') {
-            Get.toNamed(AppRoutes.mainPageGuru);
+            Get.offAllNamed(AppRoutes.mainPageGuru);
           } else if (role == 'siswa') {
-            Get.toNamed(AppRoutes.mainPage);
+            Get.offAllNamed(AppRoutes.mainPage);
           } else if (role == 'orangtua') {
-            Get.toNamed(AppRoutes.mainPageOrtu);
+            Get.offAllNamed(AppRoutes.mainPageOrtu);
+          } else if (role == 'admin') {
+            Get.offAllNamed('/adminDashboard'); // Navigasi ke admin dashboard
           } else {
-            // Role admin dinonaktifkan sementara
             Get.snackbar(
-              'Info',
-              'Halaman untuk role $role belum tersedia.',
+              'Error',
+              'Role tidak dikenali!',
               snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.orangeAccent,
+              backgroundColor: Colors.redAccent,
               colorText: Colors.white,
             );
           }

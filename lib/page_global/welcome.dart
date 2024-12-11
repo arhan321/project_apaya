@@ -9,7 +9,7 @@ class WelcomeScreen extends StatelessWidget {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.blueAccent, Colors.lightBlue],
+            colors: [Colors.blueAccent, Colors.lightBlueAccent],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -19,14 +19,14 @@ class WelcomeScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Absenku.',
+                'Absenku',
                 style: GoogleFonts.poppins(
-                  fontSize: 42, // Ukuran font lebih besar
-                  fontWeight: FontWeight.w700, // Tebal sesuai desain
+                  fontSize: 42,
+                  fontWeight: FontWeight.w700,
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 16), // Jarak lebih kecil
+              SizedBox(height: 16),
               Text(
                 'Login Sebagai Siapa?',
                 style: GoogleFonts.poppins(
@@ -34,64 +34,36 @@ class WelcomeScreen extends StatelessWidget {
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 30), // Jarak antar elemen lebih kecil
+              SizedBox(height: 30),
               GridView(
                 shrinkWrap: true,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // Tetap 2 kolom
-                  crossAxisSpacing: 6, // Jarak antar kolom
-                  mainAxisSpacing: 6, // Jarak antar baris
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
                 ),
                 children: [
-                  _buildLoginOption(
-                    icon: Icons.admin_panel_settings,
+                  _buildRoleButton(
                     label: 'Admin',
-                    onTap: () {
-                      // Mengarahkan ke login.dart dengan role admin
-                      Get.toNamed('/login', arguments: {'role': 'admin'});
-                    },
+                    icon: Icons.admin_panel_settings,
+                    role: 'admin',
                   ),
-                  _buildLoginOption(
-                    icon: Icons.school,
-                    label: 'Siswa',
-                    onTap: () {
-                      // Mengarahkan ke login.dart dengan role siswa
-                      Get.toNamed('/login', arguments: {'role': 'siswa'});
-                    },
-                  ),
-                  _buildLoginOption(
-                    icon: Icons.person,
+                  _buildRoleButton(
                     label: 'Guru',
-                    onTap: () {
-                      // Mengarahkan ke login.dart dengan role guru
-                      Get.toNamed('/login', arguments: {'role': 'guru'});
-                    },
+                    icon: Icons.school,
+                    role: 'guru',
                   ),
-                  _buildLoginOption(
-                    icon: Icons.family_restroom,
+                  _buildRoleButton(
+                    label: 'Siswa',
+                    icon: Icons.person,
+                    role: 'siswa',
+                  ),
+                  _buildRoleButton(
                     label: 'Orang Tua',
-                    onTap: () {
-                      // Mengarahkan ke login.dart dengan role orang tua
-                      Get.toNamed('/login', arguments: {'role': 'orangtua'});
-                    },
+                    icon: Icons.family_restroom,
+                    role: 'orangtua',
                   ),
                 ],
-              ),
-              SizedBox(height: 30), // Jarak antar elemen lebih kecil
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.8), // Background dengan transparansi
-                  borderRadius: BorderRadius.circular(12), // Sudut melengkung
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10), // Padding teks
-                child: Text(
-                  'Selamat Datang',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.blueAccent,
-                  ),
-                ),
               ),
             ],
           ),
@@ -100,29 +72,34 @@ class WelcomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLoginOption({
-    required IconData icon,
+  Widget _buildRoleButton({
     required String label,
-    required VoidCallback onTap,
+    required IconData icon,
+    required String role,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        Get.toNamed('/login', arguments: {'role': role});
+      },
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 120, // Ukuran kotak lebih besar
-            height: 120,
+            width: 100,
+            height: 100,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12), // Sudut persegi melengkung
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, size: 60, color: Colors.blueAccent), // Ikon lebih besar
+            child: Icon(icon, size: 50, color: Colors.blueAccent),
           ),
-          SizedBox(height: 8),
+          SizedBox(height: 10),
           Text(
             label,
-            style: GoogleFonts.poppins(color: Colors.white, fontSize: 16),
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              color: Colors.white,
+            ),
           ),
         ],
       ),

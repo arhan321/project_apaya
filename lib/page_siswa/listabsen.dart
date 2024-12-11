@@ -120,25 +120,25 @@ class ListAbsenPage extends StatelessWidget {
             child: ListView(
               padding: EdgeInsets.all(16),
               children: [
-                _buildAbsenTile(
+                _buildAbsenCard(
                   name: 'Randi Praditiya',
                   number: 'No 1',
                   badge: 'Hadir',
                   jamAbsen: '08:30',
                 ),
-                _buildAbsenTile(
+                _buildAbsenCard(
                   name: 'Putra Dewantara',
                   number: 'No 2',
                   badge: 'Sakit',
                   jamAbsen: '08:45',
                 ),
-                _buildAbsenTile(
+                _buildAbsenCard(
                   name: 'Adi Santoso',
                   number: 'No 3',
                   badge: 'Izin',
                   jamAbsen: '09:00',
                 ),
-                _buildAbsenTile(
+                _buildAbsenCard(
                   name: 'Wahyu Kurniawan',
                   number: 'No 4',
                   badge: 'Tidak Hadir',
@@ -151,13 +151,12 @@ class ListAbsenPage extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Center(
               child: ElevatedButton(
-                     onPressed: () {
+                onPressed: () {
                   // Arahkan ke FormAbsenPage
                   Get.toNamed('/formAbsen');
                 },
-
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent, // Warna background button
+                  backgroundColor: Colors.blueAccent,
                   padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -179,7 +178,7 @@ class ListAbsenPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAbsenTile({
+  Widget _buildAbsenCard({
     required String name,
     required String number,
     required String badge,
@@ -203,70 +202,89 @@ class ListAbsenPage extends StatelessWidget {
         badgeColor = Colors.grey;
     }
 
-    return Card(
-      shape: RoundedRectangleBorder(
+    return Container(
+      margin: EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
-      elevation: 2,
-      margin: EdgeInsets.symmetric(vertical: 8),
-      child: ListTile(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              name,
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w500,
-                fontSize: 16,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    number,
+                    style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
-        subtitle: Row(
-          children: [
-            Text(
-              number,
-              style: GoogleFonts.poppins(fontSize: 14),
-            ),
-            SizedBox(width: 10),
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-              decoration: BoxDecoration(
-                color: badgeColor,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                badge,
-                style: GoogleFonts.poppins(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: badgeColor.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  badge,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: badgeColor,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
+            ],
+          ),
+          SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: () {
+              Get.toNamed(
+                '/viewDetail',
+                arguments: {
+                  'name': name,
+                  'number': number,
+                  'kelas': className,
+                  'keterangan': badge,
+                  'jamAbsen': jamAbsen,
+                },
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-          ],
-        ),
-        trailing: TextButton(
-          onPressed: () {
-            Get.toNamed(
-              '/viewDetail',
-              arguments: {
-                'name': name,
-                'number': number,
-                'kelas': className,
-                'keterangan': badge,
-                'jamAbsen': jamAbsen,
-              },
-            );
-          },
-          child: Text(
-            'Lihat Detail',
-            style: GoogleFonts.poppins(
-              color: Colors.blueAccent,
-              fontWeight: FontWeight.w600,
+            child: Text(
+              'Lihat Detail',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.white,
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
