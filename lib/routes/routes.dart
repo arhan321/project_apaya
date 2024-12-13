@@ -19,17 +19,21 @@ import '../page_guru/rekapabsen.dart'; // Halaman Rekap Absen
 import '../page_orangtua/mainpageortu.dart'; // Halaman Utama Orang Tua
 import '../page_orangtua/listabsenortu.dart'; // Halaman Daftar Absen Orang Tua
 import '../page_orangtua/detailabsenortu.dart'; // Halaman Detail Absen Orang Tua
+import '../page_orangtua/cekcatatan.dart';
 import '../page_guru/catatanguru.dart'; // Halaman Catatan Guru
 import '../page_admin/dashboard.dart'; // Halaman Dashboard Admin
 import '../page_admin/listaccount.dart'; // Impor halaman List Account
 import '../page_admin/listakunguru.dart'; // Impor halaman ListAkunGuru
 import '../page_admin/editakunguru.dart'; // Impor halaman EditAkunGuru
 import '../page_admin/listakunsiswa.dart';
+import '../page_admin/listakunadmin.dart';
 import '../page_admin/editakunsiswa.dart';
 import '../page_admin/tambahakunsiswa.dart';
 import '../page_admin/listakunortu.dart'; // Halaman List Akun Orang Tua
 import '../page_admin/tambahakunortu.dart'; // Halaman Tambah Akun Orang Tua
 import '../page_admin/editakunortu.dart';
+import '../page_admin/editakunadmin.dart'; // Import halaman edit akun admin
+import '../page_admin/tambahakunadmin.dart'; // Import halaman tambah akun admin
 // import '../page_admin/tambahakunsiswa.dart';
 // import '../page_admin/manage_users.dart'; // Halaman Kelola Pengguna (Admin)
 // import '../page_admin/manage_absences.dart'; // Halaman Kelola Absensi (Admin)
@@ -57,6 +61,7 @@ class AppRoutes {
   static const listAbsenOrtu = '/listAbsenOrtu'; // Rute Daftar Absen Orang Tua
   static const detailAbsenOrtu = '/detailAbsenOrtu'; // Rute Detail Absen Orang Tua
   static const catatanGuru = '/catatanGuru'; // Rute Catatan Guru
+  static const cekCatatan = '/cekCatatan'; // Rute Catatan Harian Orang Tua
   static const adminDashboard = '/adminDashboard'; // Rute Dashboard Admin
   static const listAccount = '/listAccount'; // Rute untuk List Account
   static const listAkunGuru = '/listAkunGuru'; // Rute untuk List Akun Guru
@@ -68,13 +73,10 @@ class AppRoutes {
   static const listAkunOrtu = '/listAkunOrtu';
   static const tambahAkunOrtu = '/tambahAkunOrtu';
   static const editAkunOrtu = '/editAkunOrtu';
-  // static const tambahAkunsiswa = '/tambahAkunSiswa';
+  static const editAkunAdmin = '/editAkunAdmin';
+  static const tambahAkunAdmin = '/tambahAkunAdmin';
+  static const listAkunAdmin = '/listAkunadmin'; // Rute Halaman List Akun Admin
 
-  // // Tambahan Rute untuk Admin
-  // static const adminDashboard = '/adminDashboard'; // Rute Dashboard Admin
-  // static const manageUsers = '/manageUsers'; // Rute Kelola Pengguna
-  // static const manageAbsences = '/manageAbsences'; // Rute Kelola Absensi
-  // static const reports = '/reports'; // Rute Laporan
 
   static List<GetPage> routes = [
     GetPage(
@@ -157,20 +159,23 @@ class AppRoutes {
       name: catatanGuru,
       page: () => CatatanGuruPage(), // Catatan Guru
     ),
-    // Tambahan Rute untuk Admin
+    GetPage(
+      name: cekCatatan,
+      page: () => CekCatatanPage(), // Catatan Harian Orang Tua
+    ),
     GetPage(
       name: adminDashboard,
       page: () => AdminDashboard(), // Dashboard Admin
     ),
-     GetPage(
+    GetPage(
       name: listAccount,
       page: () => ListAccountPage(), // Rute ke halaman List Account
     ),
-     GetPage(
+    GetPage(
       name: listAkunGuru,
       page: () => ListAkunGuru(), // Rute ke halaman List Akun Guru
     ),
-     GetPage(
+    GetPage(
       name: editAkunGuru,
       page: () => EditAkunGuru(), // Rute ke halaman Edit Akun Guru
     ),
@@ -186,7 +191,6 @@ class AppRoutes {
       name: editAkunSiswa,
       page: () => EditAkunSiswa(),
     ),
-    
     GetPage(
       name: tambahAkunSiswa,
       page: () => TambahAkunSiswa(),
@@ -195,15 +199,29 @@ class AppRoutes {
       name: listAkunOrtu,
       page: () => ListAkunOrtu(),
     ),
-    // Rute untuk Tambah Akun Orang Tua
     GetPage(
       name: tambahAkunOrtu,
       page: () => TambahAkunOrtu(),
     ),
-      GetPage(
+    GetPage(
       name: editAkunOrtu,
       page: () => EditAkunOrtu(),
     ),
+   GetPage(
+  name: listAkunAdmin,
+  page: () => ListAkunAdminPage(), // Halaman List Akun Admin
+),
+    GetPage(
+      name: editAkunAdmin,
+      page: () => EditAkunAdmin(),
+    ),
+    GetPage(
+      name: tambahAkunAdmin,
+      page: () => TambahAkunAdmin(),
+    ),
+  ];
+}
+
     //   GetPage(
     //   name: tambahAkunSiswa,
     //   page: () => TambahAkunSiswa(), // Halaman Tambah Akun Guru
@@ -220,5 +238,5 @@ class AppRoutes {
     //   name: reports,
     //   page: () => ReportsPage(), // Laporan
     // ),
-  ];
-}
+  
+

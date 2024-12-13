@@ -259,8 +259,13 @@ class AbsenCard extends StatelessWidget {
               SizedBox(width: 8),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Tambahkan aksi untuk tombol "Cek Catatan" di sini.
+                onPressed: () {
+                    Get.toNamed(
+                      '/cekCatatan',
+                      arguments: {
+                        'name': name,
+                      },
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,

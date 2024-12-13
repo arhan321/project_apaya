@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:forum/routes/routes.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -73,6 +74,16 @@ class ListAccountPage extends StatelessWidget {
                 onTap: () {
                 Get.toNamed('/listAkunOrtu'); // Arahkan ke halaman List Akun Guru
               },
+              ),
+               SizedBox(height: 16),
+              _buildAccountCard(
+                title: 'Akun Admin',
+                subtitle: 'Kelola akun admin.',
+                icon: Icons.admin_panel_settings,
+                onTap: () {
+                  Get.toNamed(AppRoutes.listAkunAdmin); // Gunakan konstanta rute
+                },
+
               ),
             ],
           ),
