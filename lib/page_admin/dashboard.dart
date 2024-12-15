@@ -72,6 +72,7 @@ class AdminDashboard extends StatelessWidget {
                       title: 'Kelola Absensi',
                       subtitle: 'Pantau dan ubah data absensi.',
                       icon: Icons.checklist,
+                      route: '/kelolaAbsensi',
                     ),
                     _buildFeatureCard(
                       context,

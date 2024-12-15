@@ -1,3 +1,6 @@
+import 'package:forum/page_admin/catatanadmin.dart';
+import 'package:forum/page_admin/detailabsenadmin.dart';
+import 'package:forum/page_admin/editabsenadmin.dart';
 import 'package:forum/page_admin/tambahakunguru.dart';
 import 'package:get/get.dart';
 import '../page_global/welcome.dart'; // Halaman Welcome
@@ -37,6 +40,9 @@ import '../page_admin/tambahakunadmin.dart'; // Import halaman tambah akun admin
 import '../page_admin/daftarkelas.dart'; // Import halaman Daftar Kelas
 import '../page_admin/tambahkelas.dart';
 import '../page_admin/editkelas.dart';
+import '../page_admin/kelolaabsensi.dart';
+import '../page_admin/listabsenadmin.dart';
+
 
 // import '../page_admin/tambahakunsiswa.dart';
 // import '../page_admin/manage_users.dart'; // Halaman Kelola Pengguna (Admin)
@@ -83,6 +89,12 @@ class AppRoutes {
   static const daftarKelas = '/daftarKelas'; 
   static const tambahKelas = '/tambahKelas';
   static const editKelas = '/editKelas';
+static const kelolaAbsensi = '/kelolaAbsensi';
+static const listAbsenAdmin = '/listAbsenAdmin';
+static const detailAbsenAdmin = '/detailAbsenAdmin';
+static const editAbsenAdmin = '/editAbsenAdmin';
+static const catatanAdmin = '/catatanAdmin';
+
 
 
   static List<GetPage> routes = [
@@ -238,6 +250,17 @@ class AppRoutes {
       name: editKelas,
       page: () => EditKelasPage(),
     ),
+    GetPage(
+      name: kelolaAbsensi,
+      page: () => KelolaAbsensiPage(),
+    ),
+    GetPage(
+      name: listAbsenAdmin,
+      page: () => ListAbsenAdminPage(),
+    ),
+    GetPage(name: detailAbsenAdmin, page: () => DetailAbsenAdminPage()),
+GetPage(name: editAbsenAdmin, page: () => EditAbsenAdminPage()),
+GetPage(name: catatanAdmin, page: () => CatatanAdminPage()),
   ];
 }
 
