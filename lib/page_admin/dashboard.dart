@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:forum/routes/routes.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -28,7 +29,7 @@ class AdminDashboard extends StatelessWidget {
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.white),
       ),
-      drawer: _buildDrawer(context), // Tambahkan Drawer
+      drawer: _buildDrawer(context), // Drawer
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -45,13 +46,20 @@ class AdminDashboard extends StatelessWidget {
             children: [
               Expanded(
                 child: GridView.count(
-                  crossAxisCount: MediaQuery.of(context).size.width < 600 ? 1 : 2, // Responsif
+                  crossAxisCount: MediaQuery.of(context).size.width < 600 ? 1 : 2,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                   childAspectRatio: MediaQuery.of(context).size.width < 600
                       ? 3
-                      : 2.5, // Sesuaikan aspek rasio
+                      : 2.5, // Sesuaikan rasio
                   children: [
+                    _buildFeatureCard(
+                      context,
+                      title: 'Tambah Kelas',
+                      subtitle: 'Tambahkan kelas baru dan edit ke sistem.',
+                      icon: Icons.class_,
+                      route: '/daftarKelas', // Rute untuk Tambah Kelas
+                    ),
                     _buildFeatureCard(
                       context,
                       title: 'Kelola Pengguna',
@@ -131,13 +139,23 @@ class AdminDashboard extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: Icon(Icons.class_, color: Colors.blueAccent),
+            title: Text(
+              'Tambah Kelas',
+              style: GoogleFonts.poppins(),
+            ),
+            onTap: () {
+              Get.toNamed(AppRoutes.daftarKelas);
+            },
+          ),
+          ListTile(
             leading: Icon(Icons.people, color: Colors.blueAccent),
             title: Text(
               'Kelola Pengguna',
               style: GoogleFonts.poppins(),
             ),
             onTap: () {
-              Get.toNamed('/listAccount'); // Arahkan ke List Account
+              Get.toNamed('/listAccount'); // Navigasi ke List Account
             },
           ),
           ListTile(
@@ -264,7 +282,7 @@ class AdminDashboard extends StatelessWidget {
           Get.offAllNamed('/login'); // Kembali ke halaman login
         },
         style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.symmetric(vertical: 10),
+          padding: EdgeInsets.symmetric(vertical: 15),
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25),
@@ -274,7 +292,7 @@ class AdminDashboard extends StatelessWidget {
           'Logout',
           style: GoogleFonts.poppins(
             color: Colors.blueAccent,
-            fontSize: 14,
+            fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
         ),

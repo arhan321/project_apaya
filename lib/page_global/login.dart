@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../routes/routes.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -8,14 +9,13 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Tangkap role dari Get.arguments
-    final role = Get.arguments?['role'] ?? 'guest'; // Default role 'guest'
+    final role = Get.arguments?['role'] ?? 'guest'; // Ambil role dari argument
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
-          // Background Gradient
+          // Latar belakang gradasi
           Container(
             width: double.infinity,
             height: double.infinity,
@@ -27,74 +27,78 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
           ),
-          // Konten Halaman
-          SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.only(
-                left: 30.0,
-                right: 30.0,
-                top: 50.0,
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Row(
-                    children: [
-                      IconButton(
+          // Konten halaman login
+          Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width * 0.1,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Tombol Back
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: IconButton(
                         icon: Icon(Icons.arrow_back, color: Colors.white),
                         onPressed: () {
-                          Get.offAllNamed(AppRoutes.welcome); // Kembali ke WelcomeScreen
+                          Get.offAllNamed(AppRoutes.welcome);
                         },
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Welcome Back',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Login to your account',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white70,
-                    ),
-                  ),
-                  SizedBox(height: 50),
-                  _buildTextField(
-                    controller: usernameController,
-                    icon: Icons.person,
-                    hint: 'Username',
-                  ),
-                  SizedBox(height: 15),
-                  _buildTextField(
-                    controller: passwordController,
-                    icon: Icons.lock,
-                    hint: 'Password',
-                    isPassword: true,
-                  ),
-                  SizedBox(height: 30),
-                  _buildLoginButton(context, role),
-                  SizedBox(height: 20),
-                  TextButton(
-                    onPressed: () {
-                      Get.toNamed(AppRoutes.register, arguments: {'role': role});
-                    },
-                    child: Text(
-                      'Don\'t have an account? Register here',
-                      style: TextStyle(
-                        color: Colors.white,
+                    SizedBox(height: 20),
+                    // Teks Header
+                    Text(
+                      'Selamat Datang',
+                      style: GoogleFonts.poppins(
+                        fontSize: MediaQuery.of(context).size.width * 0.08,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
-                  ),
-                ],
+                    SizedBox(height: 10),
+                    Text(
+                      'Masuk ke akun Anda',
+                      style: GoogleFonts.poppins(
+                        fontSize: MediaQuery.of(context).size.width * 0.045,
+                        color: Colors.white70,
+                      ),
+                    ),
+                    SizedBox(height: 40),
+                    // Input Username
+                    _buildTextField(
+                      controller: usernameController,
+                      icon: Icons.person,
+                      hint: 'Username',
+                    ),
+                    SizedBox(height: 20),
+                    // Input Password
+                    _buildTextField(
+                      controller: passwordController,
+                      icon: Icons.lock,
+                      hint: 'Password',
+                      isPassword: true,
+                    ),
+                    SizedBox(height: 30),
+                    // Tombol Login
+                    _buildLoginButton(context, role),
+                    SizedBox(height: 20),
+                    // Navigasi ke Halaman Register
+                    TextButton(
+                      onPressed: () {
+                        Get.toNamed(AppRoutes.register, arguments: {'role': role});
+                      },
+                      child: Text(
+                        'Belum punya akun? Daftar di sini',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -103,6 +107,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
+  // Widget untuk Input Field
   Widget _buildTextField({
     required TextEditingController controller,
     required IconData icon,
@@ -118,10 +123,12 @@ class LoginScreen extends StatelessWidget {
       child: TextField(
         controller: controller,
         obscureText: isPassword,
+        style: GoogleFonts.poppins(fontSize: 16),
         decoration: InputDecoration(
           isDense: true,
           prefixIcon: Icon(icon, color: Colors.blueAccent),
           hintText: hint,
+          hintStyle: GoogleFonts.poppins(color: Colors.grey[600]),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
         ),
@@ -130,6 +137,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
+  // Widget untuk Tombol Login
   Widget _buildLoginButton(BuildContext context, String role) {
     return SizedBox(
       width: double.infinity,
@@ -162,9 +170,9 @@ class LoginScreen extends StatelessWidget {
         ),
         child: Text(
           'Login',
-          style: TextStyle(
+          style: GoogleFonts.poppins(
             color: Colors.blueAccent,
-            fontSize: 18,
+            fontSize: MediaQuery.of(context).size.width * 0.045,
             fontWeight: FontWeight.bold,
           ),
         ),

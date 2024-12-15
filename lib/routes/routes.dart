@@ -34,6 +34,10 @@ import '../page_admin/tambahakunortu.dart'; // Halaman Tambah Akun Orang Tua
 import '../page_admin/editakunortu.dart';
 import '../page_admin/editakunadmin.dart'; // Import halaman edit akun admin
 import '../page_admin/tambahakunadmin.dart'; // Import halaman tambah akun admin
+import '../page_admin/daftarkelas.dart'; // Import halaman Daftar Kelas
+import '../page_admin/tambahkelas.dart';
+import '../page_admin/editkelas.dart';
+
 // import '../page_admin/tambahakunsiswa.dart';
 // import '../page_admin/manage_users.dart'; // Halaman Kelola Pengguna (Admin)
 // import '../page_admin/manage_absences.dart'; // Halaman Kelola Absensi (Admin)
@@ -76,6 +80,9 @@ class AppRoutes {
   static const editAkunAdmin = '/editAkunAdmin';
   static const tambahAkunAdmin = '/tambahAkunAdmin';
   static const listAkunAdmin = '/listAkunadmin'; // Rute Halaman List Akun Admin
+  static const daftarKelas = '/daftarKelas'; 
+  static const tambahKelas = '/tambahKelas';
+  static const editKelas = '/editKelas';
 
 
   static List<GetPage> routes = [
@@ -218,6 +225,18 @@ class AppRoutes {
     GetPage(
       name: tambahAkunAdmin,
       page: () => TambahAkunAdmin(),
+    ),
+    GetPage(
+      name: daftarKelas,
+      page: () => DaftarKelasPage(),
+    ),
+    GetPage(
+      name: tambahKelas,
+      page: () => TambahKelasPage(),
+    ),
+        GetPage(
+      name: editKelas,
+      page: () => EditKelasPage(),
     ),
   ];
 }
