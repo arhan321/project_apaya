@@ -1,8 +1,9 @@
+import 'package:forum/page_admin/rekapadmin.dart';
+import 'package:get/get.dart';
 import 'package:forum/page_admin/catatanadmin.dart';
 import 'package:forum/page_admin/detailabsenadmin.dart';
 import 'package:forum/page_admin/editabsenadmin.dart';
 import 'package:forum/page_admin/tambahakunguru.dart';
-import 'package:get/get.dart';
 import '../page_global/welcome.dart'; // Halaman Welcome
 import '../page_global/login.dart'; // Halaman Login
 import '../page_global/register.dart'; // Halaman Register
@@ -18,6 +19,7 @@ import '../page_guru/profileguru.dart'; // Halaman Profil Guru
 import '../page_guru/listabsensiswa.dart'; // Halaman Daftar Absen Siswa
 import '../page_guru/editabsen.dart'; // Halaman Edit Absen
 import '../page_guru/mainpage_guru.dart'; // Halaman Utama Guru
+import '../page_guru/editprofileguru.dart';
 import '../page_guru/rekapabsen.dart'; // Halaman Rekap Absen
 import '../page_orangtua/mainpageortu.dart'; // Halaman Utama Orang Tua
 import '../page_orangtua/listabsenortu.dart'; // Halaman Daftar Absen Orang Tua
@@ -42,8 +44,15 @@ import '../page_admin/tambahkelas.dart';
 import '../page_admin/editkelas.dart';
 import '../page_admin/kelolaabsensi.dart';
 import '../page_admin/listabsenadmin.dart';
+import '../page_admin/profileadmin.dart'; // Import halaman Profile Admin
+import '../page_admin/editprofileadmin.dart'; // Import halaman Edit Profile Admin
+import '../page_siswa/editprofilesiswa.dart';
+import '../page_orangtua/profilortu.dart';
+import '../page_admin/laporan.dart';
+// Import halaman RekapAdminPage
+import '../page_admin/downloadpdf.dart'; // Import halaman DownloadPDFPage
 
-
+import '../page_orangtua/editprofileortu.dart';
 // import '../page_admin/tambahakunsiswa.dart';
 // import '../page_admin/manage_users.dart'; // Halaman Kelola Pengguna (Admin)
 // import '../page_admin/manage_absences.dart'; // Halaman Kelola Absensi (Admin)
@@ -77,6 +86,7 @@ class AppRoutes {
   static const listAkunGuru = '/listAkunGuru'; // Rute untuk List Akun Guru
   static const editAkunGuru = '/editAkunGuru'; // Rute untuk Edit Akun Guru
   static const tambahAkunGuru = '/tambahAkunGuru';
+  static const editProfileGuru = '/editProfileGuru';
   static const listAkunSiswa = '/listAkunSiswa';
   static const editAkunSiswa = '/editAkunSiswa';
   static const tambahAkunSiswa = '/tambahAkunSiswa';
@@ -94,8 +104,15 @@ static const listAbsenAdmin = '/listAbsenAdmin';
 static const detailAbsenAdmin = '/detailAbsenAdmin';
 static const editAbsenAdmin = '/editAbsenAdmin';
 static const catatanAdmin = '/catatanAdmin';
-
-
+ static const profileAdmin = '/profileAdmin'; // Tambahkan rute konstan
+  static const editProfileAdmin = '/editProfileAdmin'; // Rute konstan untuk Edit Profile Admin
+static const editProfileSiswa = '/editProfileSiswa';
+ 
+  static const editProfileOrtu = '/editProfileOrtu';
+static const profilOrtu = '/profilOrtu';
+static const rekapAdmin = '/rekapAdmin';
+ static const laporan = '/laporan';
+static const downloadPDF = '/downloadPDF'; // Route untuk Download PDF
 
   static List<GetPage> routes = [
     GetPage(
@@ -148,7 +165,7 @@ static const catatanAdmin = '/catatanAdmin';
     ),
     GetPage(
       name: profileGuru,
-      page: () => ProfileGuruPage(kelas: ''), // Profil Guru
+      page: () => ProfileGuruPage(kelas: '',), // Profil Guru
     ),
     GetPage(
       name: viewDetail,
@@ -246,7 +263,7 @@ static const catatanAdmin = '/catatanAdmin';
       name: tambahKelas,
       page: () => TambahKelasPage(),
     ),
-        GetPage(
+    GetPage(
       name: editKelas,
       page: () => EditKelasPage(),
     ),
@@ -259,8 +276,47 @@ static const catatanAdmin = '/catatanAdmin';
       page: () => ListAbsenAdminPage(),
     ),
     GetPage(name: detailAbsenAdmin, page: () => DetailAbsenAdminPage()),
-GetPage(name: editAbsenAdmin, page: () => EditAbsenAdminPage()),
-GetPage(name: catatanAdmin, page: () => CatatanAdminPage()),
+    GetPage(name: editAbsenAdmin, page: () => EditAbsenAdminPage()),
+    GetPage(name: catatanAdmin, page: () => CatatanAdminPage()),
+   GetPage(
+      name: profileAdmin,
+      page: () => ProfileAdminPage(),
+    ),
+      GetPage(
+      name: editProfileAdmin,
+      page: () => EditProfileAdminPage(),
+      
+    ),
+     GetPage(
+      name: editProfileGuru,
+      page: () => EditProfileGuruPage(),
+    ),
+        GetPage(
+      name: editProfileSiswa,
+      page: () => EditProfileSiswaPage(),
+    ),
+     GetPage(
+      name: editProfileOrtu,
+      page: () => EditProfileOrtuPage(),
+    ),
+    GetPage(
+      name: profilOrtu,
+      page: () => ProfilortuPage(),
+    ),
+    GetPage(
+      name: rekapAdmin,
+      page: () => RekapAdminPage(),
+    ),
+     GetPage(
+      name: downloadPDF,
+      page: () => DownloadPDFPage(
+        semester: '1', 
+        className: 'Kelas 6A', 
+        waliKelas: 'Tatang Sutarman',
+      ),
+     ),
+  
+
   ];
 }
 

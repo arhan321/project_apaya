@@ -2,17 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ProfilePage extends StatelessWidget {
-  final String studentName;
-  final String studentClass;
-  final String studentNumber;
-
-  ProfilePage({
-    Key? key,
-    this.studentName = 'Budiono Siregar',
-    this.studentClass = 'Kelas 6A',
-    this.studentNumber = '2',
-  }) : super(key: key);
+class ProfileAdminPage extends StatelessWidget {
+  final String name = 'Melissa Peters';
+  final String email = 'melpeters@gmail.com';
+  final String role = 'Administrator';
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +21,10 @@ class ProfilePage extends StatelessWidget {
           ),
         ),
         title: Text(
-          'Profile Siswa',
+          'Profile Admin',
           style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
             fontSize: 20,
+            fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
@@ -53,78 +46,80 @@ class ProfilePage extends StatelessWidget {
         ),
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.only(top: 30, left: 16, right: 16),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(height: 20),
-                // Profile Card
-                Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  elevation: 6,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        CircleAvatar(
-                          radius: 60,
-                          backgroundColor: Colors.grey[200],
-                          backgroundImage: AssetImage('assets/placeholder.jpg'),
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          studentName,
-                          style: GoogleFonts.poppins(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Card(
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Foto Profil Admin
+                          CircleAvatar(
+                            radius: 60,
+                            backgroundImage: AssetImage('assets/placeholder.jpg'),
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Kelas: $studentClass',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.black54,
+                          SizedBox(height: 16),
+                          // Nama Admin
+                          Text(
+                            name,
+                            style: GoogleFonts.poppins(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'No Absen: $studentNumber',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.black54,
+                          SizedBox(height: 8),
+                          // Role Admin
+                          Text(
+                            'Role: $role',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              color: Colors.black54,
+                            ),
                           ),
-                        ),
-                      ],
+                          SizedBox(height: 8),
+                          // Email Admin
+                          Text(
+                            'Email: $email',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
                 SizedBox(height: 30),
-                // Edit Profile Button
+                // Tombol Edit Profile
                 ElevatedButton(
                   onPressed: () {
-                    Get.toNamed('/editProfileSiswa');
+                    Get.toNamed('/editProfileAdmin');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
-                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                   child: Text(
                     'Edit Profile',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
                   ),
                 ),
                 SizedBox(height: 12),
-                // Delete Account Button
+                // Tombol Hapus Akun
                 ElevatedButton(
                   onPressed: () {
                     Get.defaultDialog(
@@ -133,33 +128,32 @@ class ProfilePage extends StatelessWidget {
                       confirm: ElevatedButton(
                         onPressed: () {
                           Get.snackbar('Success', 'Akun berhasil dihapus');
-                          Get.offAllNamed('/login');
+                          Get.offAllNamed('/login'); // Kembali ke halaman login
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.redAccent,
                         ),
-                        child: Text("Hapus", style: GoogleFonts.poppins(color: Colors.white)),
+                        child: Text("Hapus",
+                            style: GoogleFonts.poppins(color: Colors.white)),
                       ),
                       cancel: TextButton(
                         onPressed: () => Get.back(),
-                        child: Text("Batal", style: GoogleFonts.poppins(color: Colors.blueAccent)),
+                        child: Text("Batal",
+                            style: GoogleFonts.poppins(
+                                color: Colors.blueAccent)),
                       ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.redAccent,
-                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                   child: Text(
                     'Hapus Akun',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
                   ),
                 ),
               ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:forum/page_orangtua/mainpageortu.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'profilortu.dart'; // Import ProfilortuPage
@@ -46,18 +47,14 @@ class ListAbsenOrtu extends StatelessWidget {
     },
   ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.account_circle, color: Colors.white),
-            onPressed: () {
-              // Navigasi ke ProfilortuPage saat ikon ditekan
-              Get.to(() => ProfilortuPage(
-                orangTuaName: 'Udin Siregar',
-                waliMurid: 'Ilham God',
-                email: 'udin.siregar@email.com',
-              ));
-            },
-          ),
-        ],
+  IconButton(
+    icon: Icon(Icons.account_circle, color: Colors.white),
+    onPressed: () {
+      // Navigasi tanpa parameter tambahan
+      Get.to(() => ProfilortuPage());
+    },
+  ),
+],
       ),
       body: Column(
         children: [

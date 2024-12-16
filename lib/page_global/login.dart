@@ -89,11 +89,26 @@ class LoginScreen extends StatelessWidget {
                       onPressed: () {
                         Get.toNamed(AppRoutes.register, arguments: {'role': role});
                       },
-                      child: Text(
-                        'Belum punya akun? Daftar di sini',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Belum punya akun? ',
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontWeight: FontWeight.normal, // Tidak bold
+                                fontSize: 14,
+                              ),
+                            ),
+                            TextSpan(
+                              text: 'Daftar di sini',
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold, // Bold
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

@@ -1,27 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ProfilortuPage extends StatelessWidget {
-  final String orangTuaName;
-  final String waliMurid;
-  final String email;
-
-  ProfilortuPage({
-    Key? key,
-    required this.orangTuaName,
-    required this.waliMurid,
-    required this.email,
-  }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blueAccent, Colors.lightBlueAccent],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Profile Orang Tua',
@@ -31,7 +28,8 @@ class ProfilortuPage extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.blueAccent,
+        centerTitle: true,
+        elevation: 0,
       ),
       body: Container(
         width: double.infinity,
@@ -43,58 +41,118 @@ class ProfilortuPage extends StatelessWidget {
             end: Alignment.bottomRight,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Profile Card
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                elevation: 5,
-                color: Colors.white,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Colors.grey[200],
+        child: Column(
+          children: [
+            SizedBox(height: 30),
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              margin: EdgeInsets.symmetric(horizontal: 20),
+              elevation: 6,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.grey[300],
+                      backgroundImage: AssetImage('assets/placeholder.jpg'),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Udin Siregar',
+                      style: GoogleFonts.poppins(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
                       ),
-                      SizedBox(height: 16),
-                      Text(
-                        orangTuaName,
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Wali Murid: Budiono Siregar',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.grey[700],
                       ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Wali Murid: $waliMurid',
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          color: Colors.grey[700],
-                        ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Email: udin.siregar@email.com',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.grey[700],
                       ),
-                      SizedBox(height: 5),
-                      Text(
-                        'Email: $email',
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Get.toNamed('/editProfileOrtu');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueAccent,
+                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+              ),
+              child: Text(
+                'Edit Profile',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Get.defaultDialog(
+                  title: "Hapus Akun",
+                  middleText: "Apakah Anda yakin ingin menghapus akun ini?",
+                  confirm: ElevatedButton(
+                    onPressed: () {
+                      Get.offAllNamed('/login');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                    ),
+                    child: Text(
+                      "Hapus",
+                      style: GoogleFonts.poppins(color: Colors.white),
+                    ),
+                  ),
+                  cancel: TextButton(
+                    onPressed: () => Get.back(),
+                    child: Text(
+                      "Batal",
+                      style: GoogleFonts.poppins(color: Colors.blueAccent),
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+              ),
+              child: Text(
+                'Hapus Akun',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

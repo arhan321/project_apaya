@@ -9,20 +9,23 @@ class ProfileGuruPage extends StatelessWidget {
 
   ProfileGuruPage({
     Key? key,
-    this.guruName = 'Guru Tidak Dikenal',
-    this.waliKelas = 'Tatang Sutarman',
-    this.email = 'email@guru.com', required String kelas,
+    this.guruName = 'Budiono Siregar',
+    this.waliKelas = 'Wali Kelas 6A',
+    this.email = 'guru@example.com', required String kelas,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blueAccent, Colors.lightBlueAccent],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
         ),
         title: Text(
           'Profile Guru',
@@ -32,7 +35,11 @@ class ProfileGuruPage extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.blueAccent,
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Get.back(),
+        ),
       ),
       body: Container(
         width: double.infinity,
@@ -40,12 +47,12 @@ class ProfileGuruPage extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Colors.blueAccent, Colors.lightBlueAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -54,7 +61,7 @@ class ProfileGuruPage extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                elevation: 5,
+                elevation: 6,
                 color: Colors.white,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -62,33 +69,33 @@ class ProfileGuruPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Colors.grey[200],
-                        // backgroundImage: AssetImage('assets/images/profile_guru.png'),
+                        radius: 60,
+                        backgroundColor: Colors.grey[300],
+                        backgroundImage: AssetImage('assets/placeholder.jpg'),
                       ),
                       SizedBox(height: 16),
                       Text(
                         guruName,
                         style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
                         ),
                       ),
-                      SizedBox(height: 10),
+                      SizedBox(height: 8),
                       Text(
-                        'Wali Kelas 6A',
+                        waliKelas,
                         style: GoogleFonts.poppins(
                           fontSize: 16,
-                          color: Colors.grey[700],
+                          color: Colors.black54,
                         ),
                       ),
-                      SizedBox(height: 5),
+                      SizedBox(height: 8),
                       Text(
                         'Email: $email',
                         style: GoogleFonts.poppins(
                           fontSize: 16,
-                          color: Colors.grey[700],
+                          color: Colors.black54,
                         ),
                       ),
                     ],
@@ -99,24 +106,56 @@ class ProfileGuruPage extends StatelessWidget {
               // Edit Profile Button
               ElevatedButton(
                 onPressed: () {
-                  // Tambahkan logika untuk edit profil
-                  Get.snackbar(
-                    'Edit Profile',
-                    'Edit profile functionality will be implemented.',
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: Colors.blueAccent,
-                    colorText: Colors.white,
-                  );
+                  Get.toNamed('/editProfileGuru'); // Navigasi ke halaman Edit Profile Guru
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blueAccent,
-                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                 ),
                 child: Text(
                   'Edit Profile',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              SizedBox(height: 12),
+              // Delete Account Button
+              ElevatedButton(
+                onPressed: () {
+                  Get.defaultDialog(
+                    title: "Hapus Akun",
+                    middleText: "Apakah Anda yakin ingin menghapus akun ini?",
+                    confirm: ElevatedButton(
+                      onPressed: () {
+                        Get.snackbar('Success', 'Akun berhasil dihapus');
+                        Get.offAllNamed('/login'); // Kembali ke halaman login
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                      ),
+                      child: Text("Hapus", style: GoogleFonts.poppins(color: Colors.white)),
+                    ),
+                    cancel: TextButton(
+                      onPressed: () => Get.back(),
+                      child: Text("Batal", style: GoogleFonts.poppins(color: Colors.blueAccent)),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: Text(
+                  'Hapus Akun',
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 16,

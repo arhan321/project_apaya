@@ -8,27 +8,36 @@ class AdminDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.blueAccent, Colors.lightBlueAccent],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-          ),
-        ),
-        title: Text(
-          'Dashboard Admin',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: IconThemeData(color: Colors.white),
+  flexibleSpace: Container(
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [Colors.blueAccent, Colors.lightBlueAccent],
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
       ),
+    ),
+  ),
+  title: Text(
+    'Dashboard Admin',
+    style: GoogleFonts.poppins(
+      fontWeight: FontWeight.w700,
+      fontSize: 20,
+      color: Colors.white,
+    ),
+  ),
+  backgroundColor: Colors.transparent,
+  elevation: 0,
+  iconTheme: IconThemeData(color: Colors.white),
+  actions: [
+    IconButton(
+      icon: Icon(Icons.person, color: Colors.white),
+      onPressed: () {
+        Get.toNamed('/profileAdmin'); // Navigasi ke halaman Profile Admin
+      },
+    ),
+  ],
+),
+
       drawer: _buildDrawer(context), // Drawer
       body: Container(
         width: double.infinity,
@@ -79,6 +88,7 @@ class AdminDashboard extends StatelessWidget {
                       title: 'Laporan',
                       subtitle: 'Lihat dan unduh laporan absensi.',
                       icon: Icons.insert_chart,
+                      route: '/rekapAdmin',
                     ),
                   ],
                 ),
@@ -160,33 +170,26 @@ class AdminDashboard extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: Icon(Icons.checklist, color: Colors.blueAccent),
-            title: Text(
-              'Kelola Absensi',
-              style: GoogleFonts.poppins(),
-            ),
-            onTap: () {
-              Get.snackbar(
-                'Info',
-                'Fitur Kelola Absensi belum tersedia.',
-                snackPosition: SnackPosition.BOTTOM,
-              );
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.insert_chart, color: Colors.blueAccent),
-            title: Text(
-              'Laporan',
-              style: GoogleFonts.poppins(),
-            ),
-            onTap: () {
-              Get.snackbar(
-                'Info',
-                'Fitur Laporan belum tersedia.',
-                snackPosition: SnackPosition.BOTTOM,
-              );
-            },
-          ),
+  leading: Icon(Icons.checklist, color: Colors.blueAccent),
+  title: Text(
+    'Kelola Absensi',
+    style: GoogleFonts.poppins(),
+  ),
+  onTap: () {
+    Get.toNamed('/kelolaAbsensi'); // Menuju KelolaAbsensi
+  },
+),
+ListTile(
+  leading: Icon(Icons.insert_chart, color: Colors.blueAccent),
+  title: Text(
+    'Laporan',
+    style: GoogleFonts.poppins(),
+  ),
+  onTap: () {
+    Get.toNamed('/rekapAdmin'); // Menuju Halaman Laporan
+  },
+),
+
           ListTile(
             leading: Icon(Icons.logout, color: Colors.blueAccent),
             title: Text(

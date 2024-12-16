@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:forum/page_orangtua/listabsenortu.dart'; // Impor ListAbsenOrtu
-import 'profilortu.dart'; // Impor ProfilortuPage
-import '../page_global/login.dart'; // Impor LoginScreen
+import '../page_global/login.dart';
+import 'profilortu.dart'; // Import ProfilortuPage
+import 'listabsenortu.dart'; // Import ListAbsenOrtuPage
 
 class MainPageOrtu extends StatelessWidget {
   final String userName;
@@ -39,12 +39,8 @@ class MainPageOrtu extends StatelessWidget {
             icon: Icon(Icons.account_circle),
             color: Colors.white,
             onPressed: () {
-              // Navigasi ke halaman ProfilortuPage
-              Get.to(() => ProfilortuPage(
-                    orangTuaName: 'Udin Siregar', // Contoh nama orang tua
-                    waliMurid: 'Budiono Siregar', // Nama wali murid
-                    email: 'udin@ortu.com',       // Contoh email
-                  ));
+              // Navigasi ke halaman ProfilortuPage dengan route biasa
+              Get.to(() => ProfilortuPage());
             },
           ),
         ],
@@ -72,7 +68,7 @@ class MainPageOrtu extends StatelessWidget {
                       subtitle: 'SD NEGERI RANCAGONG 1',
                       teacher: 'Tatang Sutarman',
                       onTap: () {
-                        Get.to(() => ListAbsenOrtu()); // Arahkan ke ListAbsenOrtu
+                        Get.to(() => ListAbsenOrtu());
                       },
                     ),
                     SizedBox(height: 10),
@@ -81,7 +77,7 @@ class MainPageOrtu extends StatelessWidget {
                       subtitle: 'SD NEGERI RANCAGONG 1',
                       teacher: 'Budiono Siregar',
                       onTap: () {
-                        Get.to(() => ListAbsenOrtu()); // Arahkan ke ListAbsenOrtu
+                        Get.to(() => ListAbsenOrtu());
                       },
                     ),
                   ],
@@ -103,9 +99,7 @@ class MainPageOrtu extends StatelessWidget {
           UserAccountsDrawerHeader(
             accountName: Text(
               userName,
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w500,
-              ),
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
             ),
             accountEmail: Text(
               '$userName@example.com',
@@ -114,7 +108,7 @@ class MainPageOrtu extends StatelessWidget {
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
               child: Text(
-                userName.isNotEmpty ? userName[0] : 'G', // Gunakan 'G' jika userName kosong
+                userName.isNotEmpty ? userName[0] : 'G',
                 style: GoogleFonts.poppins(
                   fontSize: 40.0,
                   color: Colors.blueAccent,
@@ -123,7 +117,11 @@ class MainPageOrtu extends StatelessWidget {
               ),
             ),
             decoration: BoxDecoration(
-              color: Colors.blueAccent,
+              gradient: LinearGradient(
+                colors: [Colors.blueAccent, Colors.lightBlueAccent],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
           ),
           ListTile(
@@ -133,7 +131,7 @@ class MainPageOrtu extends StatelessWidget {
               style: GoogleFonts.poppins(),
             ),
             onTap: () {
-              Navigator.pop(context); // Tutup drawer
+              Navigator.pop(context);
             },
           ),
           ListTile(
@@ -152,7 +150,7 @@ class MainPageOrtu extends StatelessWidget {
   }
 
   void _logout(BuildContext context) {
-    Get.offAll(() => LoginScreen()); // Menghapus semua halaman sebelumnya dan kembali ke halaman login
+    Get.offAll(() => LoginScreen());
   }
 
   Widget _buildCard({
@@ -218,7 +216,7 @@ class MainPageOrtu extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          Get.offAll(() => LoginScreen()); // Menghapus semua halaman sebelumnya dan kembali ke halaman login
+          _logout(context);
         },
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.symmetric(vertical: 10),
