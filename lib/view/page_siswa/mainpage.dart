@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'listabsen.dart'; // Impor ListAbsenPage
-import 'profile.dart'; // Impor ProfilePage
+import 'listabsen.dart';
+import 'profile.dart';
 import '../page_global/login.dart';
-import 'kalkulator.dart'; // Impor KalkulatorPage
 
 class MainPage extends StatelessWidget {
   final String userName;
@@ -19,39 +18,37 @@ class MainPage extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.blueAccent, Colors.lightBlueAccent],
-              begin: Alignment.centerLeft, // Mulai gradasi dari kiri
-              end: Alignment.centerRight, // Akhiri gradasi di kanan
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
             ),
           ),
         ),
         title: Text(
           'Dashboard Siswa.',
           style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w700, // Tebal
+            fontWeight: FontWeight.w700,
             fontSize: 20,
             color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.transparent, // Transparan karena ada gradasi
-        elevation: 0, // Hilangkan bayangan AppBar
-        iconTheme: IconThemeData(
-            color: Colors.white), // Ubah warna ikon drawer menjadi putih
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.white),
         actions: [
           IconButton(
             icon: Icon(Icons.account_circle),
             color: Colors.white,
             onPressed: () {
-              // Navigasi ke halaman ProfilePage
               Get.to(() => ProfilePage(
-                    studentName: 'Budiono Siregar', // Contoh data siswa
-                    studentClass: 'Kelas 6B', // Contoh data kelas
-                    studentNumber: '2', // Contoh nomor absen
+                    studentName: 'Budiono Siregar',
+                    studentClass: 'Kelas 6B',
+                    studentNumber: '2',
                   ));
             },
           ),
         ],
       ),
-      drawer: _buildDrawer(context), // Menambahkan kembali Drawer
+      drawer: _buildDrawer(context),
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -105,9 +102,7 @@ class MainPage extends StatelessWidget {
           UserAccountsDrawerHeader(
             accountName: Text(
               userName,
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w500,
-              ),
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
             ),
             accountEmail: Text(
               '$userName@example.com',
@@ -116,9 +111,7 @@ class MainPage extends StatelessWidget {
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
               child: Text(
-                userName.isNotEmpty
-                    ? userName[0]
-                    : 'G', // Gunakan 'G' jika userName kosong
+                userName.isNotEmpty ? userName[0] : 'G',
                 style: GoogleFonts.poppins(
                   fontSize: 40.0,
                   color: Colors.blueAccent,
@@ -131,36 +124,23 @@ class MainPage extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.home,
-                color: Colors.blueAccent), // Warna ikon menjadi biru
+            leading: Icon(Icons.home, color: Colors.blueAccent),
             title: Text(
               'Home',
               style: GoogleFonts.poppins(),
             ),
             onTap: () {
-              Navigator.pop(context); // Tutup drawer
+              Navigator.pop(context);
             },
           ),
-          // ListTile(
-          //   leading: Icon(Icons.calculate, color: Colors.blueAccent), // Warna ikon menjadi biru
-          //   title: Text(
-          //     'Kalkulator',
-          //     style: GoogleFonts.poppins(),
-          //   ),
-          //   onTap: () {
-          //     Navigator.pop(context); // Tutup drawer
-          //     Get.to(() => KalkulatorPage(userName: userName)); // Kirim userName ke KalkulatorPage
-          //   },
-          // ),
           ListTile(
-            leading: Icon(Icons.logout,
-                color: Colors.blueAccent), // Warna ikon menjadi biru
+            leading: Icon(Icons.logout, color: Colors.blueAccent),
             title: Text(
               'Logout',
               style: GoogleFonts.poppins(),
             ),
             onTap: () {
-              _logout(context);
+              _logout();
             },
           ),
         ],
@@ -168,9 +148,18 @@ class MainPage extends StatelessWidget {
     );
   }
 
-  void _logout(BuildContext context) {
-    Get.offAll(() =>
-        LoginScreen()); // Menghapus semua halaman sebelumnya dan kembali ke halaman login
+  void _logout() {
+    // Tampilkan pesan berhasil logout
+    Get.snackbar(
+      'Success',
+      'Logout berhasil!',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.greenAccent,
+      colorText: Colors.white,
+    );
+
+    // Arahkan ke halaman login
+    Get.offAll(() => LoginScreen());
   }
 
   Widget _buildCard({
@@ -236,8 +225,7 @@ class MainPage extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          Get.offAll(() =>
-              LoginScreen()); // Menghapus semua halaman sebelumnya dan kembali ke halaman login
+          _logout();
         },
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.symmetric(vertical: 10),
@@ -250,7 +238,7 @@ class MainPage extends StatelessWidget {
           'Logout',
           style: GoogleFonts.poppins(
             color: Colors.blueAccent,
-            fontSize: 14, // Ukuran teks lebih kecil
+            fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
         ),
