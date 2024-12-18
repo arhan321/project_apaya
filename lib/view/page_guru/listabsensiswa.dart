@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:forum/page_guru/editabsen.dart';
+import 'package:forum/view/page_guru/editabsen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'catatanguru.dart'; // Pastikan untuk mengimpor halaman CatatanGuruPage
@@ -12,9 +12,16 @@ class ListAbsenSiswaPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final DateTime now = DateTime.now();
-    final String formattedDate = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    final String formattedDate =
+        "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
     final List<String> daysOfWeek = [
-      'Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'
+      'Minggu',
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu'
     ];
     final String dayName = daysOfWeek[now.weekday % 7];
 
@@ -31,7 +38,8 @@ class ListAbsenSiswaPage extends StatelessWidget {
         ),
         title: Text(
           'Absenku.',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white),
+          style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold, color: Colors.white),
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
@@ -50,7 +58,10 @@ class ListAbsenSiswaPage extends StatelessWidget {
               children: [
                 Text(
                   'Selamat Datang',
-                  style: GoogleFonts.poppins(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w500),
+                  style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500),
                 ),
                 SizedBox(height: 4),
                 Text(
@@ -63,11 +74,13 @@ class ListAbsenSiswaPage extends StatelessWidget {
                   children: [
                     Text(
                       formattedDate,
-                      style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+                      style: GoogleFonts.poppins(
+                          fontSize: 14, color: Colors.white),
                     ),
                     Text(
                       dayName,
-                      style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+                      style: GoogleFonts.poppins(
+                          fontSize: 14, color: Colors.white),
                     ),
                   ],
                 ),
@@ -106,10 +119,14 @@ class ListAbsenSiswaPage extends StatelessWidget {
             child: ListView(
               padding: EdgeInsets.all(16),
               children: [
-                _buildAbsenCard('Ilham God', 'No 1', 'Hadir', Colors.green, '08:30'),
-                _buildAbsenCard('Putra Dewantara', 'No 2', 'Sakit', Colors.blue, '08:45'),
-                _buildAbsenCard('Adi Santoso', 'No 3', 'Izin', Colors.orange, '09:00'),
-                _buildAbsenCard('Wahyu Kurniawan', 'No 4', 'Tidak Hadir', Colors.red, 'Tidak Ada'),
+                _buildAbsenCard(
+                    'Ilham God', 'No 1', 'Hadir', Colors.green, '08:30'),
+                _buildAbsenCard(
+                    'Putra Dewantara', 'No 2', 'Sakit', Colors.blue, '08:45'),
+                _buildAbsenCard(
+                    'Adi Santoso', 'No 3', 'Izin', Colors.orange, '09:00'),
+                _buildAbsenCard('Wahyu Kurniawan', 'No 4', 'Tidak Hadir',
+                    Colors.red, 'Tidak Ada'),
               ],
             ),
           ),
@@ -118,7 +135,8 @@ class ListAbsenSiswaPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAbsenCard(String name, String number, String status, Color statusColor, String jamAbsen) {
+  Widget _buildAbsenCard(String name, String number, String status,
+      Color statusColor, String jamAbsen) {
     return Container(
       margin: EdgeInsets.only(bottom: 12),
       padding: EdgeInsets.all(16),
@@ -144,12 +162,14 @@ class ListAbsenSiswaPage extends StatelessWidget {
                 children: [
                   Text(
                     name,
-                    style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500),
+                    style: GoogleFonts.poppins(
+                        fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                   SizedBox(height: 4),
                   Text(
                     number,
-                    style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                    style:
+                        GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
                   ),
                 ],
               ),
@@ -161,7 +181,10 @@ class ListAbsenSiswaPage extends StatelessWidget {
                 ),
                 child: Text(
                   status,
-                  style: GoogleFonts.poppins(fontSize: 12, color: statusColor, fontWeight: FontWeight.w500),
+                  style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: statusColor,
+                      fontWeight: FontWeight.w500),
                 ),
               ),
             ],
@@ -172,26 +195,43 @@ class ListAbsenSiswaPage extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.toNamed('/viewDetail', arguments: {'name': name, 'number': number, 'kelas': className, 'keterangan': status, 'jamAbsen': jamAbsen});
+                    Get.toNamed('/viewDetail', arguments: {
+                      'name': name,
+                      'number': number,
+                      'kelas': className,
+                      'keterangan': status,
+                      'jamAbsen': jamAbsen
+                    });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: Text('Lihat Detail', style: GoogleFonts.poppins(fontSize: 14, color: Colors.white)),
+                  child: Text('Lihat Detail',
+                      style: GoogleFonts.poppins(
+                          fontSize: 14, color: Colors.white)),
                 ),
               ),
               SizedBox(width: 8),
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.to(() => EditAbsenPage(), arguments: {'name': name, 'number': number, 'badge': status, 'jamAbsen': jamAbsen});
+                    Get.to(() => EditAbsenPage(), arguments: {
+                      'name': name,
+                      'number': number,
+                      'badge': status,
+                      'jamAbsen': jamAbsen
+                    });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: Text('Edit', style: GoogleFonts.poppins(fontSize: 14, color: Colors.white)),
+                  child: Text('Edit',
+                      style: GoogleFonts.poppins(
+                          fontSize: 14, color: Colors.white)),
                 ),
               ),
             ],
@@ -205,9 +245,12 @@ class ListAbsenSiswaPage extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
-              child: Text('Beri Catatan', style: GoogleFonts.poppins(fontSize: 14, color: Colors.white)),
+              child: Text('Beri Catatan',
+                  style:
+                      GoogleFonts.poppins(fontSize: 14, color: Colors.white)),
             ),
           ),
         ],

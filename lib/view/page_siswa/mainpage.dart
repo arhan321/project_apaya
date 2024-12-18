@@ -34,7 +34,8 @@ class MainPage extends StatelessWidget {
         ),
         backgroundColor: Colors.transparent, // Transparan karena ada gradasi
         elevation: 0, // Hilangkan bayangan AppBar
-        iconTheme: IconThemeData(color: Colors.white), // Ubah warna ikon drawer menjadi putih
+        iconTheme: IconThemeData(
+            color: Colors.white), // Ubah warna ikon drawer menjadi putih
         actions: [
           IconButton(
             icon: Icon(Icons.account_circle),
@@ -43,8 +44,8 @@ class MainPage extends StatelessWidget {
               // Navigasi ke halaman ProfilePage
               Get.to(() => ProfilePage(
                     studentName: 'Budiono Siregar', // Contoh data siswa
-                    studentClass: 'Kelas 6B',        // Contoh data kelas
-                    studentNumber: '2',             // Contoh nomor absen
+                    studentClass: 'Kelas 6B', // Contoh data kelas
+                    studentNumber: '2', // Contoh nomor absen
                   ));
             },
           ),
@@ -115,7 +116,9 @@ class MainPage extends StatelessWidget {
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
               child: Text(
-                userName.isNotEmpty ? userName[0] : 'G', // Gunakan 'G' jika userName kosong
+                userName.isNotEmpty
+                    ? userName[0]
+                    : 'G', // Gunakan 'G' jika userName kosong
                 style: GoogleFonts.poppins(
                   fontSize: 40.0,
                   color: Colors.blueAccent,
@@ -128,7 +131,8 @@ class MainPage extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.home, color: Colors.blueAccent), // Warna ikon menjadi biru
+            leading: Icon(Icons.home,
+                color: Colors.blueAccent), // Warna ikon menjadi biru
             title: Text(
               'Home',
               style: GoogleFonts.poppins(),
@@ -137,19 +141,20 @@ class MainPage extends StatelessWidget {
               Navigator.pop(context); // Tutup drawer
             },
           ),
+          // ListTile(
+          //   leading: Icon(Icons.calculate, color: Colors.blueAccent), // Warna ikon menjadi biru
+          //   title: Text(
+          //     'Kalkulator',
+          //     style: GoogleFonts.poppins(),
+          //   ),
+          //   onTap: () {
+          //     Navigator.pop(context); // Tutup drawer
+          //     Get.to(() => KalkulatorPage(userName: userName)); // Kirim userName ke KalkulatorPage
+          //   },
+          // ),
           ListTile(
-            leading: Icon(Icons.calculate, color: Colors.blueAccent), // Warna ikon menjadi biru
-            title: Text(
-              'Kalkulator',
-              style: GoogleFonts.poppins(),
-            ),
-            onTap: () {
-              Navigator.pop(context); // Tutup drawer
-              Get.to(() => KalkulatorPage(userName: userName)); // Kirim userName ke KalkulatorPage
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.logout, color: Colors.blueAccent), // Warna ikon menjadi biru
+            leading: Icon(Icons.logout,
+                color: Colors.blueAccent), // Warna ikon menjadi biru
             title: Text(
               'Logout',
               style: GoogleFonts.poppins(),
@@ -164,7 +169,8 @@ class MainPage extends StatelessWidget {
   }
 
   void _logout(BuildContext context) {
-    Get.offAll(() => LoginScreen()); // Menghapus semua halaman sebelumnya dan kembali ke halaman login
+    Get.offAll(() =>
+        LoginScreen()); // Menghapus semua halaman sebelumnya dan kembali ke halaman login
   }
 
   Widget _buildCard({
@@ -230,7 +236,8 @@ class MainPage extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          Get.offAll(() => LoginScreen()); // Menghapus semua halaman sebelumnya dan kembali ke halaman login
+          Get.offAll(() =>
+              LoginScreen()); // Menghapus semua halaman sebelumnya dan kembali ke halaman login
         },
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.symmetric(vertical: 10),

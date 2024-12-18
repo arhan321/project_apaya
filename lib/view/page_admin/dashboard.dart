@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:forum/routes/routes.dart';
+import 'package:forum/model/routes/routes.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -8,35 +8,35 @@ class AdminDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-  flexibleSpace: Container(
-    decoration: BoxDecoration(
-      gradient: LinearGradient(
-        colors: [Colors.blueAccent, Colors.lightBlueAccent],
-        begin: Alignment.centerLeft,
-        end: Alignment.centerRight,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blueAccent, Colors.lightBlueAccent],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+          ),
+        ),
+        title: Text(
+          'Dashboard Admin',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.person, color: Colors.white),
+            onPressed: () {
+              Get.toNamed('/profileAdmin'); // Navigasi ke halaman Profile Admin
+            },
+          ),
+        ],
       ),
-    ),
-  ),
-  title: Text(
-    'Dashboard Admin',
-    style: GoogleFonts.poppins(
-      fontWeight: FontWeight.w700,
-      fontSize: 20,
-      color: Colors.white,
-    ),
-  ),
-  backgroundColor: Colors.transparent,
-  elevation: 0,
-  iconTheme: IconThemeData(color: Colors.white),
-  actions: [
-    IconButton(
-      icon: Icon(Icons.person, color: Colors.white),
-      onPressed: () {
-        Get.toNamed('/profileAdmin'); // Navigasi ke halaman Profile Admin
-      },
-    ),
-  ],
-),
 
       drawer: _buildDrawer(context), // Drawer
       body: Container(
@@ -55,7 +55,8 @@ class AdminDashboard extends StatelessWidget {
             children: [
               Expanded(
                 child: GridView.count(
-                  crossAxisCount: MediaQuery.of(context).size.width < 600 ? 1 : 2,
+                  crossAxisCount:
+                      MediaQuery.of(context).size.width < 600 ? 1 : 2,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                   childAspectRatio: MediaQuery.of(context).size.width < 600
@@ -170,26 +171,25 @@ class AdminDashboard extends StatelessWidget {
             },
           ),
           ListTile(
-  leading: Icon(Icons.checklist, color: Colors.blueAccent),
-  title: Text(
-    'Kelola Absensi',
-    style: GoogleFonts.poppins(),
-  ),
-  onTap: () {
-    Get.toNamed('/kelolaAbsensi'); // Menuju KelolaAbsensi
-  },
-),
-ListTile(
-  leading: Icon(Icons.insert_chart, color: Colors.blueAccent),
-  title: Text(
-    'Laporan',
-    style: GoogleFonts.poppins(),
-  ),
-  onTap: () {
-    Get.toNamed('/rekapAdmin'); // Menuju Halaman Laporan
-  },
-),
-
+            leading: Icon(Icons.checklist, color: Colors.blueAccent),
+            title: Text(
+              'Kelola Absensi',
+              style: GoogleFonts.poppins(),
+            ),
+            onTap: () {
+              Get.toNamed('/kelolaAbsensi'); // Menuju KelolaAbsensi
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.insert_chart, color: Colors.blueAccent),
+            title: Text(
+              'Laporan',
+              style: GoogleFonts.poppins(),
+            ),
+            onTap: () {
+              Get.toNamed('/rekapAdmin'); // Menuju Halaman Laporan
+            },
+          ),
           ListTile(
             leading: Icon(Icons.logout, color: Colors.blueAccent),
             title: Text(

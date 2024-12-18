@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:forum/page_orangtua/mainpageortu.dart';
+import 'package:forum/view/page_orangtua/mainpageortu.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'profilortu.dart'; // Import ProfilortuPage
@@ -40,21 +40,21 @@ class ListAbsenOrtu extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-         leading: IconButton(
-    icon: Icon(Icons.arrow_back, color: Colors.white),  
-    onPressed: () {
-      Navigator.pop(context);
-    },
-  ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         actions: [
-  IconButton(
-    icon: Icon(Icons.account_circle, color: Colors.white),
-    onPressed: () {
-      // Navigasi tanpa parameter tambahan
-      Get.to(() => ProfilortuPage());
-    },
-  ),
-],
+          IconButton(
+            icon: Icon(Icons.account_circle, color: Colors.white),
+            onPressed: () {
+              // Navigasi tanpa parameter tambahan
+              Get.to(() => ProfilortuPage());
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -202,7 +202,8 @@ class AbsenCard extends StatelessWidget {
                   SizedBox(height: 4),
                   Text(
                     number,
-                    style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                    style:
+                        GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
                   ),
                 ],
               ),
@@ -256,7 +257,7 @@ class AbsenCard extends StatelessWidget {
               SizedBox(width: 8),
               Expanded(
                 child: ElevatedButton(
-                onPressed: () {
+                  onPressed: () {
                     Get.toNamed(
                       '/cekCatatan',
                       arguments: {

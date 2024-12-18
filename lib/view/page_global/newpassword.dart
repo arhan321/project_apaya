@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../routes/routes.dart';
-
+import '../../model/routes/routes.dart';
 
 class NewPasswordScreen extends StatelessWidget {
   final TextEditingController usernameController = TextEditingController();
@@ -26,7 +25,8 @@ class NewPasswordScreen extends StatelessWidget {
     });
 
     return Scaffold(
-      resizeToAvoidBottomInset: true, // Menyesuaikan layout saat keyboard muncul
+      resizeToAvoidBottomInset:
+          true, // Menyesuaikan layout saat keyboard muncul
       body: Stack(
         children: [
           // Background Gradient
@@ -48,7 +48,8 @@ class NewPasswordScreen extends StatelessWidget {
                 left: 30.0,
                 right: 30.0,
                 top: 50.0,
-                bottom: MediaQuery.of(context).viewInsets.bottom, // Padding dinamis
+                bottom:
+                    MediaQuery.of(context).viewInsets.bottom, // Padding dinamis
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

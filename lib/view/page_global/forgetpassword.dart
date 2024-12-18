@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../routes/routes.dart';
-
+import '../../model/routes/routes.dart';
 
 class ForgotPasswordScreen extends StatelessWidget {
   final TextEditingController usernameController = TextEditingController();
@@ -35,7 +34,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 10), // Jarak kecil antara ikon dan teks
-              
+
               // Teks "Absenku."
               Center(
                 child: Text(
@@ -76,12 +75,14 @@ class ForgotPasswordScreen extends StatelessWidget {
               SizedBox(height: 50),
 
               // Input untuk nama pengguna
-              Center(child: _buildTextField(usernameController, 'Masukkan Nama Pengguna')),
+              Center(
+                  child: _buildTextField(
+                      usernameController, 'Masukkan Nama Pengguna')),
               SizedBox(height: 20),
 
               // Tombol Forgot Password
               _buildForgotPasswordButton(),
-              
+
               Spacer(),
 
               // Teks Sign Up di bagian bawah
@@ -131,33 +132,30 @@ class ForgotPasswordScreen extends StatelessWidget {
     );
   }
 
-Widget _buildForgotPasswordButton() {
-  return SizedBox(
-    width: double.infinity,
-    child: ElevatedButton(
-      onPressed: () {
-        // Navigasi langsung ke halaman NewPasswordScreen tanpa validasi input username
-        Get.toNamed(AppRoutes.newPassword); 
-      },
-      style: ElevatedButton.styleFrom(
-        padding: EdgeInsets.symmetric(vertical: 15),
-        backgroundColor: Colors.blue, 
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25),
+  Widget _buildForgotPasswordButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () {
+          // Navigasi langsung ke halaman NewPasswordScreen tanpa validasi input username
+          Get.toNamed(AppRoutes.newPassword);
+        },
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.symmetric(vertical: 15),
+          backgroundColor: Colors.blue,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ),
+        child: Text(
+          'Forgot Password',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
-      child: Text(
-        'Forgot Password',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    ),
-  );
+    );
+  }
 }
-
-}
-
-

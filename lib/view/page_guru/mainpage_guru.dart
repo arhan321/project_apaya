@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:forum/page_global/login.dart';
-import 'package:forum/routes/routes.dart';
+import 'package:forum/view/page_global/login.dart';
+import 'package:forum/model/routes/routes.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'listabsensiswa.dart';
@@ -42,10 +42,10 @@ class MainPageGuru extends StatelessWidget {
             onPressed: () {
               // Navigasi ke halaman profile guru
               Get.to(() => ProfileGuruPage(
-                guruName: 'Tatang Sutarman', // Nama guru
-                kelas: 'Kelas 6A', // Kelas yang diajar
-                waliKelas: 'Tatang Sutarman', // Nama wali kelas
-              ));
+                    guruName: 'Tatang Sutarman', // Nama guru
+                    kelas: 'Kelas 6A', // Kelas yang diajar
+                    waliKelas: 'Tatang Sutarman', // Nama wali kelas
+                  ));
             },
           ),
         ],
@@ -75,8 +75,8 @@ class MainPageGuru extends StatelessWidget {
                     icon: Icons.check_circle_outline,
                     onTap: () {
                       Get.to(() => ListAbsenSiswaPage(
-                        className: 'Kelas 6A',
-                      ));
+                            className: 'Kelas 6A',
+                          ));
                     },
                   ),
                 ],

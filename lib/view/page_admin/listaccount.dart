@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:forum/routes/routes.dart';
+import 'package:forum/model/routes/routes.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -27,7 +27,8 @@ class ListAccountPage extends StatelessWidget {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.white), // Ubah ikon panah menjadi putih
+        iconTheme:
+            IconThemeData(color: Colors.white), // Ubah ikon panah menjadi putih
         leading: IconButton(
           icon: Icon(Icons.arrow_back), // Panah kembali
           onPressed: () {
@@ -54,17 +55,19 @@ class ListAccountPage extends StatelessWidget {
                 subtitle: 'Kelola akun guru.',
                 icon: Icons.person,
                 onTap: () {
-                Get.toNamed('/listAkunGuru'); // Arahkan ke halaman List Akun Guru
-              },
+                  Get.toNamed(
+                      '/listAkunGuru'); // Arahkan ke halaman List Akun Guru
+                },
               ),
               SizedBox(height: 16),
               _buildAccountCard(
                 title: 'Akun Siswa',
                 subtitle: 'Kelola akun siswa.',
                 icon: Icons.school,
-               onTap: () {
-                Get.toNamed('/listAkunSiswa'); // Arahkan ke halaman List Akun Guru
-              },
+                onTap: () {
+                  Get.toNamed(
+                      '/listAkunSiswa'); // Arahkan ke halaman List Akun Guru
+                },
               ),
               SizedBox(height: 16),
               _buildAccountCard(
@@ -72,18 +75,19 @@ class ListAccountPage extends StatelessWidget {
                 subtitle: 'Kelola akun orang tua.',
                 icon: Icons.family_restroom,
                 onTap: () {
-                Get.toNamed('/listAkunOrtu'); // Arahkan ke halaman List Akun Guru
-              },
+                  Get.toNamed(
+                      '/listAkunOrtu'); // Arahkan ke halaman List Akun Guru
+                },
               ),
-               SizedBox(height: 16),
+              SizedBox(height: 16),
               _buildAccountCard(
                 title: 'Akun Admin',
                 subtitle: 'Kelola akun admin.',
                 icon: Icons.admin_panel_settings,
                 onTap: () {
-                  Get.toNamed(AppRoutes.listAkunAdmin); // Gunakan konstanta rute
+                  Get.toNamed(
+                      AppRoutes.listAkunAdmin); // Gunakan konstanta rute
                 },
-
               ),
             ],
           ),
