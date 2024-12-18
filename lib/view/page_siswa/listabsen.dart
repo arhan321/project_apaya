@@ -36,11 +36,11 @@ class ListAbsenPage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.account_circle, color: Colors.white),
             onPressed: () {
-              Get.to(() => ProfilePage(
-                    studentName: 'Randi Praditiya',
-                    studentClass: className,
-                    studentNumber: '1',
-                  ));
+              // Get.to(() => ProfilePage(
+              //       studentName: 'Randi Praditiya',
+              //       studentClass: className,
+              //       studentNumber: '1',
+              //     ));
             },
           ),
         ],
@@ -235,7 +235,8 @@ class ListAbsenPage extends StatelessWidget {
                   SizedBox(height: 4),
                   Text(
                     number,
-                    style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                    style:
+                        GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
                   ),
                 ],
               ),

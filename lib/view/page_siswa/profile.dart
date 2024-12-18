@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ProfilePage extends StatelessWidget {
   final String studentName;
@@ -138,11 +140,14 @@ class ProfilePage extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.redAccent,
                         ),
-                        child: Text("Hapus", style: GoogleFonts.poppins(color: Colors.white)),
+                        child: Text("Hapus",
+                            style: GoogleFonts.poppins(color: Colors.white)),
                       ),
                       cancel: TextButton(
                         onPressed: () => Get.back(),
-                        child: Text("Batal", style: GoogleFonts.poppins(color: Colors.blueAccent)),
+                        child: Text("Batal",
+                            style:
+                                GoogleFonts.poppins(color: Colors.blueAccent)),
                       ),
                     );
                   },
