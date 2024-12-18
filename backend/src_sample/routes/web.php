@@ -85,7 +85,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 // api absen
 
-//login
+//CRUD
 Route::group(['prefix' => 'api/v1/account'], function() {
     Route::get('/', [AuthController::class, 'index']);
     Route::get('/{id}', [AuthController::class, 'get_user']);
