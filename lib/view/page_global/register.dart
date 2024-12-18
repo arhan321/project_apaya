@@ -1,22 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'login.dart';
+import '../../controller/global_controller/register_controller.dart';
 
 class RegisterScreen extends StatelessWidget {
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController noAbsenController = TextEditingController();
+  final RegisterController controller = Get.put(RegisterController());
 
   @override
   Widget build(BuildContext context) {
-    final role = Get.arguments?['role'] ?? 'siswa'; // Ambil role
-
-    String headerText = _getHeaderText(role);
-
     return Scaffold(
       body: Stack(
         children: [
@@ -31,24 +22,24 @@ class RegisterScreen extends StatelessWidget {
           ),
           SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 50.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 30.0, vertical: 50.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Align(
                     alignment: Alignment.topLeft,
                     child: IconButton(
-                      icon: Icon(Icons.arrow_back, color: Colors.white),
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
                       onPressed: () {
-                        Get.off(() => LoginScreen(),
-                            arguments: {'role': role});
+                        Get.back(); // Kembali ke halaman sebelumnya
                       },
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Center(
                     child: Text(
-                      headerText,
+                      'Daftar Akun Baru',
                       style: GoogleFonts.poppins(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -56,31 +47,38 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(
-                    'Daftar untuk memulai!',
+                    'Isi formulir di bawah ini untuk mendaftar!',
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       color: Colors.white70,
                     ),
                   ),
-                  SizedBox(height: 20),
-                  _buildTextField(Icons.person, 'Nama Lengkap'),
-                  SizedBox(height: 20),
-                  _buildTextField(Icons.person_outline, 'Username'),
-                  SizedBox(height: 20),
-                  _buildTextField(Icons.email, 'Email'),
-                  SizedBox(height: 20),
-                  _buildTextField(Icons.lock, 'Password', isPassword: true),
-                  SizedBox(height: 20),
-                  _buildTextField(Icons.lock_outline, 'Konfirmasi Password',
+                  const SizedBox(height: 20),
+                  _buildTextField(
+                      controller.nameController, Icons.person, 'Nama Lengkap'),
+                  const SizedBox(height: 20),
+                  _buildTextField(
+                      controller.emailController, Icons.email, 'Email'),
+                  const SizedBox(height: 20),
+                  _buildTextField(
+                      controller.passwordController, Icons.lock, 'Password',
                       isPassword: true),
-                  if (role == 'siswa') ...[
-                    SizedBox(height: 20),
-                    _buildTextField(Icons.format_list_numbered, 'Nomor Absen'),
+                  const SizedBox(height: 20),
+                  _buildTextField(controller.confirmPasswordController,
+                      Icons.lock_outline, 'Konfirmasi Password',
+                      isPassword: true),
+                  const SizedBox(height: 20),
+                  _buildTextField(controller.roleController, Icons.group,
+                      'Role (admin/guru/siswa/orang_tua)'),
+                  if (controller.roleController.text.trim() == 'siswa') ...[
+                    const SizedBox(height: 20),
+                    _buildTextField(controller.nomorAbsenController,
+                        Icons.format_list_numbered, 'Nomor Absen'),
                   ],
-                  SizedBox(height: 30),
-                  _buildRegisterButton(),
+                  const SizedBox(height: 30),
+                  Obx(() => _buildRegisterButton(controller.isLoading.value)),
                 ],
               ),
             ),
@@ -90,60 +88,50 @@ class RegisterScreen extends StatelessWidget {
     );
   }
 
-  String _getHeaderText(String role) {
-    switch (role) {
-      case 'admin':
-        return 'Daftar sebagai Admin';
-      case 'guru':
-        return 'Daftar sebagai Guru';
-      case 'orangtua':
-        return 'Daftar sebagai Orang Tua';
-      default:
-        return 'Daftar sebagai Siswa';
-    }
-  }
-
-  Widget _buildTextField(IconData icon, String hint, {bool isPassword = false}) {
+  Widget _buildTextField(
+      TextEditingController controller, IconData icon, String hint,
+      {bool isPassword = false}) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
       ),
       child: TextField(
+        controller: controller,
         obscureText: isPassword,
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: Colors.purple),
           hintText: hint,
           border: InputBorder.none,
           hintStyle: GoogleFonts.poppins(),
-          contentPadding: EdgeInsets.symmetric(vertical: 15),
+          contentPadding: const EdgeInsets.symmetric(vertical: 15),
         ),
       ),
     );
   }
 
-  Widget _buildRegisterButton() {
+  Widget _buildRegisterButton(bool isLoading) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
-          // Logika register
-        },
+        onPressed: isLoading ? null : () => controller.register(),
         style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.symmetric(vertical: 15),
+          padding: const EdgeInsets.symmetric(vertical: 15),
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25),
           ),
         ),
-        child: Text(
-          'Daftar',
-          style: GoogleFonts.poppins(
-            color: Colors.purpleAccent,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        child: isLoading
+            ? const CircularProgressIndicator(color: Colors.purpleAccent)
+            : Text(
+                'Daftar',
+                style: GoogleFonts.poppins(
+                  color: Colors.purpleAccent,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
       ),
     );
   }
