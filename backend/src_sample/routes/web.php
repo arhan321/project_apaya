@@ -3,9 +3,11 @@
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+// use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
+// use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 
@@ -78,3 +80,19 @@ Route::post('/reset-password', function (Request $request) {
     BACKOFFICE ROUTES
 ------------------------*/
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+
+
+// api absen
+
+//login
+Route::group(['prefix' => 'api/v1/account'], function() {
+    Route::get('/', [AuthController::class, 'index']);
+    Route::get('/{id}', [AuthController::class, 'get_user']);
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::put('/{id}', [AuthController::class, 'update']);
+    Route::delete('/{id}', [AuthController::class, 'delete']);
+});
+
