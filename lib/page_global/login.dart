@@ -74,11 +74,33 @@ class LoginScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 20),
                     // Input Password
-                    _buildTextField(
-                      controller: passwordController,
-                      icon: Icons.lock,
-                      hint: 'Password',
-                      isPassword: true,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildTextField(
+                          controller: passwordController,
+                          icon: Icons.lock,
+                          hint: 'Password',
+                          isPassword: true,
+                        ),
+                        SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: () {
+                              Get.toNamed(AppRoutes.forgotPassword);
+                            },
+                            child: Text(
+                              'Lupa Password?',
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(height: 30),
                     // Tombol Login
