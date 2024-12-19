@@ -1,14 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'listabsen.dart';
 import 'profile.dart';
 import '../page_global/login.dart';
 
-class MainPage extends StatelessWidget {
-  final String userName;
+class MainPage extends StatefulWidget {
+  @override
+  _MainPageState createState() => _MainPageState();
+}
 
-  MainPage({Key? key, this.userName = 'Guest'}) : super(key: key);
+class _MainPageState extends State<MainPage> {
+  String userName = 'Guest';
+  String userEmail = '';
+  String userRole = '';
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserSession();
+  }
+
+  Future<void> loadUserSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userName = prefs.getString('userName') ?? 'Guest';
+      userEmail = prefs.getString('userEmail') ?? '';
+      userRole = prefs.getString('userRole') ?? '';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,11 +60,7 @@ class MainPage extends StatelessWidget {
             icon: Icon(Icons.account_circle),
             color: Colors.white,
             onPressed: () {
-              Get.to(() => ProfilePage(
-                    studentName: 'Budiono Siregar',
-                    studentClass: 'Kelas 6B',
-                    studentNumber: '2',
-                  ));
+              Get.to(() => ProfilePage());
             },
           ),
         ],
@@ -105,7 +122,7 @@ class MainPage extends StatelessWidget {
               style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
             ),
             accountEmail: Text(
-              '$userName@example.com',
+              userEmail,
               style: GoogleFonts.poppins(),
             ),
             currentAccountPicture: CircleAvatar(
@@ -148,7 +165,11 @@ class MainPage extends StatelessWidget {
     );
   }
 
-  void _logout() {
+  void _logout() async {
+    // Hapus data session
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
     // Tampilkan pesan berhasil logout
     Get.snackbar(
       'Success',

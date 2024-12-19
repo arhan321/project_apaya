@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../model/routes/routes.dart';
 import 'package:flutter/material.dart';
 
@@ -9,83 +9,84 @@ class LoginController extends GetxController {
   final passwordController = TextEditingController();
   final isLoading = false.obs;
 
+  late Dio _dio;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _dio = Dio();
+  }
+
   Future<void> login() async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Email dan Password tidak boleh kosong!',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-      );
+      _showSnackbar('Error', 'Email dan Password tidak boleh kosong!');
       return;
     }
 
     try {
       isLoading(true);
 
-      final response = await http.post(
-        Uri.parse('https://absen.djncloud.my.id/api/v1/account/login'),
-        headers: {'Accept': 'application/json'},
-        body: {'email': email, 'password': password},
+      final response = await _dio.post(
+        'https://absen.djncloud.my.id/api/v1/account/login',
+        data: {'email': email, 'password': password},
+        options: Options(
+          headers: {'Accept': 'application/json'},
+          responseType: ResponseType.json,
+        ),
       );
+
+      // Debugging untuk memastikan respons API
+      debugPrint('Response Data: ${response.data}');
+      debugPrint('Response Status Code: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final role = data['user']?['role']; // Ambil role dari respons
+        // Pastikan respons JSON terurai dengan benar
+        final data = Map<String, dynamic>.from(response.data);
+        final token = data['token']; // Ambil token dari respons
+        final user = data['user'] != null
+            ? Map<String, dynamic>.from(data['user'])
+            : <String, dynamic>{};
+        final role = user['role'];
 
-        if (role != null) {
-          Get.snackbar(
-            'Success',
-            'Login Berhasil!',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.greenAccent,
-            colorText: Colors.white,
-          );
-          _protectAndNavigate(role); // Validasi role dan navigasi
+        debugPrint('Token: $token');
+        debugPrint('User Data: $user');
+
+        if (token != null && role != null) {
+          await _saveSession(user, role, token); // Simpan token dan sesi
+          _showSnackbar('Success', 'Login berhasil!');
+          _protectAndNavigate(role); // Navigasi berdasarkan role
         } else {
-          Get.snackbar(
-            'Error',
-            'Role tidak ditemukan dalam respons.',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
-          );
+          _showSnackbar(
+              'Error', 'Token atau role tidak ditemukan dalam respons.');
         }
-      } else if (response.statusCode == 401 || response.statusCode == 403) {
-        // Jika respons server menyatakan kredensial tidak valid
-        Get.snackbar(
-          'Error',
-          'Email atau password salah!',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
-        );
       } else {
-        final error = json.decode(response.body);
-        final errorMessage = error['message'] ?? 'Login gagal!';
-        Get.snackbar(
-          'Error',
-          errorMessage,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
-        );
+        _showSnackbar('Error', response.data['message'] ?? 'Login gagal!');
       }
+    } on DioException catch (e) {
+      // Tangkap kesalahan jaringan
+      final errorMessage =
+          e.response?.data['message'] ?? 'Terjadi kesalahan jaringan';
+      _showSnackbar('Error', errorMessage);
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Terjadi kesalahan: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-      );
+      _showSnackbar('Error', 'Terjadi kesalahan: $e');
     } finally {
       isLoading(false);
     }
+  }
+
+  Future<void> _saveSession(
+      Map<String, dynamic> user, String role, String token) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString('userName', user['name']);
+    await prefs.setString('userEmail', user['email']);
+    await prefs.setString('userRole', role);
+    await prefs.setString(
+        'authToken', token); // Simpan token ke SharedPreferences
+    debugPrint('Token tersimpan: $token');
   }
 
   void _protectAndNavigate(String role) {
@@ -103,13 +104,25 @@ class LoginController extends GetxController {
         Get.offAllNamed(AppRoutes.adminDashboard);
         break;
       default:
-        Get.snackbar(
-          'Error',
-          'Role tidak dikenali! Akses ditolak.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
-        );
+        _showSnackbar('Error', 'Role tidak dikenali! Akses ditolak.');
     }
+  }
+
+  void logout() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Hapus semua data termasuk token
+
+    _showSnackbar('Success', 'Logout berhasil!');
+    Get.offAllNamed(AppRoutes.login);
+  }
+
+  void _showSnackbar(String title, String message) {
+    Get.snackbar(
+      title,
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: title == 'Error' ? Colors.redAccent : Colors.greenAccent,
+      colorText: Colors.white,
+    );
   }
 }

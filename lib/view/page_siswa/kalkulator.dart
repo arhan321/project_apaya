@@ -81,7 +81,8 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: hintText,
-          contentPadding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+          contentPadding:
+              EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
         ),
         keyboardType: TextInputType.number,
       ),
@@ -132,7 +133,9 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
               child: Text(
-                widget.userName.isNotEmpty ? widget.userName[0] : 'G', // Gunakan 'G' jika userName kosong
+                widget.userName.isNotEmpty
+                    ? widget.userName[0]
+                    : 'G', // Gunakan 'G' jika userName kosong
                 style: TextStyle(fontSize: 40.0, color: Colors.blueAccent),
               ),
             ),
@@ -143,9 +146,9 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
           ListTile(
             leading: Icon(Icons.home),
             title: Text('Home'),
-            onTap: () {
-              Get.to(() => MainPage(userName: widget.userName));
-            },
+            // onTap: () {
+            //   Get.to(() => MainPage(userName: widget.userName));
+            // },
           ),
           ListTile(
             leading: Icon(Icons.calculate),

@@ -139,7 +139,7 @@ class AppRoutes {
     ),
     GetPage(
       name: mainPage,
-      page: () => MainPage(userName: ''), // Halaman Utama Siswa
+      page: () => MainPage(), // Halaman Utama Siswa
     ),
     GetPage(
       name: mainPageGuru,
@@ -155,8 +155,9 @@ class AppRoutes {
       page: () => KalkulatorPage(userName: 'Guest'), // Kalkulator
     ),
     GetPage(
-      name: profile,
-      page: () => ProfilePage(), // Profil Siswa
+      name: profile, // Nama rute
+      page: () =>
+          const ProfilePage(), // Langsung arahkan ke halaman ProfilePage
     ),
     GetPage(
       name: listAbsen,
