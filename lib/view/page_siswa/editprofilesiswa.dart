@@ -146,15 +146,20 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
         final updatedData = response.data['user'];
         debugPrint('Updated Profile Data: $updatedData');
 
-        // Check if the server is returning the updated data correctly
-        if (updatedData['name'] == nameController.text &&
-            updatedData['nomor_absen'] == numberController.text) {
+        // Verify the fields on the server side that have actually been updated
+        bool isNameUpdated = updatedData['name'] == nameController.text;
+        bool isNumberUpdated =
+            updatedData['nomor_absen'].toString() == numberController.text;
+
+        if (isNameUpdated && isNumberUpdated) {
           Get.snackbar('Success', 'Profile updated successfully');
           await _loadProfileData(); // Reload profile data after successful update
           Get.offAllNamed('/profile'); // Redirect to profile page
         } else {
+          // If any of the fields don't match, show error
           Get.snackbar('Error', 'Update failed. Please try again.');
-          debugPrint('Error updating profile: Data mismatch');
+          debugPrint(
+              'Error updating profile: Data mismatch or no changes made.');
         }
       } else {
         Get.snackbar('Error', 'Update failed. Please try again.');
