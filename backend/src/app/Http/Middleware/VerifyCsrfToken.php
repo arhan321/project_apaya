@@ -13,7 +13,8 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-     'api/*'
+     'api/*',
+     'auth/logout',
     ];
     public function handle($request, \Closure $next)
     {

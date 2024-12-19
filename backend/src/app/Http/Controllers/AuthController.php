@@ -128,15 +128,13 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::logout();
-    
+        Auth::guard('sanctum')->logout(); // Log out using Sanctum
+
+        // Invalidate session
         $request->session()->invalidate();
-    
         $request->session()->regenerateToken();
-    
-        return response()->json([
-            'message' => 'Logout successful',
-        ], 200);
+
+        return response()->json(['message' => 'Logout successful'], 200);
     }
 
 
@@ -163,76 +161,113 @@ class AuthController extends Controller
         }
     }
 
+    
     public function update(Request $request, $id)
-{
-    // Validasi input
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255',
-        'password' => 'nullable|string|min:8',
-        'role' => 'required|string|in:admin,siswa,guru,orang_tua,kepala_sekolah',
-        'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240', 
-        'nomor_absen' => 'nullable|integer|min:1', // Validasi nomor_absen
-    ]);
-
-    // Cari user berdasarkan ID
-    $user = User::find($id);
-    if (!$user) {
-        return response()->json(['message' => 'User tidak ditemukan'], 404);
-    }
-
-    // Cek duplikat username atau email
-    $existingUser = User::where(function ($query) use ($request, $id) {
-        $query->where('email', $request->email)
-              ->orWhere('name', $request->name);
-    })->where('id', '!=', $id)->first();
-
-    if ($existingUser) {
-        return response()->json(['message' => 'Username atau email sudah digunakan oleh user lain'], 400);
-    }
-
-    // Upload foto baru jika ada
-    $photoPath = $user->photo; // Gunakan foto lama jika tidak ada yang di-upload
-    if ($request->hasFile('photo')) {
-        // Hapus foto lama jika ada
-        if ($user->photo && Storage::disk('public')->exists($user->photo)) {
-            Storage::disk('public')->delete($user->photo);
+    {
+        // Validasi input
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|string|email|max:255',
+            'password' => 'nullable|string|min:8',
+            'role' => 'nullable|string|in:admin,siswa,guru,orang_tua,kepala_sekolah',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'nomor_absen' => 'nullable|integer|min:1', // Validasi nomor_absen
+        ]);
+    
+        // Cari user berdasarkan ID
+        $user = User::find($id);
+        if (!$user) {
+            Log::info("User not found with ID: $id");
+            return response()->json(['message' => 'User tidak ditemukan'], 404);
         }
-
-        // Simpan foto baru di folder public/images/users
-        $photo = $request->file('photo');
-        $photoName = time() . '_' . $photo->getClientOriginalName();
-        $photoPath = $photo->storeAs('images/users', $photoName, 'public');
+    
+        // Cek duplikat username atau email
+        $existingUser = User::where(function ($query) use ($request, $id) {
+            $query->where('email', $request->email)
+                  ->orWhere('name', $request->name);
+        })->where('id', '!=', $id)->first();
+    
+        if ($existingUser) {
+            Log::info("Duplicate found for email or name: {$request->email} / {$request->name}");
+            return response()->json(['message' => 'Username atau email sudah digunakan oleh user lain'], 400);
+        }
+    
+        // Foto baru (jika ada) akan diupdate
+        $photoPath = $user->photo; // Gunakan foto lama jika tidak ada yang di-upload
+        if ($request->hasFile('photo')) {
+            // Hapus foto lama jika ada
+            if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+                Storage::disk('public')->delete($user->photo);
+                Log::info("Old photo deleted: {$user->photo}");
+            }
+    
+            // Simpan foto baru
+            $photo = $request->file('photo');
+            $photoName = time() . '_' . $photo->getClientOriginalName();
+            $photoPath = $photo->storeAs('images/users', $photoName, 'public');
+            Log::info("New photo saved: $photoPath");
+        }
+    
+        // Debugging: Log the incoming request data
+        Log::info('Request data received:', $request->all());
+    
+        // Hanya update jika ada perubahan
+        $updatedFields = [];
+        if ($request->has('name') && $request->name != $user->name) {
+            $user->name = $request->name;
+            $updatedFields[] = 'name';
+        }
+    
+        if ($request->has('email') && $request->email != $user->email) {
+            $user->email = $request->email;
+            $updatedFields[] = 'email';
+        }
+    
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->password); // Hash password jika di-update
+            $updatedFields[] = 'password';
+        }
+    
+        if ($request->has('role') && $request->role != $user->role) {
+            $user->role = $request->role;
+            $updatedFields[] = 'role';
+        }
+    
+        if ($request->has('nomor_absen') && $request->nomor_absen != $user->nomor_absen) {
+            $user->nomor_absen = $request->nomor_absen;
+            $updatedFields[] = 'nomor_absen';
+        }
+    
+        // Foto yang baru
+        $user->photo = $photoPath;
+    
+        // Simpan perubahan ke database jika ada perubahan
+        if (count($updatedFields) > 0) {
+            if ($user->save()) {
+                Log::info("User updated successfully. Updated fields: " . implode(', ', $updatedFields));
+                return response()->json([
+                    'message' => 'Akun berhasil diperbarui',
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $user->role,
+                        'nomor_absen' => $user->nomor_absen,
+                        'image_url' => $photoPath ? asset('storage/' . $photoPath) : null, // URL foto baru
+                        'updated_at' => $user->updated_at,
+                    ]
+                ], 200);
+            }
+        } else {
+            Log::info("No changes detected for user ID: $id");
+            return response()->json(['message' => 'No changes detected'], 400);
+        }
+    
+        return response()->json(['message' => 'Gagal memperbarui akun'], 500);
     }
-
-    // Update data user
-    $user->name = $request->name;
-    $user->email = $request->email;
-    if ($request->filled('password')) {
-        $user->password = bcrypt($request->password); // Hash password jika di-update
-    }
-    $user->role = $request->role;
-    $user->photo = $photoPath; // Update path foto baru jika ada
-    $user->nomor_absen = $request->nomor_absen; // Update nomor_absen jika ada
-
-    // Simpan perubahan ke database
-    if ($user->save()) {
-        return response()->json([
-            'message' => 'Akun berhasil diperbarui',
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role,
-                'nomor_absen' => $user->nomor_absen, // Sertakan nomor_absen di respons
-                'image_url' => $photoPath ? asset('storage/' . $photoPath) : null, // URL foto baru
-                'updated_at' => $user->updated_at,
-            ]
-        ], 200);
-    }
-
-    return response()->json(['message' => 'Gagal memperbarui akun'], 500);
-}
+    
+    
+    
 
 
     public function delete(Request $request, $id)
