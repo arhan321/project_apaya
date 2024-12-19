@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Log;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
 
 class VerifyCsrfToken extends Middleware
@@ -14,4 +15,28 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
      'api/*'
     ];
+    public function handle($request, \Closure $next)
+    {
+    if ($this->isReading($request) || $this->runningUnitTests() ||
+        $this->inExceptArray($request) || $this->tokensMatch($request)) {
+        Log::info('CSRF verification passed', [
+            'url' => $request->fullUrl(),
+            'method' => $request->method(),
+            'headers' => $request->headers->all(),
+            'body' => $request->all(),
+        ]);
+        return $next($request);
+    }
+
+    \Log::warning('CSRF verification failed', [
+        'url' => $request->fullUrl(),
+        'method' => $request->method(),
+        'headers' => $request->headers->all(),
+        'body' => $request->all(),
+    ]);
+
+    return parent::handle($request, $next);
+    }
+
+    
 }

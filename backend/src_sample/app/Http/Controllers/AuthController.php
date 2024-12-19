@@ -8,15 +8,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+// use Illuminate\Support\Facades\Storage;
 // use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     public function login(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|min:6',
@@ -29,6 +30,9 @@ class AuthController extends Controller
         }
     
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            // Regenerasi session untuk keamanan
+            $request->session()->regenerate();
+    
             $user = Auth::user();
     
             return response()->json([
@@ -37,7 +41,7 @@ class AuthController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'role' => $user->role, 
+                    'role' => $user->role,
                 ],
             ], 200);
         } else {
@@ -47,7 +51,6 @@ class AuthController extends Controller
         }
     }
     
-
     public function register(Request $request)
     {
         // Validasi input dari request
@@ -57,18 +60,12 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:admin,siswa,guru,orang_tua,kepala_sekolah',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
-            'nomor_absen' => 'nullable|integer|min:1', // Validasi untuk nomor_absen
+            'nomor_absen' => 'nullable|integer|min:1|required_if:role,siswa', // Hanya siswa yang memerlukan nomor absen
         ]);
     
         // Mengatur upload gambar jika ada
-        $imagePath = null; // Inisialisasi variabel path foto
+        $imagePath = null;
         if ($request->hasFile('photo')) {
-            // Membuat direktori jika belum ada
-            if (!Storage::exists('public/images/users')) {
-                Storage::makeDirectory('public/images/users');
-            }
-    
-            // Simpan gambar ke folder public/images/users
             $imagePath = $request->file('photo')->store('images/users', 'public');
         }
     
@@ -82,8 +79,8 @@ class AuthController extends Controller
                 'email' => $request->email,
                 'password' => $hashedPassword,
                 'role' => $request->role,
-                'photo' => $imagePath, // Menyimpan path gambar jika ada
-                'nomor_absen' => $request->nomor_absen, // Menambahkan nomor_absen
+                'photo' => $imagePath,
+                'nomor_absen' => $request->nomor_absen,
             ]);
     
             // Jika user berhasil dibuat
@@ -94,13 +91,16 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'role' => $user->role,
-                    'nomor_absen' => $user->nomor_absen, // Menyertakan nomor_absen dalam respons
-                    'image_url' => $imagePath ? asset('storage/' . $imagePath) : null, // URL untuk akses gambar
+                    'nomor_absen' => $user->nomor_absen,
+                    'image_url' => $imagePath ? Storage::url($imagePath) : null,
                 ],
             ], 201);
     
+        } catch (QueryException $e) {
+            return response()->json([
+                'message' => 'Kesalahan database: ' . $e->getMessage(),
+            ], 500);
         } catch (\Exception $e) {
-            // Menangani error saat proses insert
             return response()->json([
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
             ], 500);
@@ -108,11 +108,16 @@ class AuthController extends Controller
     }
     
     
+    
 
     public function logout(Request $request)
     {
         Auth::logout();
-
+    
+        $request->session()->invalidate();
+    
+        $request->session()->regenerateToken();
+    
         return response()->json([
             'message' => 'Logout successful',
         ], 200);
@@ -132,25 +137,14 @@ class AuthController extends Controller
     }
     
 
-        public function get_user($id)
+    public function get_user($id)
     {
-        $user = User::find($id);
-
-        if (!$user) {
-            return response()->json([
-                'message' => 'User not found.',
-            ], 404);
+        $query = DB::connection('mysql')->table('user')->where('id', $id)->first();
+        if ($query) {
+            return response()->json($query, 200);
+        } else {
+            return response()->json(['message' => 'Data tidak di temukan'], 404);
         }
-
-        return response()->json([
-            'message' => 'User di temukan !!',
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role,
-            ],
-        ], 200);
     }
 
     public function update(Request $request, $id)
@@ -224,7 +218,7 @@ class AuthController extends Controller
     return response()->json(['message' => 'Gagal memperbarui akun'], 500);
 }
 
-    
+
     public function delete(Request $request, $id)
     {
         try {
@@ -252,6 +246,26 @@ class AuthController extends Controller
         }
     }
     
+    public function getLoggedInUser()
+{
+    // Verifikasi apakah pengguna login
+    if (Auth::check()) {
+        $user = Auth::user();
+
+        // Berikan respons data pengguna
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'image_url' => $user->photo ? asset('storage/' . $user->photo) : null,
+            'nomor_absen' => $user->nomor_absen,
+        ], 200);
+    } else {
+        // Berikan respons jika pengguna tidak login
+        return response()->json(['message' => 'Unauthorized: User not logged in'], 401);
+    }
+}
     
     
     

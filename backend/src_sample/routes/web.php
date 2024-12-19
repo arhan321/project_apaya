@@ -85,8 +85,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 // api absen
 
-//CRUD
-Route::group(['prefix' => 'api/v1/account'], function() {
+Route::group(['prefix' => 'api/v1/account'], function () {
     Route::get('/', [AuthController::class, 'index']);
     Route::get('/{id}', [AuthController::class, 'get_user']);
     Route::post('/register', [AuthController::class, 'register']);
@@ -95,4 +94,5 @@ Route::group(['prefix' => 'api/v1/account'], function() {
     Route::put('/{id}', [AuthController::class, 'update']);
     Route::delete('/{id}', [AuthController::class, 'delete']);
 });
+Route::get('/auth/me', [AuthController::class, 'getLoggedInUser'])->middleware('auth');
 
