@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -37,9 +38,7 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
       final prefs = await SharedPreferences.getInstance();
       authToken = prefs.getString('authToken');
 
-      // Only fetch profile data from /auth/me
       if (authToken == null) {
-        // Show message if token is not available
         Get.snackbar('Session Expired', 'Please log in again.',
             snackPosition: SnackPosition.BOTTOM);
         Get.offAllNamed('/login');
@@ -61,14 +60,9 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
         setState(() {
           nameController.text = data['name'] ?? '';
           numberController.text = data['nomor_absen']?.toString() ?? '';
-          userIdController.text =
-              data['id']?.toString() ?? ''; // Add user ID to the form
+          userIdController.text = data['id']?.toString() ?? '';
           userId = data['id']?.toString();
-          if (data['image_url'] != null && data['image_url'].isNotEmpty) {
-            _imageFile = null; // No need to use File for URL images
-          } else {
-            _imageFile = null; // No photo available, set to null
-          }
+          _imageFile = null; // No photo available, set to null
         });
       } else {
         setState(() {
@@ -100,53 +94,74 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
     }
   }
 
-  // Update profile data
   Future<void> _updateProfile() async {
     if (authToken == null || userId == null) {
-      // If the token or userId is missing, show the user an error message
       Get.snackbar('Error',
           'Session expired or missing information. Please log in again.');
       return;
     }
 
-    final String url =
-        'https://absen.djncloud.my.id/api/v1/account/$userId'; // Pass the user ID in the URL
-    final formData = dio.FormData.fromMap({
-      'name': nameController.text,
-      'nomor_absen': numberController.text,
-      'user_id': userIdController.text, // Include user ID in the form data
-      'photo': _imageFile != null
-          ? await dio.MultipartFile.fromFile(_imageFile!.path)
-          : null,
-    });
+    final String url = 'https://absen.djncloud.my.id/api/v1/account/$userId';
+
+    // Create a JSON object instead of FormData
+    final Map<String, dynamic> data = {};
+
+    // Add fields if they are not empty or modified
+    if (nameController.text.isNotEmpty) {
+      data['name'] = nameController.text;
+    }
+
+    if (numberController.text.isNotEmpty) {
+      data['nomor_absen'] = numberController.text;
+    }
+
+    if (_imageFile != null) {
+      // Convert image to base64 (if required)
+      final bytes = await _imageFile!.readAsBytes();
+      data['photo'] = base64Encode(bytes);
+    }
+
+    // If there is no data to send, show a message and stop the request
+    if (data.isEmpty) {
+      Get.snackbar('Error', 'No changes detected');
+      return;
+    }
+
+    debugPrint("Data being sent: $data");
 
     try {
       final response = await _dio.put(
         url,
-        data: formData,
+        data: data,
         options: dio.Options(
           headers: {
             'Authorization': 'Bearer $authToken',
             'Accept': 'application/json',
+            'Content-Type': 'application/json', // Sending as JSON
           },
         ),
       );
 
       if (response.statusCode == 200) {
-        // Handling success response
-        final data = response.data;
-        // Display a success message with the updated data
-        Get.snackbar('Success', 'Profile updated successfully');
-        debugPrint('Updated Profile Data: $data');
-        Get.offAllNamed('/profile'); // Redirect to profile page
+        final updatedData = response.data['user'];
+        debugPrint('Updated Profile Data: $updatedData');
+
+        // Check if the server is returning the updated data correctly
+        if (updatedData['name'] == nameController.text &&
+            updatedData['nomor_absen'] == numberController.text) {
+          Get.snackbar('Success', 'Profile updated successfully');
+          await _loadProfileData(); // Reload profile data after successful update
+          Get.offAllNamed('/profile'); // Redirect to profile page
+        } else {
+          Get.snackbar('Error', 'Update failed. Please try again.');
+          debugPrint('Error updating profile: Data mismatch');
+        }
       } else {
-        // If server responds with an error
         Get.snackbar('Error', 'Update failed. Please try again.');
         debugPrint('Error updating profile: ${response.statusCode}');
       }
     } catch (e) {
       String errorMessage = 'An error occurred while updating your profile.';
-
       if (e is dio.DioException) {
         if (e.response != null) {
           errorMessage = 'Server Error: ${e.response?.data}';
