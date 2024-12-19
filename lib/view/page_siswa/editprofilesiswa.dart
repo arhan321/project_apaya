@@ -16,10 +16,12 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
   final TextEditingController classController =
       TextEditingController(text: 'Kelas 6A');
   final TextEditingController numberController = TextEditingController();
+  final TextEditingController userIdController = TextEditingController();
   File? _imageFile;
   final picker = ImagePicker();
   String errorMessage = '';
   String? userId;
+  String? authToken;
 
   final dio.Dio _dio = dio.Dio();
 
@@ -33,12 +35,14 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
   Future<void> _loadProfileData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final authToken = prefs.getString('authToken');
-      userId = prefs.getString('userId'); // Get the user ID
+      authToken = prefs.getString('authToken');
 
-      if (authToken == null || userId == null) {
-        Get.offAllNamed(
-            '/login'); // If token or userId is not present, redirect to login
+      // Only fetch profile data from /auth/me
+      if (authToken == null) {
+        // Show message if token is not available
+        Get.snackbar('Session Expired', 'Please log in again.',
+            snackPosition: SnackPosition.BOTTOM);
+        Get.offAllNamed('/login');
         return;
       }
 
@@ -57,11 +61,13 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
         setState(() {
           nameController.text = data['name'] ?? '';
           numberController.text = data['nomor_absen']?.toString() ?? '';
-          // If image_url exists, set it properly
+          userIdController.text =
+              data['id']?.toString() ?? ''; // Add user ID to the form
+          userId = data['id']?.toString();
           if (data['image_url'] != null && data['image_url'].isNotEmpty) {
             _imageFile = null; // No need to use File for URL images
           } else {
-            _imageFile = null; // No photo available
+            _imageFile = null; // No photo available, set to null
           }
         });
       } else {
@@ -96,19 +102,19 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
 
   // Update profile data
   Future<void> _updateProfile() async {
-    final prefs = await SharedPreferences.getInstance();
-    final authToken = prefs.getString('authToken');
-
     if (authToken == null || userId == null) {
-      Get.offAllNamed('/login');
+      // If the token or userId is missing, show the user an error message
+      Get.snackbar('Error',
+          'Session expired or missing information. Please log in again.');
       return;
     }
 
     final String url =
-        'https://absen.djncloud.my.id/api/v1/account/update/$userId'; // Pass the user ID in the URL
+        'https://absen.djncloud.my.id/api/v1/account/$userId'; // Pass the user ID in the URL
     final formData = dio.FormData.fromMap({
       'name': nameController.text,
       'nomor_absen': numberController.text,
+      'user_id': userIdController.text, // Include user ID in the form data
       'photo': _imageFile != null
           ? await dio.MultipartFile.fromFile(_imageFile!.path)
           : null,
@@ -127,9 +133,14 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
       );
 
       if (response.statusCode == 200) {
+        // Handling success response
+        final data = response.data;
+        // Display a success message with the updated data
         Get.snackbar('Success', 'Profile updated successfully');
+        debugPrint('Updated Profile Data: $data');
         Get.offAllNamed('/profile'); // Redirect to profile page
       } else {
+        // If server responds with an error
         Get.snackbar('Error', 'Update failed. Please try again.');
         debugPrint('Error updating profile: ${response.statusCode}');
       }
@@ -228,6 +239,9 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
             _buildInputField('Kelas', classController, isEnabled: false),
             SizedBox(height: 20),
             _buildInputField('Nomor Absen', numberController),
+            SizedBox(height: 20),
+            _buildInputField('User ID', userIdController,
+                isEnabled: false), // Show user ID field
             SizedBox(height: 40),
             ElevatedButton(
               onPressed: _updateProfile,

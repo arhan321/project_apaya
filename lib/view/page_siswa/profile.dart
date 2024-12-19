@@ -101,42 +101,43 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  // void deleteAccount() async {
-  //   const String url = 'https://absen.djncloud.my.id/api/v1/account/logout';
+  // Delete Account functionality
+  void deleteAccount() async {
+    const String url = 'https://absen.djncloud.my.id/api/v1/account/logout';
 
-  //   try {
-  //     final prefs = await SharedPreferences.getInstance();
-  //     final authToken = prefs.getString('authToken');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
 
-  //     if (authToken == null) {
-  //       Get.offAllNamed('/login');
-  //       return;
-  //     }
+      if (authToken == null) {
+        Get.offAllNamed('/login');
+        return;
+      }
 
-  //     final response = await _dio.delete(
-  //       url,
-  //       options: Options(
-  //         headers: {
-  //           'Authorization': 'Bearer $authToken',
-  //           'Accept': 'application/json',
-  //         },
-  //       ),
-  //     );
+      final response = await _dio.delete(
+        url,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $authToken',
+            'Accept': 'application/json',
+          },
+        ),
+      );
 
-  //     if (response.statusCode == 200) {
-  //       Get.snackbar('Success', 'Akun berhasil dihapus');
-  //       prefs.clear();
-  //       Get.offAllNamed('/login');
-  //     } else {
-  //       Get.snackbar('Error', 'Gagal menghapus akun');
-  //     }
-  //   } catch (e) {
-  //     Get.snackbar('Error', 'Terjadi kesalahan saat menghapus akun');
-  //     debugPrint('Kesalahan saat menghapus akun: $e');
-  //   }
-  // }
+      if (response.statusCode == 200) {
+        Get.snackbar('Success', 'Akun berhasil dihapus');
+        prefs.clear();
+        Get.offAllNamed('/login');
+      } else {
+        Get.snackbar('Error', 'Gagal menghapus akun');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Terjadi kesalahan saat menghapus akun');
+      debugPrint('Kesalahan saat menghapus akun: $e');
+    }
+  }
 
-// ini adalah untuk session logout
+  // Session logout
   void logout() async {
     const String url = 'https://absen.djncloud.my.id/auth/logout';
 
@@ -145,7 +146,6 @@ class _ProfilePageState extends State<ProfilePage> {
       final authToken = prefs.getString('authToken');
 
       if (authToken == null) {
-        // Token tidak ditemukan, arahkan ke login tanpa menampilkan error
         Get.offAllNamed('/login');
         return;
       }
@@ -154,26 +154,21 @@ class _ProfilePageState extends State<ProfilePage> {
         url,
         options: Options(
           headers: {
-            'Authorization': 'Bearer $authToken', // Kirim token Bearer
+            'Authorization': 'Bearer $authToken',
             'Accept': 'application/json',
           },
         ),
       );
 
       if (response.statusCode == 200) {
-        // Logout berhasil, hapus token dan data sesi tanpa feedback
-        prefs.remove('authToken'); // Hapus token
-        prefs.remove('userName'); // Hapus nama pengguna
-        prefs.remove('userEmail'); // Hapus email pengguna
-
-        // Redirect ke halaman login tanpa menampilkan feedback apapun
+        prefs.remove('authToken');
+        prefs.remove('userName');
+        prefs.remove('userEmail');
         Get.offAllNamed('/login');
       } else {
-        // Logout gagal, langsung redirect ke halaman login
         Get.offAllNamed('/login');
       }
     } catch (e) {
-      // Jika terjadi kesalahan saat logout, langsung redirect ke halaman login
       Get.offAllNamed('/login');
       debugPrint('Error during logout: $e');
     }
@@ -247,8 +242,15 @@ class _ProfilePageState extends State<ProfilePage> {
                         backgroundImage:
                             photoUrl != null && photoUrl!.isNotEmpty
                                 ? NetworkImage(photoUrl!) // URL gambar profil
-                                : AssetImage('assets/placeholder.jpg')
-                                    as ImageProvider, // Placeholder
+                                : null,
+                        child: photoUrl == null || photoUrl!.isEmpty
+                            ? Text(
+                                'Gambar Kosong',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 14),
+                                textAlign: TextAlign.center,
+                              )
+                            : null, // Display text if no image
                       ),
                       SizedBox(height: 16),
                       Text(
@@ -301,42 +303,42 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               SizedBox(height: 12),
               // Delete Account Button
-              // ElevatedButton(
-              //   onPressed: () {
-              //     Get.defaultDialog(
-              //       title: "Hapus Akun",
-              //       middleText: "Apakah Anda yakin ingin menghapus akun ini?",
-              //       confirm: ElevatedButton(
-              //         onPressed: deleteAccount,
-              //         style: ElevatedButton.styleFrom(
-              //           backgroundColor: Colors.redAccent,
-              //         ),
-              //         child: Text("Hapus",
-              //             style: GoogleFonts.poppins(color: Colors.white)),
-              //       ),
-              //       cancel: TextButton(
-              //         onPressed: () => Get.back(),
-              //         child: Text("Batal",
-              //             style: GoogleFonts.poppins(color: Colors.blueAccent)),
-              //       ),
-              //     );
-              //   },
-              //   style: ElevatedButton.styleFrom(
-              //     backgroundColor: Colors.redAccent,
-              //     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
-              //     shape: RoundedRectangleBorder(
-              //       borderRadius: BorderRadius.circular(20),
-              //     ),
-              //   ),
-              //   child: Text(
-              //     'Hapus Akun',
-              //     style: GoogleFonts.poppins(
-              //       color: Colors.white,
-              //       fontSize: 16,
-              //       fontWeight: FontWeight.w600,
-              //     ),
-              //   ),
-              // ),
+              ElevatedButton(
+                onPressed: () {
+                  Get.defaultDialog(
+                    title: "Hapus Akun",
+                    middleText: "Apakah Anda yakin ingin menghapus akun ini?",
+                    confirm: ElevatedButton(
+                      onPressed: deleteAccount,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                      ),
+                      child: Text("Hapus",
+                          style: GoogleFonts.poppins(color: Colors.white)),
+                    ),
+                    cancel: TextButton(
+                      onPressed: () => Get.back(),
+                      child: Text("Batal",
+                          style: GoogleFonts.poppins(color: Colors.blueAccent)),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: Text(
+                  'Hapus Akun',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
               SizedBox(height: 12),
               // Logout Button
               ElevatedButton(
