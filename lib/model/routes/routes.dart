@@ -1,4 +1,6 @@
 import 'package:forum/view/page_admin/rekapadmin.dart';
+// import 'package:forum/view/page_siswa/editprofilesiswa.dart' as editProfile;
+import 'package:forum/view/page_siswa/profile.dart' as profile;
 import 'package:get/get.dart';
 import 'package:forum/view/page_admin/catatanadmin.dart';
 import 'package:forum/view/page_admin/detailabsenadmin.dart';

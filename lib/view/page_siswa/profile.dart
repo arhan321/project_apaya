@@ -31,7 +31,6 @@ class _ProfilePageState extends State<ProfilePage> {
     const String url = 'https://absen.djncloud.my.id/auth/me';
 
     try {
-      // Ambil token dari SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final authToken = prefs.getString('authToken');
 
@@ -40,17 +39,16 @@ class _ProfilePageState extends State<ProfilePage> {
           errorMessage = 'Token tidak ditemukan. Silakan login ulang.';
           isLoading = false;
         });
-        Get.offAllNamed('/login'); // Navigasi ke halaman login
+        Get.offAllNamed('/login');
         return;
       }
 
-      // Kirim request dengan header Authorization
       final response = await _dio.get(
         url,
         options: Options(
           headers: {
             'Accept': 'application/json',
-            'Authorization': 'Bearer $authToken', // Tambahkan token di header
+            'Authorization': 'Bearer $authToken',
           },
         ),
       );
@@ -58,12 +56,12 @@ class _ProfilePageState extends State<ProfilePage> {
       if (response.statusCode == 200) {
         final data = response.data;
 
-        debugPrint('Data berhasil diambil: $data'); // Debug respons sukses
+        debugPrint('Data berhasil diambil: $data');
 
         setState(() {
           studentName = data['name'] ?? 'Nama tidak tersedia';
           studentNumber = data['nomor_absen']?.toString() ?? 'N/A';
-          photoUrl = data['image_url']; // Ambil URL gambar profil
+          photoUrl = data['image_url'];
           isLoading = false;
         });
       } else {
@@ -79,6 +77,105 @@ class _ProfilePageState extends State<ProfilePage> {
         errorMessage = 'Terjadi kesalahan saat memuat data.';
         isLoading = false;
       });
+    }
+  }
+
+  void editProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final authToken = prefs.getString('authToken');
+
+    debugPrint("Auth token: $authToken");
+
+    if (authToken == null) {
+      debugPrint("Token is null, redirecting to login");
+      Get.offAllNamed('/login');
+      return;
+    }
+
+    try {
+      debugPrint("Navigating to EditProfileSiswaPage");
+      Get.toNamed('/editProfileSiswa');
+    } catch (e) {
+      debugPrint("Error during navigation to edit profile: $e");
+      Get.snackbar('Error', 'Unable to navigate to Edit Profile');
+    }
+  }
+
+  // void deleteAccount() async {
+  //   const String url = 'https://absen.djncloud.my.id/api/v1/account/logout';
+
+  //   try {
+  //     final prefs = await SharedPreferences.getInstance();
+  //     final authToken = prefs.getString('authToken');
+
+  //     if (authToken == null) {
+  //       Get.offAllNamed('/login');
+  //       return;
+  //     }
+
+  //     final response = await _dio.delete(
+  //       url,
+  //       options: Options(
+  //         headers: {
+  //           'Authorization': 'Bearer $authToken',
+  //           'Accept': 'application/json',
+  //         },
+  //       ),
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       Get.snackbar('Success', 'Akun berhasil dihapus');
+  //       prefs.clear();
+  //       Get.offAllNamed('/login');
+  //     } else {
+  //       Get.snackbar('Error', 'Gagal menghapus akun');
+  //     }
+  //   } catch (e) {
+  //     Get.snackbar('Error', 'Terjadi kesalahan saat menghapus akun');
+  //     debugPrint('Kesalahan saat menghapus akun: $e');
+  //   }
+  // }
+
+// ini adalah untuk session logout
+  void logout() async {
+    const String url = 'https://absen.djncloud.my.id/auth/logout';
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      if (authToken == null) {
+        // Token tidak ditemukan, arahkan ke login tanpa menampilkan error
+        Get.offAllNamed('/login');
+        return;
+      }
+
+      final response = await _dio.post(
+        url,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $authToken', // Kirim token Bearer
+            'Accept': 'application/json',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        // Logout berhasil, hapus token dan data sesi tanpa feedback
+        prefs.remove('authToken'); // Hapus token
+        prefs.remove('userName'); // Hapus nama pengguna
+        prefs.remove('userEmail'); // Hapus email pengguna
+
+        // Redirect ke halaman login tanpa menampilkan feedback apapun
+        Get.offAllNamed('/login');
+      } else {
+        // Logout gagal, langsung redirect ke halaman login
+        Get.offAllNamed('/login');
+      }
+    } catch (e) {
+      // Jika terjadi kesalahan saat logout, langsung redirect ke halaman login
+      Get.offAllNamed('/login');
+      debugPrint('Error during logout: $e');
     }
   }
 
@@ -144,7 +241,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      // Foto Profil
                       CircleAvatar(
                         radius: 60,
                         backgroundColor: Colors.grey[200],
@@ -155,7 +251,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                     as ImageProvider, // Placeholder
                       ),
                       SizedBox(height: 16),
-                      // Nama Siswa
                       Text(
                         studentName,
                         style: GoogleFonts.poppins(
@@ -165,7 +260,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       SizedBox(height: 8),
-                      // Kelas (Statis)
                       Text(
                         'Kelas: $studentClass',
                         style: GoogleFonts.poppins(
@@ -174,7 +268,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       SizedBox(height: 8),
-                      // Nomor Absen
                       Text(
                         'No Absen: $studentNumber',
                         style: GoogleFonts.poppins(
@@ -183,6 +276,84 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                     ],
+                  ),
+                ),
+              ),
+              // Edit Profile Button
+              SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: editProfile,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: Text(
+                  'Edit Profile',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              SizedBox(height: 12),
+              // Delete Account Button
+              // ElevatedButton(
+              //   onPressed: () {
+              //     Get.defaultDialog(
+              //       title: "Hapus Akun",
+              //       middleText: "Apakah Anda yakin ingin menghapus akun ini?",
+              //       confirm: ElevatedButton(
+              //         onPressed: deleteAccount,
+              //         style: ElevatedButton.styleFrom(
+              //           backgroundColor: Colors.redAccent,
+              //         ),
+              //         child: Text("Hapus",
+              //             style: GoogleFonts.poppins(color: Colors.white)),
+              //       ),
+              //       cancel: TextButton(
+              //         onPressed: () => Get.back(),
+              //         child: Text("Batal",
+              //             style: GoogleFonts.poppins(color: Colors.blueAccent)),
+              //       ),
+              //     );
+              //   },
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: Colors.redAccent,
+              //     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(20),
+              //     ),
+              //   ),
+              //   child: Text(
+              //     'Hapus Akun',
+              //     style: GoogleFonts.poppins(
+              //       color: Colors.white,
+              //       fontSize: 16,
+              //       fontWeight: FontWeight.w600,
+              //     ),
+              //   ),
+              // ),
+              SizedBox(height: 12),
+              // Logout Button
+              ElevatedButton(
+                onPressed: logout,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orangeAccent,
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: Text(
+                  'Logout',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
