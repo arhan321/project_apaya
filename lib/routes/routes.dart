@@ -149,8 +149,7 @@ class AppRoutes {
     ),
     GetPage(
       name: mainPageOrtu,
-      page: () =>
-          MainPageOrtu(userName: 'Orang Tua'), // Halaman Utama Orang Tua
+      page: () => MainPageOrtu(), // Halaman Utama Orang Tua
     ),
     // GetPage(
     //   name: kalkulator,

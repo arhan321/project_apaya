@@ -63,7 +63,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Center(
                   child: Text(
-                    'Masukkan nama pengguna Anda dan kami akan mengirimkan Anda tautan untuk mengubah kata sandi baru',
+                    'Masukan Email Anda untuk mendapatkan link reset password',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 16,
@@ -77,7 +77,7 @@ class ForgotPasswordScreen extends StatelessWidget {
               // Input untuk nama pengguna
               Center(
                   child: _buildTextField(
-                      usernameController, 'Masukkan Nama Pengguna')),
+                      usernameController, 'Masukkan Email Anda')),
               SizedBox(height: 20),
 
               // Tombol Forgot Password

@@ -3,10 +3,9 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MainPageController extends GetxController {
+class MainPageOrtuController extends GetxController {
   var userName = 'Guest'.obs;
   var userEmail = ''.obs;
-  var userRole = ''.obs;
   var userImageUrl = Rxn<String>();
   var isLoading = true.obs;
   var errorMessage = ''.obs;
@@ -17,12 +16,6 @@ class MainPageController extends GetxController {
   void onInit() {
     super.onInit();
     fetchUserData();
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
-    fetchUserData(); // Memastikan data diperbarui setiap kali MainPage dibuka
   }
 
   Future<void> fetchUserData() async {
@@ -53,11 +46,9 @@ class MainPageController extends GetxController {
         final data = response.data;
         userName.value = data['name'] ?? 'Nama tidak tersedia';
         userEmail.value = data['email'] ?? 'Email tidak tersedia';
-        userRole.value = data['role'] ?? 'Role tidak diketahui';
         userImageUrl.value = data['image_url'];
       } else {
-        errorMessage.value =
-            'Gagal mengambil data. Status Code: ${response.statusCode}\nPesan: ${response.data}';
+        errorMessage.value = 'Gagal mengambil data: ${response.data}';
       }
     } catch (e) {
       errorMessage.value = 'Terjadi kesalahan saat memuat data.';

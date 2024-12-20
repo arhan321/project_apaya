@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../page_global/login.dart';
-import 'profilortu.dart'; // Import ProfilortuPage
-import 'listabsenortu.dart'; // Import ListAbsenOrtuPage
+import '/controller/orangtua_controller/mainpageortu_controller.dart';
+import 'listabsenortu.dart';
+import 'profilortu.dart';
 
 class MainPageOrtu extends StatelessWidget {
-  final String userName;
-
-  MainPageOrtu({Key? key, this.userName = 'Orang Tua'}) : super(key: key);
+  final MainPageOrtuController controller = Get.put(MainPageOrtuController());
 
   @override
   Widget build(BuildContext context) {
@@ -39,118 +37,147 @@ class MainPageOrtu extends StatelessWidget {
             icon: Icon(Icons.account_circle),
             color: Colors.white,
             onPressed: () {
-              // Navigasi ke halaman ProfilortuPage dengan route biasa
               Get.to(() => ProfilortuPage());
             },
           ),
         ],
       ),
-      drawer: _buildDrawer(context), // Menambahkan kembali Drawer
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blueAccent, Colors.lightBlueAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Expanded(
-                child: ListView(
-                  children: [
-                    _buildCard(
-                      title: 'Kelas 6A',
-                      subtitle: 'SD NEGERI RANCAGONG 1',
-                      teacher: 'Tatang Sutarman',
-                      onTap: () {
-                        Get.to(() => ListAbsenOrtu());
-                      },
-                    ),
-                    SizedBox(height: 10),
-                    _buildCard(
-                      title: 'Kelas 6B',
-                      subtitle: 'SD NEGERI RANCAGONG 1',
-                      teacher: 'Budiono Siregar',
-                      onTap: () {
-                        Get.to(() => ListAbsenOrtu());
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              _buildLogoutButton(context),
-            ],
-          ),
-        ),
-      ),
+      drawer: _buildDrawer(context),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return Center(child: CircularProgressIndicator());
+        } else if (controller.errorMessage.value.isNotEmpty) {
+          return Center(child: Text(controller.errorMessage.value));
+        } else {
+          return _buildDashboardContent();
+        }
+      }),
     );
   }
 
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          UserAccountsDrawerHeader(
-            accountName: Text(
-              userName,
-              style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
-            ),
-            accountEmail: Text(
-              '$userName@example.com',
-              style: GoogleFonts.poppins(),
-            ),
-            currentAccountPicture: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Text(
-                userName.isNotEmpty ? userName[0] : 'G',
-                style: GoogleFonts.poppins(
-                  fontSize: 40.0,
-                  color: Colors.blueAccent,
-                  fontWeight: FontWeight.w700,
-                ),
+      child: Obx(() {
+        return ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+              accountName: Text(
+                controller.userName.value,
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+              ),
+              accountEmail: Text(
+                controller.userEmail.value,
+                style: GoogleFonts.poppins(),
+              ),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                backgroundImage: controller.userImageUrl.value != null
+                    ? NetworkImage(controller.userImageUrl.value!)
+                    : null,
+                child: controller.userImageUrl.value == null
+                    ? Text(
+                        controller.userName.value.isNotEmpty
+                            ? controller.userName.value[0]
+                            : 'G',
+                        style: GoogleFonts.poppins(
+                          fontSize: 40.0,
+                          color: Colors.blueAccent,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      )
+                    : null,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.blueAccent,
               ),
             ),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.blueAccent, Colors.lightBlueAccent],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+            ListTile(
+              leading: Icon(Icons.home, color: Colors.blueAccent),
+              title: Text(
+                'Home',
+                style: GoogleFonts.poppins(),
               ),
+              onTap: () {
+                Navigator.pop(context);
+              },
             ),
-          ),
-          ListTile(
-            leading: Icon(Icons.home, color: Colors.blueAccent),
-            title: Text(
-              'Home',
-              style: GoogleFonts.poppins(),
+            ListTile(
+              leading: Icon(Icons.refresh, color: Colors.blueAccent),
+              title: Text(
+                'Refresh (jika data tidak valid)',
+                style: GoogleFonts.poppins(),
+              ),
+              onTap: () {
+                controller.fetchUserData();
+                Get.snackbar(
+                  'Refresh',
+                  'Data berhasil diperbarui!',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: Colors.greenAccent,
+                  colorText: Colors.white,
+                );
+              },
             ),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.logout, color: Colors.blueAccent),
-            title: Text(
-              'Logout',
-              style: GoogleFonts.poppins(),
+            ListTile(
+              leading: Icon(Icons.logout, color: Colors.blueAccent),
+              title: Text(
+                'Logout',
+                style: GoogleFonts.poppins(),
+              ),
+              onTap: () {
+                controller.logout();
+              },
             ),
-            onTap: () {
-              _logout(context);
-            },
-          ),
-        ],
-      ),
+          ],
+        );
+      }),
     );
   }
 
-  void _logout(BuildContext context) {
-    Get.offAll(() => LoginScreen());
+  Widget _buildDashboardContent() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blueAccent, Colors.lightBlueAccent],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                children: [
+                  _buildCard(
+                    title: 'Kelas 6A',
+                    subtitle: 'SD NEGERI RANCAGONG 1',
+                    teacher: 'Tatang Sutarman',
+                    onTap: () {
+                      Get.to(
+                          () => ListAbsenOrtu()); // Tidak menggunakan className
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  _buildCard(
+                    title: 'Kelas 6B',
+                    subtitle: 'SD NEGERI RANCAGONG 1',
+                    teacher: 'Budiono Siregar',
+                    onTap: () {
+                      Get.to(
+                          () => ListAbsenOrtu()); // Tidak menggunakan className
+                    },
+                  ),
+                ],
+              ),
+            ),
+            _buildLogoutButton(),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildCard({
@@ -211,12 +238,12 @@ class MainPageOrtu extends StatelessWidget {
     );
   }
 
-  Widget _buildLogoutButton(BuildContext context) {
+  Widget _buildLogoutButton() {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          _logout(context);
+          controller.logout();
         },
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.symmetric(vertical: 10),

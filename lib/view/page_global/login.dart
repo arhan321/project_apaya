@@ -41,7 +41,6 @@ class LoginScreen extends StatelessWidget {
                       child: IconButton(
                         icon: Icon(Icons.arrow_back, color: Colors.white),
                         onPressed: () {
-                          // Standar logika dari kode sebelumnya
                           Get.back(); // Tutup halaman saat ini
                         },
                       ),
@@ -112,6 +111,24 @@ class LoginScreen extends StatelessWidget {
                         ),
                       );
                     }),
+                    const SizedBox(height: 20),
+                    // Reset Password
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: GestureDetector(
+                        onTap: () {
+                          Get.toNamed(AppRoutes.forgotPassword);
+                        },
+                        child: Text(
+                          'Reset Password',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 20),
                     // Navigasi ke Halaman Register
                     TextButton(
