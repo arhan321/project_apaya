@@ -6,8 +6,8 @@
 - PHP 8.3 
 - FLUTTER (MOBILE APPS)
 
-# Data Endpoint : 
-Main Endpoint : https://absen.djncloud.my.id
+# Data Domain API : 
+Main Domain API : https://absen.djncloud.my.id
 
 User :
 ```
