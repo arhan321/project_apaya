@@ -20,9 +20,6 @@ Route::group(['prefix' => 'api/v1/account'], function () {
     Route::post('/{id}/foto', [AuthController::class, 'uploadPhoto']);
     Route::delete('/{id}', [AuthController::class, 'delete']);
 });
-
-
-
 Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/auth/me', [AuthController::class, 'getLoggedInUser'])->middleware('auth:sanctum');
 
