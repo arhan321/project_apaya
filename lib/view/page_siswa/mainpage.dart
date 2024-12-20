@@ -1,35 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '/controller/siswa_controller/mainpage_controller.dart';
 import 'listabsen.dart';
 import 'profile.dart';
-import '../page_global/login.dart';
 
-class MainPage extends StatefulWidget {
-  @override
-  _MainPageState createState() => _MainPageState();
-}
-
-class _MainPageState extends State<MainPage> {
-  String userName = 'Guest';
-  String userEmail = '';
-  String userRole = '';
-
-  @override
-  void initState() {
-    super.initState();
-    loadUserSession();
-  }
-
-  Future<void> loadUserSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      userName = prefs.getString('userName') ?? 'Guest';
-      userEmail = prefs.getString('userEmail') ?? '';
-      userRole = prefs.getString('userRole') ?? '';
-    });
-  }
+class MainPage extends StatelessWidget {
+  final MainPageController controller = Get.put(MainPageController());
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +22,7 @@ class _MainPageState extends State<MainPage> {
           ),
         ),
         title: Text(
-          'Dashboard Siswa.',
+          'Dashboard Siswa',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w700,
             fontSize: 20,
@@ -66,121 +43,139 @@ class _MainPageState extends State<MainPage> {
         ],
       ),
       drawer: _buildDrawer(context),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blueAccent, Colors.lightBlueAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Expanded(
-                child: ListView(
-                  children: [
-                    _buildCard(
-                      title: 'Kelas 6A',
-                      subtitle: 'SD NEGERI RANCAGONG 1',
-                      teacher: 'Tatang Sutarman',
-                      onTap: () {
-                        Get.to(() => ListAbsenPage(className: 'Kelas 6A'));
-                      },
-                    ),
-                    SizedBox(height: 10),
-                    _buildCard(
-                      title: 'Kelas 6B',
-                      subtitle: 'SD NEGERI RANCAGONG 1',
-                      teacher: 'Budiono Siregar',
-                      onTap: () {
-                        Get.to(() => ListAbsenPage(className: 'Kelas 6B'));
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              _buildLogoutButton(context),
-            ],
-          ),
-        ),
-      ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return Center(child: CircularProgressIndicator());
+        } else if (controller.errorMessage.value.isNotEmpty) {
+          return Center(child: Text(controller.errorMessage.value));
+        } else {
+          return _buildDashboardContent();
+        }
+      }),
     );
   }
 
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          UserAccountsDrawerHeader(
-            accountName: Text(
-              userName,
-              style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
-            ),
-            accountEmail: Text(
-              userEmail,
-              style: GoogleFonts.poppins(),
-            ),
-            currentAccountPicture: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Text(
-                userName.isNotEmpty ? userName[0] : 'G',
-                style: GoogleFonts.poppins(
-                  fontSize: 40.0,
-                  color: Colors.blueAccent,
-                  fontWeight: FontWeight.w700,
-                ),
+      child: Obx(() {
+        return ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+              accountName: Text(
+                controller.userName.value,
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+              ),
+              accountEmail: Text(
+                controller.userEmail.value,
+                style: GoogleFonts.poppins(),
+              ),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                backgroundImage: controller.userImageUrl.value != null
+                    ? NetworkImage(controller.userImageUrl.value!)
+                    : null,
+                child: controller.userImageUrl.value == null
+                    ? Text(
+                        controller.userName.value.isNotEmpty
+                            ? controller.userName.value[0]
+                            : 'G',
+                        style: GoogleFonts.poppins(
+                          fontSize: 40.0,
+                          color: Colors.blueAccent,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      )
+                    : null,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.blueAccent,
               ),
             ),
-            decoration: BoxDecoration(
-              color: Colors.blueAccent,
+            ListTile(
+              leading: Icon(Icons.home, color: Colors.blueAccent),
+              title: Text(
+                'Home',
+                style: GoogleFonts.poppins(),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+              },
             ),
-          ),
-          ListTile(
-            leading: Icon(Icons.home, color: Colors.blueAccent),
-            title: Text(
-              'Home',
-              style: GoogleFonts.poppins(),
+            ListTile(
+              leading: Icon(Icons.refresh, color: Colors.blueAccent),
+              title: Text(
+                'Refresh (jika data tidak valid)',
+                style: GoogleFonts.poppins(),
+              ),
+              onTap: () {
+                controller.fetchUserData(); // Memanggil method refresh
+                Get.snackbar(
+                  'Refresh',
+                  'Data berhasil diperbarui!',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: Colors.greenAccent,
+                  colorText: Colors.white,
+                );
+              },
             ),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.logout, color: Colors.blueAccent),
-            title: Text(
-              'Logout',
-              style: GoogleFonts.poppins(),
+            ListTile(
+              leading: Icon(Icons.logout, color: Colors.blueAccent),
+              title: Text(
+                'Logout',
+                style: GoogleFonts.poppins(),
+              ),
+              onTap: () {
+                controller.logout();
+              },
             ),
-            onTap: () {
-              _logout();
-            },
-          ),
-        ],
-      ),
+          ],
+        );
+      }),
     );
   }
 
-  void _logout() async {
-    // Hapus data session
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-
-    // Tampilkan pesan berhasil logout
-    Get.snackbar(
-      'Success',
-      'Logout berhasil!',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.greenAccent,
-      colorText: Colors.white,
+  Widget _buildDashboardContent() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blueAccent, Colors.lightBlueAccent],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                children: [
+                  _buildCard(
+                    title: 'Kelas 6A',
+                    subtitle: 'SD NEGERI RANCAGONG 1',
+                    teacher: 'Tatang Sutarman',
+                    onTap: () {
+                      Get.to(() => ListAbsenPage(className: 'Kelas 6A'));
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  _buildCard(
+                    title: 'Kelas 6B',
+                    subtitle: 'SD NEGERI RANCAGONG 1',
+                    teacher: 'Budiono Siregar',
+                    onTap: () {
+                      Get.to(() => ListAbsenPage(className: 'Kelas 6B'));
+                    },
+                  ),
+                ],
+              ),
+            ),
+            _buildLogoutButton(),
+          ],
+        ),
+      ),
     );
-
-    // Arahkan ke halaman login
-    Get.offAll(() => LoginScreen());
   }
 
   Widget _buildCard({
@@ -241,12 +236,12 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  Widget _buildLogoutButton(BuildContext context) {
+  Widget _buildLogoutButton() {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          _logout();
+          controller.logout();
         },
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.symmetric(vertical: 10),

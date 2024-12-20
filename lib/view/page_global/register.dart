@@ -5,6 +5,7 @@ import '../../controller/global_controller/register_controller.dart';
 
 class RegisterScreen extends StatelessWidget {
   final RegisterController controller = Get.put(RegisterController());
+  final List<String> roleOptions = ['admin', 'guru', 'siswa', 'orang_tua'];
 
   @override
   Widget build(BuildContext context) {
@@ -70,9 +71,16 @@ class RegisterScreen extends StatelessWidget {
                       Icons.lock_outline, 'Konfirmasi Password',
                       isPassword: true),
                   const SizedBox(height: 20),
-                  _buildTextField(controller.roleController, Icons.group,
-                      'Role (admin/guru/siswa/orang_tua)'),
-                  if (controller.roleController.text.trim() == 'siswa') ...[
+                  _buildDropdownField(
+                    label: 'Role',
+                    options: roleOptions,
+                    value: controller.selectedRole.value,
+                    onChanged: (value) {
+                      controller.selectedRole.value = value!;
+                      controller.roleController.text = value;
+                    },
+                  ),
+                  if (controller.selectedRole.value == 'siswa') ...[
                     const SizedBox(height: 20),
                     _buildTextField(controller.nomorAbsenController,
                         Icons.format_list_numbered, 'Nomor Absen'),
@@ -106,6 +114,44 @@ class RegisterScreen extends StatelessWidget {
           hintStyle: GoogleFonts.poppins(),
           contentPadding: const EdgeInsets.symmetric(vertical: 15),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDropdownField({
+    required String label,
+    required List<String> options,
+    required String value,
+    required Function(String?) onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: DropdownButtonFormField<String>(
+        value: value.isEmpty ? null : value,
+        onChanged: onChanged,
+        items: options
+            .map(
+              (option) => DropdownMenuItem(
+                value: option,
+                child: Text(
+                  option,
+                  style: GoogleFonts.poppins(fontSize: 16),
+                ),
+              ),
+            )
+            .toList(),
+        decoration: InputDecoration(
+          labelText: label,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 10),
+        ),
+        style: GoogleFonts.poppins(color: Colors.black, fontSize: 16),
+        isExpanded: true,
+        icon: const Icon(Icons.arrow_drop_down, color: Colors.purple),
       ),
     );
   }

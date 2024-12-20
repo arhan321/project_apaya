@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../model/routes/routes.dart';
+import '../../routes/routes.dart';
 import 'package:flutter/material.dart';
 
 class LoginController extends GetxController {

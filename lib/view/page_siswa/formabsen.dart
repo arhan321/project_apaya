@@ -13,7 +13,12 @@ class _FormAbsenPageState extends State<FormAbsenPage> {
   String selectedKeterangan = 'Hadir'; // Default value
   final TextEditingController kelasController = TextEditingController();
 
-  final List<String> keteranganOptions = ['Hadir', 'Izin', 'Sakit', 'Tidak Hadir'];
+  final List<String> keteranganOptions = [
+    'Hadir',
+    'Izin',
+    'Sakit',
+    'Tidak Hadir'
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +120,7 @@ class _FormAbsenPageState extends State<FormAbsenPage> {
           height: 50,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(8), // Ubah menjadi lebih persegi
+            borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
                 color: Colors.black26,
@@ -130,10 +135,11 @@ class _FormAbsenPageState extends State<FormAbsenPage> {
             decoration: InputDecoration(
               hintText: hintText,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8), // Sama dengan container
+                borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide.none,
               ),
-              contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+              contentPadding:
+                  EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
             ),
           ),
         ),
@@ -163,7 +169,7 @@ class _FormAbsenPageState extends State<FormAbsenPage> {
           padding: EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(8), // Ubah menjadi lebih persegi
+            borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
                 color: Colors.black26,
@@ -182,7 +188,7 @@ class _FormAbsenPageState extends State<FormAbsenPage> {
               );
             }).toList(),
             onChanged: onChanged,
-            underline: SizedBox(), // Hilangkan garis bawaan DropdownButton
+            underline: SizedBox(),
           ),
         ),
       ],
@@ -213,14 +219,12 @@ class _FormAbsenPageState extends State<FormAbsenPage> {
             backgroundColor: Colors.green,
             colorText: Colors.white,
           );
-
-          // Tambahkan logika simpan absen atau navigasi ke halaman lain di sini
         },
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.symmetric(vertical: 15, horizontal: 40),
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8), // Ubah menjadi lebih persegi
+            borderRadius: BorderRadius.circular(8),
           ),
         ),
         child: Text(

@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../../../model/routes/routes.dart';
+import '../../routes/routes.dart';
 import 'package:flutter/material.dart';
 
 class RegisterController extends GetxController {
@@ -13,14 +13,16 @@ class RegisterController extends GetxController {
   final nomorAbsenController = TextEditingController();
   final isLoading = false.obs;
 
+  // Tambahkan selectedRole sebagai properti reaktif
+  var selectedRole = ''.obs;
+
   Future<void> register() async {
     final name = nameController.text.trim();
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
     final confirmPassword = confirmPasswordController.text.trim();
-    final role = roleController.text.trim();
+    final role = selectedRole.value; // Gunakan selectedRole untuk role
 
-    // Validasi input awal di sisi Flutter
     if (name.isEmpty || email.isEmpty || password.isEmpty || role.isEmpty) {
       Get.snackbar(
         'Error',
@@ -43,7 +45,6 @@ class RegisterController extends GetxController {
       return;
     }
 
-    // Pastikan role sesuai dengan daftar yang diizinkan
     final validRoles = [
       'admin',
       'siswa',
@@ -62,13 +63,11 @@ class RegisterController extends GetxController {
       return;
     }
 
-    // Jika role adalah siswa, tampilkan form Nomor Absen sebelum melanjutkan registrasi
     if (role == 'siswa') {
       _showNomorAbsenForm(name, email, password, confirmPassword, role);
       return;
     }
 
-    // Lanjutkan registrasi untuk role selain siswa
     _submitRegistration(name, email, password, confirmPassword, role);
   }
 
@@ -92,10 +91,7 @@ class RegisterController extends GetxController {
           children: [
             Text(
               'Isi Nomor Absen',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 10),
             TextField(
@@ -122,7 +118,6 @@ class RegisterController extends GetxController {
                   );
                   return;
                 }
-                // Tutup bottom sheet dan lanjutkan registrasi
                 Get.back();
                 _submitRegistration(
                     name, email, password, confirmPassword, role,
@@ -154,14 +149,6 @@ class RegisterController extends GetxController {
     try {
       isLoading(true);
 
-      // Debug: Log input data
-      print('Mengirim data registrasi:');
-      print('Name: $name');
-      print('Email: $email');
-      print('Role: $role');
-      print('Nomor Absen: $nomorAbsen');
-
-      // Kirim request ke server
       final response = await http.post(
         Uri.parse('https://absen.djncloud.my.id/api/v1/account/register'),
         headers: {'Accept': 'application/json'},
@@ -175,10 +162,6 @@ class RegisterController extends GetxController {
         },
       );
 
-      // Debug: Log response status dan body
-      print('Response Status: ${response.statusCode}');
-      print('Response Body: ${response.body}');
-
       if (response.statusCode == 201) {
         final data = json.decode(response.body);
 
@@ -190,7 +173,6 @@ class RegisterController extends GetxController {
           colorText: Colors.white,
         );
 
-        // Arahkan ke halaman login
         Get.offAllNamed(AppRoutes.login);
       } else {
         final error = json.decode(response.body);
@@ -204,7 +186,6 @@ class RegisterController extends GetxController {
         );
       }
     } catch (e) {
-      print('Error: $e');
       Get.snackbar(
         'Error',
         'Terjadi kesalahan: $e',

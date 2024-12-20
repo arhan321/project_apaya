@@ -138,41 +138,41 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   // Session logout
-  void logout() async {
-    const String url = 'https://absen.djncloud.my.id/auth/logout';
+  // void logout() async {
+  //   const String url = 'https://absen.djncloud.my.id/auth/logout';
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final authToken = prefs.getString('authToken');
+  //   try {
+  //     final prefs = await SharedPreferences.getInstance();
+  //     final authToken = prefs.getString('authToken');
 
-      if (authToken == null) {
-        Get.offAllNamed('/login');
-        return;
-      }
+  //     if (authToken == null) {
+  //       Get.offAllNamed('/login');
+  //       return;
+  //     }
 
-      final response = await _dio.post(
-        url,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $authToken',
-            'Accept': 'application/json',
-          },
-        ),
-      );
+  //     final response = await _dio.post(
+  //       url,
+  //       options: Options(
+  //         headers: {
+  //           'Authorization': 'Bearer $authToken',
+  //           'Accept': 'application/json',
+  //         },
+  //       ),
+  //     );
 
-      if (response.statusCode == 200) {
-        prefs.remove('authToken');
-        prefs.remove('userName');
-        prefs.remove('userEmail');
-        Get.offAllNamed('/login');
-      } else {
-        Get.offAllNamed('/login');
-      }
-    } catch (e) {
-      Get.offAllNamed('/login');
-      debugPrint('Error during logout: $e');
-    }
-  }
+  //     if (response.statusCode == 200) {
+  //       prefs.remove('authToken');
+  //       prefs.remove('userName');
+  //       prefs.remove('userEmail');
+  //       Get.offAllNamed('/login');
+  //     } else {
+  //       Get.offAllNamed('/login');
+  //     }
+  //   } catch (e) {
+  //     Get.offAllNamed('/login');
+  //     debugPrint('Error during logout: $e');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -341,24 +341,24 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               SizedBox(height: 12),
               // Logout Button
-              ElevatedButton(
-                onPressed: logout,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orangeAccent,
-                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-                child: Text(
-                  'Logout',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+              // ElevatedButton(
+              //   onPressed: logout,
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: Colors.orangeAccent,
+              //     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(20),
+              //     ),
+              //   ),
+              //   child: Text(
+              //     'Logout',
+              //     style: GoogleFonts.poppins(
+              //       color: Colors.white,
+              //       fontSize: 16,
+              //       fontWeight: FontWeight.w600,
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),

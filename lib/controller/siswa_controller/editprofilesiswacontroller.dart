@@ -111,7 +111,7 @@ class EditProfileSiswaController extends GetxController {
         if (response.statusCode == 200) {
           imageUrl = response.data['image_url'];
           Get.snackbar('Success', 'Photo uploaded successfully.');
-          update(); // Refresh UI
+          update();
         } else {
           Get.snackbar('Error', 'Failed to upload photo.');
         }

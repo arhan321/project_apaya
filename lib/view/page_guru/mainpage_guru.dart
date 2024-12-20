@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forum/view/page_global/login.dart';
-import 'package:forum/model/routes/routes.dart';
+import 'package:forum/routes/routes.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'listabsensiswa.dart';

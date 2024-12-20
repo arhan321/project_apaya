@@ -29,8 +29,12 @@ class EditProfileSiswaPage extends StatelessWidget {
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Get.back(),
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Get.back(
+              result: true, // Mengembalikan nilai true ke halaman sebelumnya
+            );
+          },
         ),
       ),
       body: GetBuilder<EditProfileSiswaController>(

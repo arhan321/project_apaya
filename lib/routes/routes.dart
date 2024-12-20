@@ -6,55 +6,55 @@ import 'package:forum/view/page_admin/catatanadmin.dart';
 import 'package:forum/view/page_admin/detailabsenadmin.dart';
 import 'package:forum/view/page_admin/editabsenadmin.dart';
 import 'package:forum/view/page_admin/tambahakunguru.dart';
-import '../../view/page_global/welcome.dart'; // Halaman Welcome
-import '../../view/page_global/login.dart'; // Halaman Login
-import '../../view/page_global/register.dart'; // Halaman Register
-import '../../view/page_global/forgetpassword.dart'; // Halaman Lupa Password
-import '../../view/page_global/newpassword.dart'; // Halaman Reset Password
-import '../../view/page_siswa/mainpage.dart'; // Halaman Utama Siswa
+import '../view/page_global/welcome.dart'; // Halaman Welcome
+import '../view/page_global/login.dart'; // Halaman Login
+import '../view/page_global/register.dart'; // Halaman Register
+import '../view/page_global/forgetpassword.dart'; // Halaman Lupa Password
+import '../view/page_global/newpassword.dart'; // Halaman Reset Password
+import '../view/page_siswa/mainpage.dart'; // Halaman Utama Siswa
 // import '../../view/page_siswa/kalkulator.dart'; // Halaman Kalkulator
-import '../../view/page_siswa/profile.dart'; // Halaman Profil Siswa
-import '../../view/page_siswa/listabsen.dart'; // Halaman Daftar Absen
-import '../../view/page_siswa/formabsen.dart'; // Halaman Form Absen
-import '../../view/page_siswa/viewdetail.dart'; // Halaman Detail Absen
-import '../../view/page_guru/profileguru.dart'; // Halaman Profil Guru
-import '../../view/page_guru/listabsensiswa.dart'; // Halaman Daftar Absen Siswa
-import '../../view/page_guru/editabsen.dart'; // Halaman Edit Absen
-import '../../view/page_guru/mainpage_guru.dart'; // Halaman Utama Guru
-import '../../view/page_guru/editprofileguru.dart';
-import '../../view/page_guru/rekapabsen.dart'; // Halaman Rekap Absen
-import '../../view/page_orangtua/mainpageortu.dart'; // Halaman Utama Orang Tua
-import '../../view/page_orangtua/listabsenortu.dart'; // Halaman Daftar Absen Orang Tua
-import '../../view/page_orangtua/detailabsenortu.dart'; // Halaman Detail Absen Orang Tua
-import '../../view/page_orangtua/cekcatatan.dart';
-import '../../view/page_guru/catatanguru.dart'; // Halaman Catatan Guru
-import '../../view/page_admin/dashboard.dart'; // Halaman Dashboard Admin
-import '../../view/page_admin/listaccount.dart'; // Impor halaman List Account
-import '../../view/page_admin/listakunguru.dart'; // Impor halaman ListAkunGuru
-import '../../view/page_admin/editakunguru.dart'; // Impor halaman EditAkunGuru
-import '../../view/page_admin/listakunsiswa.dart';
-import '../../view/page_admin/listakunadmin.dart';
-import '../../view/page_admin/editakunsiswa.dart';
-import '../../view/page_admin/tambahakunsiswa.dart';
-import '../../view/page_admin/listakunortu.dart'; // Halaman List Akun Orang Tua
-import '../../view/page_admin/tambahakunortu.dart'; // Halaman Tambah Akun Orang Tua
-import '../../view/page_admin/editakunortu.dart';
-import '../../view/page_admin/editakunadmin.dart'; // Import halaman edit akun admin
-import '../../view/page_admin/tambahakunadmin.dart'; // Import halaman tambah akun admin
-import '../../view/page_admin/daftarkelas.dart'; // Import halaman Daftar Kelas
-import '../../view/page_admin/tambahkelas.dart';
-import '../../view/page_admin/editkelas.dart';
-import '../../view/page_admin/kelolaabsensi.dart';
-import '../../view/page_admin/listabsenadmin.dart';
-import '../../view/page_admin/profileadmin.dart'; // Import halaman Profile Admin
-import '../../view/page_admin/editprofileadmin.dart'; // Import halaman Edit Profile Admin
-import '../../view/page_siswa/editprofilesiswa.dart';
-import '../../view/page_orangtua/profilortu.dart';
-import '../../view/page_admin/laporan.dart';
+import '../view/page_siswa/profile.dart'; // Halaman Profil Siswa
+import '../view/page_siswa/listabsen.dart'; // Halaman Daftar Absen
+import '../view/page_siswa/formabsen.dart'; // Halaman Form Absen
+import '../view/page_siswa/viewdetail.dart'; // Halaman Detail Absen
+import '../view/page_guru/profileguru.dart'; // Halaman Profil Guru
+import '../view/page_guru/listabsensiswa.dart'; // Halaman Daftar Absen Siswa
+import '../view/page_guru/editabsen.dart'; // Halaman Edit Absen
+import '../view/page_guru/mainpage_guru.dart'; // Halaman Utama Guru
+import '../view/page_guru/editprofileguru.dart';
+import '../view/page_guru/rekapabsen.dart'; // Halaman Rekap Absen
+import '../view/page_orangtua/mainpageortu.dart'; // Halaman Utama Orang Tua
+import '../view/page_orangtua/listabsenortu.dart'; // Halaman Daftar Absen Orang Tua
+import '../view/page_orangtua/detailabsenortu.dart'; // Halaman Detail Absen Orang Tua
+import '../view/page_orangtua/cekcatatan.dart';
+import '../view/page_guru/catatanguru.dart'; // Halaman Catatan Guru
+import '../view/page_admin/dashboard.dart'; // Halaman Dashboard Admin
+import '../view/page_admin/listaccount.dart'; // Impor halaman List Account
+import '../view/page_admin/listakunguru.dart'; // Impor halaman ListAkunGuru
+import '../view/page_admin/editakunguru.dart'; // Impor halaman EditAkunGuru
+import '../view/page_admin/listakunsiswa.dart';
+import '../view/page_admin/listakunadmin.dart';
+import '../view/page_admin/editakunsiswa.dart';
+import '../view/page_admin/tambahakunsiswa.dart';
+import '../view/page_admin/listakunortu.dart'; // Halaman List Akun Orang Tua
+import '../view/page_admin/tambahakunortu.dart'; // Halaman Tambah Akun Orang Tua
+import '../view/page_admin/editakunortu.dart';
+import '../view/page_admin/editakunadmin.dart'; // Import halaman edit akun admin
+import '../view/page_admin/tambahakunadmin.dart'; // Import halaman tambah akun admin
+import '../view/page_admin/daftarkelas.dart'; // Import halaman Daftar Kelas
+import '../view/page_admin/tambahkelas.dart';
+import '../view/page_admin/editkelas.dart';
+import '../view/page_admin/kelolaabsensi.dart';
+import '../view/page_admin/listabsenadmin.dart';
+import '../view/page_admin/profileadmin.dart'; // Import halaman Profile Admin
+import '../view/page_admin/editprofileadmin.dart'; // Import halaman Edit Profile Admin
+import '../view/page_siswa/editprofilesiswa.dart';
+import '../view/page_orangtua/profilortu.dart';
+import '../view/page_admin/laporan.dart';
 // Import halaman RekapAdminPage
-import '../../view/page_admin/downloadpdf.dart'; // Import halaman DownloadPDFPage
+import '../view/page_admin/downloadpdf.dart'; // Import halaman DownloadPDFPage
 
-import '../../view/page_orangtua/editprofileortu.dart';
+import '../view/page_orangtua/editprofileortu.dart';
 // import '../page_admin/tambahakunsiswa.dart';
 // import '../page_admin/manage_users.dart'; // Halaman Kelola Pengguna (Admin)
 // import '../page_admin/manage_absences.dart'; // Halaman Kelola Absensi (Admin)

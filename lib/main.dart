@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'model/routes/routes.dart';
+import 'routes/routes.dart';
 import 'view/page_global/welcome.dart';
 
 void main() {
