@@ -170,8 +170,8 @@ class AuthController extends Controller
             'email' => 'nullable|string|email|max:255',
             'password' => 'nullable|string|min:8',
             'role' => 'nullable|string|in:admin,siswa,guru,orang_tua,kepala_sekolah',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
-            'nomor_absen' => 'nullable|integer|min:1', // Validasi nomor_absen
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:102400', // Maksimum 100 MB
+            'nomor_absen' => 'nullable|integer|min:1',
         ]);
     
         // Cari user berdasarkan ID
@@ -195,6 +195,16 @@ class AuthController extends Controller
         // Foto baru (jika ada) akan diupdate
         $photoPath = $user->photo; // Gunakan foto lama jika tidak ada yang di-upload
         if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $fileSizeMB = $photo->getSize() / (1024 * 1024); // Konversi byte ke MB
+    
+            // Log ukuran file
+            Log::info("Uploaded file size: {$fileSizeMB} MB");
+    
+            if ($fileSizeMB > 100) {
+                return response()->json(['message' => 'File terlalu besar. Maksimum adalah 100 MB.'], 400);
+            }
+    
             // Hapus foto lama jika ada
             if ($user->photo && Storage::disk('public')->exists($user->photo)) {
                 Storage::disk('public')->delete($user->photo);
@@ -202,7 +212,6 @@ class AuthController extends Controller
             }
     
             // Simpan foto baru
-            $photo = $request->file('photo');
             $photoName = time() . '_' . $photo->getClientOriginalName();
             $photoPath = $photo->storeAs('images/users', $photoName, 'public');
             Log::info("New photo saved: $photoPath");
@@ -242,7 +251,7 @@ class AuthController extends Controller
         $user->photo = $photoPath;
     
         // Simpan perubahan ke database jika ada perubahan
-        if (count($updatedFields) > 0) {
+        if (count($updatedFields) > 0 || $request->hasFile('photo')) {
             if ($user->save()) {
                 Log::info("User updated successfully. Updated fields: " . implode(', ', $updatedFields));
                 return response()->json([
@@ -266,9 +275,39 @@ class AuthController extends Controller
         return response()->json(['message' => 'Gagal memperbarui akun'], 500);
     }
     
-    
-    
+    public function uploadPhoto(Request $request, $id)
+{
+    // Validasi input
+    $request->validate([
+        'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240', // Maks 10MB
+    ]);
 
+    // Cari user berdasarkan ID
+    $user = User::find($id);
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+    // Proses unggah file
+    if ($request->hasFile('photo')) {
+        $photo = $request->file('photo');
+        $photoName = time() . '_' . $photo->getClientOriginalName();
+        $photoPath = $photo->storeAs('images/users', $photoName, 'public');
+
+        // Update field photo di database
+        $user->photo = $photoPath;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Photo uploaded successfully',
+            'photo_url' => asset('storage/' . $photoPath),
+        ], 200);
+    }
+
+    return response()->json(['message' => 'Photo upload failed'], 400);
+}
+
+    
 
     public function delete(Request $request, $id)
     {
