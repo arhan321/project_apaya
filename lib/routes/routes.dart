@@ -170,9 +170,7 @@ class AppRoutes {
     ),
     GetPage(
       name: profileGuru,
-      page: () => ProfileGuruPage(
-        kelas: '',
-      ), // Profil Guru
+      page: () => ProfileGuruPage(), // Profil Guru
     ),
     GetPage(
       name: viewDetail,
