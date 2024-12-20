@@ -18,6 +18,7 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
   final TextEditingController numberController = TextEditingController();
   final TextEditingController userIdController = TextEditingController();
   File? _imageFile;
+  String? imageUrl; // Variable to store the image URL
   final picker = ImagePicker();
   String errorMessage = '';
   String? userId;
@@ -60,20 +61,19 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
           numberController.text = data['nomor_absen']?.toString() ?? '';
           userIdController.text = data['id']?.toString() ?? '';
           userId = data['id']?.toString();
-          _imageFile = null;
+          imageUrl = data['image_url']; // Load the image URL
+          _imageFile = null; // Reset the image file
         });
       } else {
         setState(() {
           errorMessage =
               'Failed to fetch profile data. Please try again later.';
         });
-        debugPrint('Error loading profile: ${response.statusCode}');
       }
     } catch (e) {
       setState(() {
         errorMessage = 'Error occurred while loading profile data';
       });
-      debugPrint('Error during profile load: $e');
     }
   }
 
@@ -86,64 +86,7 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
         });
       }
     } catch (e) {
-      debugPrint('Error picking image: $e');
       Get.snackbar('Error', 'Failed to pick image');
-    }
-  }
-
-  Future<void> _updateProfile() async {
-    if (authToken == null || userId == null) {
-      Get.snackbar('Error',
-          'Session expired or missing information. Please log in again.');
-      return;
-    }
-
-    final String url = 'https://absen.djncloud.my.id/api/v1/account/$userId';
-
-    try {
-      // Siapkan data JSON
-      Map<String, dynamic> data = {
-        if (nameController.text.isNotEmpty) 'name': nameController.text,
-        if (numberController.text.isNotEmpty)
-          'nomor_absen': numberController.text,
-      };
-
-      // Kirim request PUT untuk data lainnya
-      final response = await _dio.put(
-        url,
-        data: data, // Kirim sebagai JSON
-        options: dio.Options(
-          headers: {
-            'Authorization': 'Bearer $authToken',
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        Get.snackbar('Success', 'Profile updated successfully.');
-        await _loadProfileData();
-      } else {
-        Get.snackbar('Error', 'Failed to update profile.');
-        debugPrint('Error updating profile: ${response.statusCode}');
-      }
-    } catch (e) {
-      String errorMessage = 'An error occurred while updating your profile.';
-      if (e is dio.DioException) {
-        if (e.response != null) {
-          errorMessage = 'Server Error: ${e.response?.data}';
-          debugPrint('Dio Error Response: ${e.response?.data}');
-        } else {
-          errorMessage = 'Network Error: ${e.message}';
-          debugPrint('Dio Network Error: ${e.message}');
-        }
-      } else {
-        errorMessage = 'Unknown Error: ${e.toString()}';
-        debugPrint('Unknown Error: $e');
-      }
-
-      Get.snackbar('Error', errorMessage);
     }
   }
 
@@ -169,7 +112,6 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
         });
 
         final response = await _dio.post(
-          // Menggunakan POST
           url,
           data: formData,
           options: dio.Options(
@@ -182,31 +124,57 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
         );
 
         if (response.statusCode == 200) {
+          setState(() {
+            imageUrl = response.data['image_url']; // Update image URL
+          });
           Get.snackbar('Success', 'Photo uploaded successfully.');
-          await _loadProfileData(); // Reload data setelah upload berhasil
         } else {
           Get.snackbar('Error', 'Failed to upload photo.');
-          debugPrint('Error uploading photo: ${response.statusCode}');
         }
       } else {
         Get.snackbar('Error', 'No photo selected.');
       }
     } catch (e) {
-      String errorMessage = 'An error occurred while uploading photo.';
-      if (e is dio.DioException) {
-        if (e.response != null) {
-          errorMessage = 'Server Error: ${e.response?.data}';
-          debugPrint('Dio Error Response: ${e.response?.data}');
-        } else {
-          errorMessage = 'Network Error: ${e.message}';
-          debugPrint('Dio Network Error: ${e.message}');
-        }
-      } else {
-        errorMessage = 'Unknown Error: ${e.toString()}';
-        debugPrint('Unknown Error: $e');
-      }
+      Get.snackbar('Error', 'An error occurred while uploading photo.');
+    }
+  }
 
-      Get.snackbar('Error', errorMessage);
+  Future<void> _updateProfile() async {
+    if (authToken == null || userId == null) {
+      Get.snackbar('Error',
+          'Session expired or missing information. Please log in again.');
+      return;
+    }
+
+    final String url = 'https://absen.djncloud.my.id/api/v1/account/$userId';
+
+    try {
+      Map<String, dynamic> data = {
+        if (nameController.text.isNotEmpty) 'name': nameController.text,
+        if (numberController.text.isNotEmpty)
+          'nomor_absen': numberController.text,
+      };
+
+      final response = await _dio.put(
+        url,
+        data: data,
+        options: dio.Options(
+          headers: {
+            'Authorization': 'Bearer $authToken',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        Get.snackbar('Success', 'Profile updated successfully.');
+        await _loadProfileData();
+      } else {
+        Get.snackbar('Error', 'Failed to update profile.');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An error occurred while updating your profile.');
     }
   }
 
@@ -245,25 +213,18 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
             Center(
               child: Stack(
                 children: [
-                  _imageFile != null
-                      ? CircleAvatar(
-                          radius: 60,
-                          backgroundImage: FileImage(_imageFile!),
-                        )
-                      : Container(
-                          height: 120,
-                          width: 120,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(60),
-                          ),
-                          child: Text(
+                  CircleAvatar(
+                    radius: 60,
+                    backgroundImage: _imageFile != null
+                        ? FileImage(_imageFile!)
+                        : (imageUrl != null ? NetworkImage(imageUrl!) : null),
+                    child: _imageFile == null && imageUrl == null
+                        ? Text(
                             'Foto Kosong',
                             style: TextStyle(color: Colors.black, fontSize: 16),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
+                          )
+                        : null,
+                  ),
                   Positioned(
                     bottom: 0,
                     right: 0,
