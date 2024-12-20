@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,7 +31,6 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
     _loadProfileData();
   }
 
-  // Load profile data from the server
   Future<void> _loadProfileData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -62,7 +60,7 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
           numberController.text = data['nomor_absen']?.toString() ?? '';
           userIdController.text = data['id']?.toString() ?? '';
           userId = data['id']?.toString();
-          _imageFile = null; // No photo available, set to null
+          _imageFile = null;
         });
       } else {
         setState(() {
@@ -79,7 +77,6 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
     }
   }
 
-  // Pick image from gallery
   Future<void> _pickImage() async {
     try {
       final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -103,70 +100,99 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
 
     final String url = 'https://absen.djncloud.my.id/api/v1/account/$userId';
 
-    // Create a JSON object instead of FormData
-    final Map<String, dynamic> data = {};
-
-    // Add fields if they are not empty or modified
-    if (nameController.text.isNotEmpty) {
-      data['name'] = nameController.text;
-    }
-
-    if (numberController.text.isNotEmpty) {
-      data['nomor_absen'] = numberController.text;
-    }
-
-    if (_imageFile != null) {
-      // Convert image to base64 (if required)
-      final bytes = await _imageFile!.readAsBytes();
-      data['photo'] = base64Encode(bytes);
-    }
-
-    // If there is no data to send, show a message and stop the request
-    if (data.isEmpty) {
-      Get.snackbar('Error', 'No changes detected');
-      return;
-    }
-
-    debugPrint("Data being sent: $data");
-
     try {
+      // Siapkan data JSON
+      Map<String, dynamic> data = {
+        if (nameController.text.isNotEmpty) 'name': nameController.text,
+        if (numberController.text.isNotEmpty)
+          'nomor_absen': numberController.text,
+      };
+
+      // Kirim request PUT untuk data lainnya
       final response = await _dio.put(
         url,
-        data: data,
+        data: data, // Kirim sebagai JSON
         options: dio.Options(
           headers: {
             'Authorization': 'Bearer $authToken',
             'Accept': 'application/json',
-            'Content-Type': 'application/json', // Sending as JSON
+            'Content-Type': 'application/json',
           },
         ),
       );
 
       if (response.statusCode == 200) {
-        final updatedData = response.data['user'];
-        debugPrint('Updated Profile Data: $updatedData');
-
-        // Verify the fields on the server side that have actually been updated
-        bool isNameUpdated = updatedData['name'] == nameController.text;
-        bool isNumberUpdated =
-            updatedData['nomor_absen'].toString() == numberController.text;
-
-        if (isNameUpdated && isNumberUpdated) {
-          Get.snackbar('Success', 'Profile updated successfully');
-          await _loadProfileData(); // Reload profile data after successful update
-          Get.offAllNamed('/profile'); // Redirect to profile page
-        } else {
-          // If any of the fields don't match, show error
-          Get.snackbar('Error', 'Update failed. Please try again.');
-          debugPrint(
-              'Error updating profile: Data mismatch or no changes made.');
-        }
+        Get.snackbar('Success', 'Profile updated successfully.');
+        await _loadProfileData();
       } else {
-        Get.snackbar('Error', 'Update failed. Please try again.');
+        Get.snackbar('Error', 'Failed to update profile.');
         debugPrint('Error updating profile: ${response.statusCode}');
       }
     } catch (e) {
       String errorMessage = 'An error occurred while updating your profile.';
+      if (e is dio.DioException) {
+        if (e.response != null) {
+          errorMessage = 'Server Error: ${e.response?.data}';
+          debugPrint('Dio Error Response: ${e.response?.data}');
+        } else {
+          errorMessage = 'Network Error: ${e.message}';
+          debugPrint('Dio Network Error: ${e.message}');
+        }
+      } else {
+        errorMessage = 'Unknown Error: ${e.toString()}';
+        debugPrint('Unknown Error: $e');
+      }
+
+      Get.snackbar('Error', errorMessage);
+    }
+  }
+
+  Future<void> _uploadPhoto() async {
+    if (authToken == null || userId == null) {
+      Get.snackbar('Error',
+          'Session expired or missing information. Please log in again.');
+      return;
+    }
+
+    final String url =
+        'https://absen.djncloud.my.id/api/v1/account/$userId/foto';
+
+    try {
+      if (_imageFile != null) {
+        String fileName = _imageFile!.path.split('/').last;
+
+        dio.FormData formData = dio.FormData.fromMap({
+          'photo': await dio.MultipartFile.fromFile(
+            _imageFile!.path,
+            filename: fileName,
+          ),
+        });
+
+        final response = await _dio.post(
+          // Menggunakan POST
+          url,
+          data: formData,
+          options: dio.Options(
+            headers: {
+              'Authorization': 'Bearer $authToken',
+              'Accept': 'application/json',
+              'Content-Type': 'multipart/form-data',
+            },
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          Get.snackbar('Success', 'Photo uploaded successfully.');
+          await _loadProfileData(); // Reload data setelah upload berhasil
+        } else {
+          Get.snackbar('Error', 'Failed to upload photo.');
+          debugPrint('Error uploading photo: ${response.statusCode}');
+        }
+      } else {
+        Get.snackbar('Error', 'No photo selected.');
+      }
+    } catch (e) {
+      String errorMessage = 'An error occurred while uploading photo.';
       if (e is dio.DioException) {
         if (e.response != null) {
           errorMessage = 'Server Error: ${e.response?.data}';
@@ -260,9 +286,8 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
             SizedBox(height: 20),
             _buildInputField('Nomor Absen', numberController),
             SizedBox(height: 20),
-            _buildInputField('User ID', userIdController,
-                isEnabled: false), // Show user ID field
-            SizedBox(height: 40),
+            _buildInputField('User ID', userIdController, isEnabled: false),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: _updateProfile,
               style: ElevatedButton.styleFrom(
@@ -272,18 +297,27 @@ class _EditProfileSiswaPageState extends State<EditProfileSiswaPage> {
               child: Text("Simpan Perubahan",
                   style: GoogleFonts.poppins(color: Colors.white)),
             ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: _uploadPhoto,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+              ),
+              child: Text("Upload Foto",
+                  style: GoogleFonts.poppins(color: Colors.white)),
+            ),
           ],
         ),
       ),
     );
   }
 
-  // Helper method to build input fields
   Widget _buildInputField(String label, TextEditingController controller,
       {bool isEnabled = true}) {
     return TextField(
       controller: controller,
-      enabled: isEnabled, // To disable the "Kelas" field
+      enabled: isEnabled,
       decoration: InputDecoration(
         labelText: label,
         filled: true,

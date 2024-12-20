@@ -12,7 +12,7 @@ import '../../view/page_global/register.dart'; // Halaman Register
 import '../../view/page_global/forgetpassword.dart'; // Halaman Lupa Password
 import '../../view/page_global/newpassword.dart'; // Halaman Reset Password
 import '../../view/page_siswa/mainpage.dart'; // Halaman Utama Siswa
-import '../../view/page_siswa/kalkulator.dart'; // Halaman Kalkulator
+// import '../../view/page_siswa/kalkulator.dart'; // Halaman Kalkulator
 import '../../view/page_siswa/profile.dart'; // Halaman Profil Siswa
 import '../../view/page_siswa/listabsen.dart'; // Halaman Daftar Absen
 import '../../view/page_siswa/formabsen.dart'; // Halaman Form Absen
@@ -152,10 +152,10 @@ class AppRoutes {
       page: () =>
           MainPageOrtu(userName: 'Orang Tua'), // Halaman Utama Orang Tua
     ),
-    GetPage(
-      name: kalkulator,
-      page: () => KalkulatorPage(userName: 'Guest'), // Kalkulator
-    ),
+    // GetPage(
+    //   name: kalkulator,
+    //   page: () => KalkulatorPage(userName: 'Guest'), // Kalkulator
+    // ),
     GetPage(
       name: profile, // Nama rute
       page: () =>
