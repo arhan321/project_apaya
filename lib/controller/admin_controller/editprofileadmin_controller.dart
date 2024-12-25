@@ -5,10 +5,11 @@ import 'package:dio/dio.dart' as dio;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class EditProfileGuruController extends GetxController {
+class EditProfileAdminController extends GetxController {
   final nameController = TextEditingController();
-  final waliKelasController = TextEditingController(text: 'Kelas 6A');
-  final roleController = TextEditingController(text: 'Guru');
+  final usernameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
   File? imageFile;
   String? imageUrl;
   String? userId;
@@ -47,7 +48,9 @@ class EditProfileGuruController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = response.data;
-        nameController.text = data['name'] ?? '';
+        // nameController.text = data['name'] ?? '';
+        usernameController.text = data['name'] ?? '';
+        emailController.text = data['email'] ?? '';
         userId = data['id']?.toString();
         imageUrl = data['image_url'];
         update();
@@ -127,6 +130,11 @@ class EditProfileGuruController extends GetxController {
     try {
       Map<String, dynamic> data = {
         if (nameController.text.isNotEmpty) 'name': nameController.text,
+        if (usernameController.text.isNotEmpty)
+          'username': usernameController.text,
+        if (emailController.text.isNotEmpty) 'email': emailController.text,
+        if (passwordController.text.isNotEmpty)
+          'password': passwordController.text,
       };
 
       final response = await _dio.put(

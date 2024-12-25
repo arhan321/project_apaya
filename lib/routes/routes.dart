@@ -28,7 +28,7 @@ import '../view/page_orangtua/listabsenortu.dart'; // Halaman Daftar Absen Orang
 import '../view/page_orangtua/detailabsenortu.dart'; // Halaman Detail Absen Orang Tua
 import '../view/page_orangtua/cekcatatan.dart';
 import '../view/page_guru/catatanguru.dart'; // Halaman Catatan Guru
-import '../view/page_admin/dashboard.dart'; // Halaman Dashboard Admin
+import '../view/page_admin/mainpage.dart'; // Halaman Dashboard Admin
 import '../view/page_admin/listaccount.dart'; // Impor halaman List Account
 import '../view/page_admin/listakunguru.dart'; // Impor halaman ListAkunGuru
 import '../view/page_admin/editakunguru.dart'; // Impor halaman EditAkunGuru
@@ -47,7 +47,8 @@ import '../view/page_admin/editkelas.dart';
 import '../view/page_admin/kelolaabsensi.dart';
 import '../view/page_admin/listabsenadmin.dart';
 import '../view/page_admin/profileadmin.dart'; // Import halaman Profile Admin
-import '../view/page_admin/editprofileadmin.dart'; // Import halaman Edit Profile Admin
+import '../view/page_admin/editprofileadmin.dart'
+    as editProfileAdmin; // Import halaman Edit Profile Admin
 import '../view/page_siswa/editprofilesiswa.dart';
 import '../view/page_orangtua/profilortu.dart';
 import '../view/page_admin/laporan.dart';
@@ -253,10 +254,10 @@ class AppRoutes {
       name: listAkunAdmin,
       page: () => ListAkunAdminPage(), // Halaman List Akun Admin
     ),
-    GetPage(
-      name: editAkunAdmin,
-      page: () => EditAkunAdmin(),
-    ),
+    // GetPage(
+    //   name: editAkunAdmin,
+    //   page: () => EditAkunAdmin(),
+    // ),
     GetPage(
       name: tambahAkunAdmin,
       page: () => TambahAkunAdmin(),
