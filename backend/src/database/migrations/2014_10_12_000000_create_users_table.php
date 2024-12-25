@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->enum('role', ['admin', 'siswa','guru','kepala_sekolah','orang_tua'])->default('siswa');
             $table->string('photo')->nullable();
+            $table->date('tanggal_lahir')->nullable();
             $table->biginteger('nomor_absen')->nullable();
             $table->rememberToken();
             $table->timestamps();
