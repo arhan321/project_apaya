@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import '/controller/siswa_controller/editprofilesiswacontroller.dart';
 
 class EditProfileSiswaPage extends StatelessWidget {
@@ -84,6 +85,9 @@ class EditProfileSiswaPage extends StatelessWidget {
                 SizedBox(height: 20),
                 _buildInputField('Nomor Absen', _.numberController),
                 SizedBox(height: 20),
+                _buildDateField(
+                    context, 'Tanggal Lahir', _.birthDateController),
+                SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _.updateProfile,
                   style: ElevatedButton.styleFrom(
@@ -122,6 +126,38 @@ class EditProfileSiswaPage extends StatelessWidget {
         fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDateField(
+      BuildContext context, String label, TextEditingController controller) {
+    return GestureDetector(
+      onTap: () async {
+        DateTime? pickedDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime.now(),
+        );
+
+        if (pickedDate != null) {
+          String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+          controller.text = formattedDate;
+        }
+      },
+      child: AbsorbPointer(
+        child: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: label,
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
         ),
       ),
     );

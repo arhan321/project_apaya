@@ -80,6 +80,9 @@ class EditProfileAdminPage extends StatelessWidget {
                 SizedBox(height: 20),
                 _buildInputField('Email', _.emailController),
                 SizedBox(height: 20),
+                _buildDatePickerField(
+                    'Tanggal Lahir', context, _.birthDateController),
+                SizedBox(height: 20),
                 _buildInputField(
                     'Password (jika ingin di ganti)', _.passwordController,
                     isPassword: true),
@@ -126,6 +129,38 @@ class EditProfileAdminPage extends StatelessWidget {
         fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDatePickerField(
+      String label, BuildContext context, TextEditingController controller) {
+    return GestureDetector(
+      onTap: () async {
+        DateTime? pickedDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime.now(),
+        );
+
+        if (pickedDate != null) {
+          controller.text =
+              '${pickedDate.year}-${pickedDate.month}-${pickedDate.day}';
+        }
+      },
+      child: AbsorbPointer(
+        child: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: label,
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
         ),
       ),
     );

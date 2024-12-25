@@ -15,6 +15,7 @@ class _ProfileGuruPageState extends State<ProfileGuruPage> {
   String guruName = '';
   String waliKelas = 'Wali Kelas 6A'; // Informasi wali kelas dibuat statis
   String role = 'Guru'; // Informasi role
+  String? birthDate; // Tambahkan variabel untuk tanggal lahir
   String? photoUrl;
   bool isLoading = true;
   String errorMessage = '';
@@ -61,6 +62,8 @@ class _ProfileGuruPageState extends State<ProfileGuruPage> {
         setState(() {
           guruName = data['name'] ?? 'Nama tidak tersedia';
           photoUrl = data['image_url'];
+          birthDate = data['tanggal_lahir'] ??
+              'Tanggal lahir tidak tersedia'; // Tambahkan tanggal lahir
           isLoading = false;
         });
       } else {
@@ -216,6 +219,14 @@ class _ProfileGuruPageState extends State<ProfileGuruPage> {
                       SizedBox(height: 8),
                       Text(
                         'Role: $role',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Tanggal Lahir: ${birthDate ?? "Tidak tersedia"}',
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           color: Colors.black54,

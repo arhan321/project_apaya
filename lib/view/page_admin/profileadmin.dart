@@ -15,6 +15,7 @@ class _ProfileAdminPageState extends State<ProfileAdminPage> {
   String adminName = '';
   String role = 'Administrator';
   String? photoUrl;
+  String? birthDate; // Field untuk tanggal lahir
   bool isLoading = true;
   String errorMessage = '';
 
@@ -60,6 +61,7 @@ class _ProfileAdminPageState extends State<ProfileAdminPage> {
         setState(() {
           adminName = data['name'] ?? 'Nama tidak tersedia';
           photoUrl = data['image_url'];
+          birthDate = data['tanggal_lahir'] ?? 'Tanggal lahir tidak tersedia';
           isLoading = false;
         });
       } else {
@@ -207,6 +209,14 @@ class _ProfileAdminPageState extends State<ProfileAdminPage> {
                       SizedBox(height: 8),
                       Text(
                         'Role: $role',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Tanggal Lahir: $birthDate',
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           color: Colors.black54,

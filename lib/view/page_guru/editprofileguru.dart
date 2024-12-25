@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import '/controller/guru_controller/editprofileguru_controller.dart';
 
 class EditProfileGuruPage extends StatelessWidget {
@@ -82,6 +83,9 @@ class EditProfileGuruPage extends StatelessWidget {
                     isEnabled: false),
                 SizedBox(height: 20),
                 _buildInputField('Role', _.roleController, isEnabled: false),
+                SizedBox(height: 20),
+                _buildDateField(
+                    context, 'Tanggal Lahir', _.birthDateController),
                 SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: _.updateProfile,
@@ -125,6 +129,38 @@ class EditProfileGuruPage extends StatelessWidget {
         fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDateField(
+      BuildContext context, String label, TextEditingController controller) {
+    return GestureDetector(
+      onTap: () async {
+        DateTime? pickedDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime.now(),
+        );
+
+        if (pickedDate != null) {
+          String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+          controller.text = formattedDate;
+        }
+      },
+      child: AbsorbPointer(
+        child: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: label,
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
         ),
       ),
     );

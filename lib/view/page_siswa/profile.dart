@@ -15,6 +15,7 @@ class _ProfilePageState extends State<ProfilePage> {
   String studentName = '';
   String studentClass = 'Kelas 6A'; // Informasi kelas dibuat statis
   String studentNumber = '';
+  String? studentBirthDate; // Tambahan: Tanggal lahir siswa
   String? photoUrl;
   bool isLoading = true;
   String errorMessage = '';
@@ -61,6 +62,8 @@ class _ProfilePageState extends State<ProfilePage> {
         setState(() {
           studentName = data['name'] ?? 'Nama tidak tersedia';
           studentNumber = data['nomor_absen']?.toString() ?? 'N/A';
+          studentBirthDate =
+              data['tanggal_lahir'] ?? 'Tidak tersedia'; // Tanggal lahir
           photoUrl = data['image_url'];
           isLoading = false;
         });
@@ -101,7 +104,6 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  // Delete Account functionality
   void deleteAccount() async {
     const String url = 'https://absen.djncloud.my.id/api/v1/account/logout';
 
@@ -136,43 +138,6 @@ class _ProfilePageState extends State<ProfilePage> {
       debugPrint('Kesalahan saat menghapus akun: $e');
     }
   }
-
-  // Session logout
-  // void logout() async {
-  //   const String url = 'https://absen.djncloud.my.id/auth/logout';
-
-  //   try {
-  //     final prefs = await SharedPreferences.getInstance();
-  //     final authToken = prefs.getString('authToken');
-
-  //     if (authToken == null) {
-  //       Get.offAllNamed('/login');
-  //       return;
-  //     }
-
-  //     final response = await _dio.post(
-  //       url,
-  //       options: Options(
-  //         headers: {
-  //           'Authorization': 'Bearer $authToken',
-  //           'Accept': 'application/json',
-  //         },
-  //       ),
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       prefs.remove('authToken');
-  //       prefs.remove('userName');
-  //       prefs.remove('userEmail');
-  //       Get.offAllNamed('/login');
-  //     } else {
-  //       Get.offAllNamed('/login');
-  //     }
-  //   } catch (e) {
-  //     Get.offAllNamed('/login');
-  //     debugPrint('Error during logout: $e');
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +191,6 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             children: [
               SizedBox(height: 20),
-              // Profile Card
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
@@ -250,7 +214,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     color: Colors.black, fontSize: 14),
                                 textAlign: TextAlign.center,
                               )
-                            : null, // Display text if no image
+                            : null,
                       ),
                       SizedBox(height: 16),
                       Text(
@@ -277,11 +241,18 @@ class _ProfilePageState extends State<ProfilePage> {
                           color: Colors.black54,
                         ),
                       ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Tanggal Lahir: $studentBirthDate', // Tampilkan tanggal lahir
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
-              // Edit Profile Button
               SizedBox(height: 30),
               ElevatedButton(
                 onPressed: editProfile,
@@ -302,7 +273,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               SizedBox(height: 12),
-              // Delete Account Button
               ElevatedButton(
                 onPressed: () {
                   Get.defaultDialog(
@@ -339,26 +309,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
               ),
-              SizedBox(height: 12),
-              // Logout Button
-              // ElevatedButton(
-              //   onPressed: logout,
-              //   style: ElevatedButton.styleFrom(
-              //     backgroundColor: Colors.orangeAccent,
-              //     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
-              //     shape: RoundedRectangleBorder(
-              //       borderRadius: BorderRadius.circular(20),
-              //     ),
-              //   ),
-              //   child: Text(
-              //     'Logout',
-              //     style: GoogleFonts.poppins(
-              //       color: Colors.white,
-              //       fontSize: 16,
-              //       fontWeight: FontWeight.w600,
-              //     ),
-              //   ),
-              // ),
             ],
           ),
         ),

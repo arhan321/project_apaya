@@ -9,6 +9,8 @@ class EditProfileGuruController extends GetxController {
   final nameController = TextEditingController();
   final waliKelasController = TextEditingController(text: 'Kelas 6A');
   final roleController = TextEditingController(text: 'Guru');
+  final birthDateController = TextEditingController(); // Tanggal lahir
+
   File? imageFile;
   String? imageUrl;
   String? userId;
@@ -48,6 +50,8 @@ class EditProfileGuruController extends GetxController {
       if (response.statusCode == 200) {
         final data = response.data;
         nameController.text = data['name'] ?? '';
+        birthDateController.text =
+            data['tanggal_lahir'] ?? ''; // Load tanggal lahir
         userId = data['id']?.toString();
         imageUrl = data['image_url'];
         update();
@@ -127,6 +131,8 @@ class EditProfileGuruController extends GetxController {
     try {
       Map<String, dynamic> data = {
         if (nameController.text.isNotEmpty) 'name': nameController.text,
+        if (birthDateController.text.isNotEmpty)
+          'tanggal_lahir': birthDateController.text,
       };
 
       final response = await _dio.put(

@@ -6,10 +6,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfileAdminController extends GetxController {
-  final nameController = TextEditingController();
-  final usernameController = TextEditingController();
+  // final nameController = TextEditingController();
   final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  final roleController = TextEditingController();
+  final birthDateController = TextEditingController(); // Untuk tanggal lahir
+  final usernameController = TextEditingController(); // Tambahkan ini
+  final passwordController = TextEditingController(); // Tambahkan ini
+
   File? imageFile;
   String? imageUrl;
   String? userId;
@@ -49,8 +52,10 @@ class EditProfileAdminController extends GetxController {
       if (response.statusCode == 200) {
         final data = response.data;
         // nameController.text = data['name'] ?? '';
-        usernameController.text = data['name'] ?? '';
         emailController.text = data['email'] ?? '';
+        usernameController.text = data['name'] ?? ''; // Inisialisasi
+        roleController.text = data['role'] ?? 'Administrator';
+        birthDateController.text = data['tanggal_lahir'] ?? '';
         userId = data['id']?.toString();
         imageUrl = data['image_url'];
         update();
@@ -129,12 +134,13 @@ class EditProfileAdminController extends GetxController {
 
     try {
       Map<String, dynamic> data = {
-        if (nameController.text.isNotEmpty) 'name': nameController.text,
         if (usernameController.text.isNotEmpty)
           'username': usernameController.text,
         if (emailController.text.isNotEmpty) 'email': emailController.text,
         if (passwordController.text.isNotEmpty)
           'password': passwordController.text,
+        if (birthDateController.text.isNotEmpty)
+          'tanggal_lahir': birthDateController.text,
       };
 
       final response = await _dio.put(

@@ -9,6 +9,8 @@ class EditProfileSiswaController extends GetxController {
   final nameController = TextEditingController();
   final classController = TextEditingController(text: 'Kelas 6A');
   final numberController = TextEditingController();
+  final birthDateController =
+      TextEditingController(); // Tambahkan controller untuk tanggal lahir
   final userIdController = TextEditingController();
   File? imageFile;
   String? imageUrl;
@@ -51,6 +53,8 @@ class EditProfileSiswaController extends GetxController {
         final data = response.data;
         nameController.text = data['name'] ?? '';
         numberController.text = data['nomor_absen']?.toString() ?? '';
+        birthDateController.text =
+            data['tanggal_lahir'] ?? ''; // Set tanggal lahir
         userIdController.text = data['id']?.toString() ?? '';
         userId = data['id']?.toString();
         imageUrl = data['image_url'];
@@ -137,6 +141,8 @@ class EditProfileSiswaController extends GetxController {
         if (nameController.text.isNotEmpty) 'name': nameController.text,
         if (numberController.text.isNotEmpty)
           'nomor_absen': numberController.text,
+        if (birthDateController.text.isNotEmpty)
+          'tanggal_lahir': birthDateController.text, // Tambahkan tanggal lahir
       };
 
       final response = await _dio.put(
