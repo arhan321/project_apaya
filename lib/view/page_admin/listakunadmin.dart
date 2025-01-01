@@ -1,29 +1,70 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:dio/dio.dart';
 
-class ListAkunAdminPage extends StatelessWidget {
+class ListAkunAdminPage extends StatefulWidget {
+  @override
+  _ListAkunAdminPageState createState() => _ListAkunAdminPageState();
+}
+
+class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
+  final Dio _dio = Dio();
+  List<Map<String, dynamic>> akunAdmin = [];
+  bool isLoading = true;
+  String errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAkunAdmin();
+  }
+
+  Future<void> fetchAkunAdmin() async {
+    const String url = 'https://absen.djncloud.my.id/api/v1/account';
+
+    try {
+      final response = await _dio.get(
+        url,
+        options: Options(headers: {'Accept': 'application/json'}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+
+        debugPrint('Data API: $data');
+
+        setState(() {
+          akunAdmin = (data as List)
+              .where((item) => item['role']?.toLowerCase() == 'admin')
+              .map((item) => {
+                    'foto': item['image_url'] ?? '',
+                    'username': item['name'] ?? 'Nama tidak tersedia',
+                    'email': item['email'] ?? 'Email tidak tersedia',
+                    'password': '********', // Jangan tampilkan password asli
+                    'role': item['role'] ?? '',
+                  })
+              .toList();
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          errorMessage =
+              'Gagal memuat data. Status Code: ${response.statusCode}';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Kesalahan API: $e');
+      setState(() {
+        errorMessage = 'Terjadi kesalahan saat memuat data: $e';
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> akunAdmin = [
-      {
-        'foto': 'https://via.placeholder.com/150',
-        'nama': 'Admin Utama',
-        'username': 'admin_utama',
-        'email': 'admin@admin.com',
-        'password': '********',
-        'role': 'Admin',
-      },
-      {
-        'foto': 'https://via.placeholder.com/150',
-        'nama': 'Admin Kedua',
-        'username': 'admin_kedua',
-        'email': 'admin2@admin.com',
-        'password': '********',
-        'role': 'Admin',
-      },
-    ];
-
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
@@ -48,56 +89,54 @@ class ListAkunAdminPage extends StatelessWidget {
         iconTheme: IconThemeData(color: Colors.white),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Get.back(); // Kembali ke halaman sebelumnya
-          },
+          onPressed: () => Get.back(),
         ),
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blueAccent, Colors.lightBlueAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: ListView.builder(
-          padding: EdgeInsets.all(16),
-          itemCount: akunAdmin.length,
-          itemBuilder: (context, index) {
-            final akun = akunAdmin[index];
-            return _buildAkunCard(
-              context,
-              foto: akun['foto']!,
-              nama: akun['nama']!,
-              username: akun['username']!,
-              email: akun['email']!,
-              password: akun['password']!,
-              role: akun['role']!,
-            );
-          },
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : errorMessage.isNotEmpty
+              ? _buildErrorWidget()
+              : _buildListAkun(),
+    );
+  }
+
+  Widget _buildListAkun() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blueAccent, Colors.lightBlueAccent],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Get.toNamed('/tambahAkunAdmin'); // Arahkan ke halaman Tambah Akun Admin
-        },
-        label: Text(
-          'Tambah Akun',
-          style: GoogleFonts.poppins(color: Colors.white),
-        ),
-        icon: Icon(Icons.add, color: Colors.white),
-        backgroundColor: Colors.blueAccent,
-      ),
+      child: akunAdmin.isEmpty
+          ? Center(
+              child: Text(
+                'Tidak ada akun admin tersedia.',
+                style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
+              ),
+            )
+          : ListView.builder(
+              padding: EdgeInsets.all(16),
+              itemCount: akunAdmin.length,
+              itemBuilder: (context, index) {
+                final akun = akunAdmin[index];
+                return _buildAkunCard(
+                  context,
+                  foto: akun['foto']!,
+                  username: akun['username']!,
+                  email: akun['email']!,
+                  password: akun['password']!,
+                  role: akun['role']!,
+                );
+              },
+            ),
     );
   }
 
   Widget _buildAkunCard(
     BuildContext context, {
     required String foto,
-    required String nama,
     required String username,
     required String email,
     required String password,
@@ -115,7 +154,20 @@ class ListAkunAdminPage extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 40,
-              backgroundImage: NetworkImage(foto),
+              backgroundImage: foto.isNotEmpty
+                  ? NetworkImage(foto) // URL gambar lengkap
+                  : AssetImage('assets/default_profile.png')
+                      as ImageProvider, // Gambar default
+              onBackgroundImageError: (exception, stackTrace) {
+                debugPrint('Gagal memuat gambar: $exception');
+              },
+              child: foto.isEmpty
+                  ? Text(
+                      'No Image',
+                      style: TextStyle(color: Colors.black, fontSize: 12),
+                      textAlign: TextAlign.center,
+                    )
+                  : null,
             ),
             SizedBox(width: 16),
             Expanded(
@@ -123,29 +175,15 @@ class ListAkunAdminPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    nama,
+                    'Username: $username',
                     style: GoogleFonts.poppins(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
                   ),
                   Text(
-                    'Username: $username',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                  Text(
                     'Email: $email',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                  Text(
-                    'Password: $password',
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       color: Colors.grey[700],
@@ -165,18 +203,29 @@ class ListAkunAdminPage extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.edit, color: Colors.blueAccent),
               onPressed: () {
+                debugPrint('Navigating to /editAkunAdmin with data:');
+                debugPrint(
+                    'foto: $foto, username: $username, email: $email, password: $password, role: $role');
                 Get.toNamed('/editAkunAdmin', arguments: {
                   'foto': foto,
-                  'nama': nama,
                   'username': username,
                   'email': email,
                   'password': password,
                   'role': role,
-                }); // Arahkan ke halaman Edit Akun Admin
+                });
               },
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    return Center(
+      child: Text(
+        errorMessage,
+        style: GoogleFonts.poppins(fontSize: 16, color: Colors.red),
       ),
     );
   }
