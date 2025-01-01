@@ -145,14 +145,30 @@ class AuthController extends Controller
     public function index()
     {
         $query = DB::connection('mysql')->table('users')->get();
-        if ($query->isEmpty()) {
+    
+        // Map setiap item untuk menambahkan image_url
+        $data = $query->map(function ($item) {
+            if ($item->photo) {
+                // Buat URL lengkap untuk photo menggunakan asset helper
+                $item->image_url = asset('storage/' . $item->photo);
+            } else {
+                // Jika tidak ada photo, set ke null
+                $item->image_url = null;
+            }
+            return $item;
+        });
+    
+        // Cek jika data kosong
+        if ($data->isEmpty()) {
             return response()->json([
                 'message' => 'Tidak ada data pengguna.',
             ], 200);
         }
     
-        return response()->json($query, 200);
+        // Kembalikan data dengan image_url
+        return response()->json($data, 200);
     }
+    
     
 
     public function get_user($id)
