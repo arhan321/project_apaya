@@ -97,6 +97,19 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
           : errorMessage.isNotEmpty
               ? _buildErrorWidget()
               : _buildListAkun(),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          debugPrint('Navigating to /tambahAkunAdmin');
+          Get.toNamed(
+              '/tambahAkunAdmin'); // Direct ke halaman tambah akun admin
+        },
+        label: Text(
+          'Tambah Akun',
+          style: GoogleFonts.poppins(color: Colors.white),
+        ),
+        icon: Icon(Icons.add, color: Colors.white),
+        backgroundColor: Colors.blueAccent,
+      ),
     );
   }
 
