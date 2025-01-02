@@ -41,7 +41,7 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
                     'foto': item['image_url'] ?? '',
                     'username': item['name'] ?? 'Nama tidak tersedia',
                     'email': item['email'] ?? 'Email tidak tersedia',
-                    'password': '********', // Jangan tampilkan password asli
+                    'password': item['password'] ?? '********',
                     'role': item['role'] ?? '',
                   })
               .toList();
@@ -188,9 +188,9 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Username: $username',
+                    '$username',
                     style: GoogleFonts.poppins(
-                      fontSize: 14,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
@@ -208,6 +208,13 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
                       fontSize: 14,
                       color: Colors.grey[700],
                       fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                  Text(
+                    'Password: ${'**********'}', // Sensor password
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[700],
                     ),
                   ),
                 ],
