@@ -98,7 +98,25 @@ class _TambahAkunAdminState extends State<TambahAkunAdmin> {
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.green,
             colorText: Colors.white);
-        Get.back();
+
+        // Tampilkan dialog sukses
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Berhasil', style: GoogleFonts.poppins(fontSize: 18)),
+            content: Text('Akun berhasil dibuat!',
+                style: GoogleFonts.poppins(fontSize: 16)),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Get.back(); // Tutup dialog
+                  Get.back(); // Kembali ke halaman sebelumnya
+                },
+                child: Text('OK', style: GoogleFonts.poppins(fontSize: 16)),
+              ),
+            ],
+          ),
+        );
       } else {
         debugPrint('Response error: ${response.data}');
         Get.snackbar('Error', 'Gagal mendaftarkan akun',
