@@ -247,7 +247,7 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
                 IconButton(
                   icon: Icon(Icons.edit, color: Colors.blueAccent),
                   onPressed: () {
-                    Get.toNamed('/editAkunAdmin', arguments: {
+                    Get.toNamed('/editProfileAdmin', arguments: {
                       'id': id,
                       'foto': foto,
                       'username': username,

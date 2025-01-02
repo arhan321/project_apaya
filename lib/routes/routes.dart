@@ -1,3 +1,4 @@
+import 'package:forum/view/page_admin/editprofileadmin.dart';
 import 'package:forum/view/page_admin/rekapadmin.dart';
 // import 'package:forum/view/page_siswa/editprofilesiswa.dart' as editProfile;
 import 'package:forum/view/page_siswa/profile.dart' as profile;
@@ -250,14 +251,16 @@ class AppRoutes {
       name: editAkunOrtu,
       page: () => EditAkunOrtu(),
     ),
+
     GetPage(
       name: listAkunAdmin,
       page: () => ListAkunAdminPage(), // Halaman List Akun Admin
     ),
-    // GetPage(
-    //   name: editAkunAdmin,
-    //   page: () => EditAkunAdmin(),
-    // ),
+
+    GetPage(
+      name: editAkunAdmin,
+      page: () => EditAkunAdminPage(),
+    ),
     GetPage(
       name: tambahAkunAdmin,
       page: () => TambahAkunAdmin(),
@@ -285,6 +288,7 @@ class AppRoutes {
     GetPage(name: detailAbsenAdmin, page: () => DetailAbsenAdminPage()),
     GetPage(name: editAbsenAdmin, page: () => EditAbsenAdminPage()),
     GetPage(name: catatanAdmin, page: () => CatatanAdminPage()),
+
     GetPage(
       name: profileAdmin,
       page: () => ProfileAdminPage(),

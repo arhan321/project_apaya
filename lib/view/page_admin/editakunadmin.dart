@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '/controller/admin_controller/editprofileadmin_controller.dart';
 
-class EditProfileAdminPage extends StatelessWidget {
+class EditAkunAdminPage extends StatelessWidget {
   final controller = Get.put(EditProfileAdminController());
 
   @override
@@ -20,7 +20,7 @@ class EditProfileAdminPage extends StatelessWidget {
           ),
         ),
         title: Text(
-          'Edit Profile Admin',
+          'Edit Akun Admin',
           style: GoogleFonts.poppins(
             fontSize: 20,
             fontWeight: FontWeight.bold,

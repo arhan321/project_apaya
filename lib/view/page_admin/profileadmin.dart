@@ -81,7 +81,7 @@ class _ProfileAdminPageState extends State<ProfileAdminPage> {
   }
 
   void editProfile() {
-    Get.toNamed('/editProfileAdmin');
+    Get.toNamed('/editAkunAdmin');
   }
 
   void deleteAccount() async {
