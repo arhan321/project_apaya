@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '/controller/admin_controller/mainpageadmin_controller.dart';
+import '../../controller/admin_controller/mainpage_controller/mainpageadmin_controller.dart';
 import '/routes/routes.dart';
 
 class AdminDashboard extends StatelessWidget {

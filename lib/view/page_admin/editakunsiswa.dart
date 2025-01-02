@@ -1,24 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../controller/admin_controller/kelolaccountsiswa_controller/editakunsiswa_controller.dart';
 
 class EditAkunSiswa extends StatelessWidget {
+  final controller = Get.put(EditAkunSiswaController());
+
   @override
   Widget build(BuildContext context) {
-    // Ambil data dari argumen
-    final Map<String, String> akun = Get.arguments;
-
-    final TextEditingController namaController =
-        TextEditingController(text: akun['nama']);
-    final TextEditingController usernameController =
-        TextEditingController(text: akun['username']);
-    final TextEditingController emailController =
-        TextEditingController(text: akun['email']);
-    final TextEditingController passwordController =
-        TextEditingController(text: akun['password']);
-    final TextEditingController noAbsenController =
-        TextEditingController(text: akun['no_absen']);
-
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
@@ -38,86 +27,130 @@ class EditAkunSiswa extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              TextField(
-                controller: namaController,
-                decoration: InputDecoration(
-                  labelText: 'Nama',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 16),
-              TextField(
-                controller: noAbsenController,
-                decoration: InputDecoration(
-                  labelText: 'No. Absen',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 16),
-              TextField(
-                controller: usernameController,
-                decoration: InputDecoration(
-                  labelText: 'Username',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 16),
-              TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 16),
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 24),
-              GestureDetector(
-                onTap: () {
-                  // Logika simpan data di sini
-                  Get.back(); // Kembali ke halaman sebelumnya
-                },
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.blueAccent, Colors.lightBlueAccent],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
+      body: GetBuilder<EditAkunSiswaController>(
+        builder: (controller) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundImage: controller.selectedImage != null
+                            ? FileImage(controller.selectedImage!)
+                            : (controller.akun['foto'] != null
+                                    ? NetworkImage(controller.akun['foto'])
+                                    : AssetImage('assets/placeholder.png'))
+                                as ImageProvider,
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: controller.pickImage,
+                          child: CircleAvatar(
+                            backgroundColor: Colors.blueAccent,
+                            radius: 20,
+                            child: Icon(Icons.camera_alt, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  child: Center(
-                    child: Text(
-                      'Simpan',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: controller.namaController,
+                    decoration: InputDecoration(
+                      labelText: 'Nama',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: controller.noAbsenController,
+                    decoration: InputDecoration(
+                      labelText: 'No. Absen',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: controller.emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: controller.passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  GestureDetector(
+                    onTap: controller.updateProfile,
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.blueAccent, Colors.lightBlueAccent],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Simpan',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
+                  SizedBox(height: 16),
+                  GestureDetector(
+                    onTap: controller.uploadPhoto,
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.green, Colors.lightGreenAccent],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Upload Foto',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

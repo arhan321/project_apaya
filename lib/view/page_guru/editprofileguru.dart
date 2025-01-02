@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import '/controller/guru_controller/editprofileguru_controller.dart';
+import '../../controller/guru_controller/editprofileguru_controller.dart';
 
 class EditProfileGuruPage extends StatelessWidget {
   final controller = Get.put(EditProfileGuruController());

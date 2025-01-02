@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '/controller/admin_controller/editprofileadmin_controller.dart';
+import '../../controller/admin_controller/profile_controller/editprofileadmin_controller.dart';
 
 class EditAkunAdminPage extends StatelessWidget {
   final controller = Get.put(EditProfileAdminController());
