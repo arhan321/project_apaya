@@ -57,10 +57,6 @@ import '../view/page_admin/laporan.dart';
 import '../view/page_admin/downloadpdf.dart'; // Import halaman DownloadPDFPage
 
 import '../view/page_orangtua/editprofileortu.dart';
-// import '../page_admin/tambahakunsiswa.dart';
-// import '../page_admin/manage_users.dart'; // Halaman Kelola Pengguna (Admin)
-// import '../page_admin/manage_absences.dart'; // Halaman Kelola Absensi (Admin)
-// import '../page_admin/reports.dart'; // Halaman Laporan (Admin)
 
 class AppRoutes {
   // Daftar Konstanta Rute
@@ -153,10 +149,6 @@ class AppRoutes {
       name: mainPageOrtu,
       page: () => MainPageOrtu(), // Halaman Utama Orang Tua
     ),
-    // GetPage(
-    //   name: kalkulator,
-    //   page: () => KalkulatorPage(userName: 'Guest'), // Kalkulator
-    // ),
     GetPage(
       name: profile, // Nama rute
       page: () =>
@@ -251,12 +243,10 @@ class AppRoutes {
       name: editAkunOrtu,
       page: () => EditAkunOrtu(),
     ),
-
     GetPage(
       name: listAkunAdmin,
       page: () => ListAkunAdminPage(), // Halaman List Akun Admin
     ),
-
     GetPage(
       name: editAkunAdmin,
       page: () => EditAkunAdminPage(),
@@ -288,7 +278,6 @@ class AppRoutes {
     GetPage(name: detailAbsenAdmin, page: () => DetailAbsenAdminPage()),
     GetPage(name: editAbsenAdmin, page: () => EditAbsenAdminPage()),
     GetPage(name: catatanAdmin, page: () => CatatanAdminPage()),
-
     GetPage(
       name: profileAdmin,
       page: () => ProfileAdminPage(),
@@ -327,22 +316,3 @@ class AppRoutes {
     ),
   ];
 }
-
-    //   GetPage(
-    //   name: tambahAkunSiswa,
-    //   page: () => TambahAkunSiswa(), // Halaman Tambah Akun Guru
-    // )
-    // GetPage(
-    //   name: manageUsers,
-    //   page: () => ManageUsersPage(), // Kelola Pengguna
-    // ),
-    // GetPage(
-    //   name: manageAbsences,
-    //   page: () => ManageAbsencesPage(), // Kelola Absensi
-    // ),
-    // GetPage(
-    //   name: reports,
-    //   page: () => ReportsPage(), // Laporan
-    // ),
-  
-
