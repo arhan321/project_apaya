@@ -1,61 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart'; // Untuk format tanggal
+import '../../controller/admin_controller/kelolaccountadmin_controller/editakunadmin_controller.dart';
 
-class EditProfileAdminPage extends StatefulWidget {
-  @override
-  _EditProfileAdminPageState createState() => _EditProfileAdminPageState();
-}
-
-class _EditProfileAdminPageState extends State<EditProfileAdminPage> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController roleController =
-      TextEditingController(text: 'Administrator');
-  final TextEditingController birthDateController =
-      TextEditingController(); // Tambahkan controller untuk tanggal lahir
-
-  File? _imageFile;
-  final picker = ImagePicker();
-
-  Future<void> _pickImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
-    }
-  }
-
-  Future<void> _pickDate(BuildContext context) async {
-    DateTime? selectedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-
-    if (selectedDate != null) {
-      setState(() {
-        birthDateController.text =
-            DateFormat('yyyy-MM-dd').format(selectedDate);
-      });
-    }
-  }
-
-  void _saveProfile() {
-    Get.snackbar(
-      'Success',
-      'Profile berhasil diperbarui!',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.greenAccent,
-      colorText: Colors.white,
-    );
-  }
+class EditProfileAdminPage extends StatelessWidget {
+  final controller = Get.put(EditAkunAdminController());
 
   @override
   Widget build(BuildContext context) {
@@ -71,162 +20,143 @@ class _EditProfileAdminPageState extends State<EditProfileAdminPage> {
           ),
         ),
         title: Text(
-          'Edit Profile Admin',
+          'Edit Akun Admin',
           style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w700,
             fontSize: 20,
-            fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
         centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Get.back(),
-        ),
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blueAccent, Colors.lightBlueAccent],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            children: [
-              SizedBox(height: 20),
-              Center(
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 60,
-                      backgroundColor: Colors.grey[300],
-                      backgroundImage: _imageFile != null
-                          ? FileImage(_imageFile!)
-                          : AssetImage('assets/placeholder.jpg')
-                              as ImageProvider,
+      body: GetBuilder<EditAkunAdminController>(
+        builder: (controller) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundImage: controller.selectedImage != null
+                            ? FileImage(controller.selectedImage!)
+                            : (controller.akun['foto'] != null
+                                    ? NetworkImage(controller.akun['foto'])
+                                    : AssetImage('assets/placeholder.png'))
+                                as ImageProvider,
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: controller.pickImage,
+                          child: CircleAvatar(
+                            backgroundColor: Colors.blueAccent,
+                            radius: 20,
+                            child: Icon(Icons.camera_alt, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: controller.namaController,
+                    decoration: InputDecoration(
+                      labelText: 'Nama',
+                      border: OutlineInputBorder(),
                     ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: GestureDetector(
-                        onTap: _pickImage,
-                        child: CircleAvatar(
-                          backgroundColor: Colors.blueAccent,
-                          radius: 20,
-                          child: Icon(Icons.camera_alt, color: Colors.white),
+                  ),
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: controller.emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: controller.passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  GestureDetector(
+                    onTap: () => controller.selectTanggalLahir(context),
+                    child: AbsorbPointer(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          labelText: controller.selectedTanggalLahir == null
+                              ? 'Tanggal Lahir'
+                              : '${controller.selectedTanggalLahir!.year}-${controller.selectedTanggalLahir!.month.toString().padLeft(2, '0')}-${controller.selectedTanggalLahir!.day.toString().padLeft(2, '0')}',
+                          border: OutlineInputBorder(),
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 30),
-              _buildInputLabel('Name'),
-              _buildInputField(
-                  controller: nameController, hintText: 'Enter name'),
-              SizedBox(height: 20),
-              _buildInputLabel('Email'),
-              _buildInputField(
-                  controller: emailController, hintText: 'Enter email'),
-              SizedBox(height: 20),
-              _buildInputLabel('Role'),
-              _buildInputField(
-                  controller: roleController, hintText: 'Role', enabled: false),
-              SizedBox(height: 20),
-              _buildInputLabel('Tanggal Lahir'),
-              _buildDateField(context), // Field untuk tanggal lahir
-              SizedBox(height: 40),
-              ElevatedButton(
-                onPressed: _saveProfile,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
                   ),
-                ),
-                child: Text(
-                  'Simpan Perubahan',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                  SizedBox(height: 24),
+                  GestureDetector(
+                    onTap: controller.updateProfile,
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.blueAccent, Colors.lightBlueAccent],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Simpan Perubahan',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  SizedBox(height: 16),
+                  GestureDetector(
+                    onTap: controller.uploadPhoto,
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.green, Colors.lightGreenAccent],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Upload Foto',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInputLabel(String text) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        text,
-        style: GoogleFonts.poppins(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInputField({
-    required TextEditingController controller,
-    required String hintText,
-    bool enabled = true,
-  }) {
-    return TextFormField(
-      controller: controller,
-      enabled: enabled,
-      style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: GoogleFonts.poppins(fontSize: 14, color: Colors.grey),
-        filled: true,
-        fillColor: Colors.white,
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white, width: 1),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.blueAccent, width: 1.5),
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDateField(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _pickDate(context),
-      child: AbsorbPointer(
-        child: TextFormField(
-          controller: birthDateController,
-          decoration: InputDecoration(
-            hintText: 'Pilih tanggal lahir',
-            hintStyle: GoogleFonts.poppins(fontSize: 14, color: Colors.grey),
-            filled: true,
-            fillColor: Colors.white,
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.white, width: 1),
-              borderRadius: BorderRadius.circular(8),
             ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.blueAccent, width: 1.5),
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
