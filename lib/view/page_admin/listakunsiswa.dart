@@ -36,10 +36,11 @@ class _ListAkunSiswaState extends State<ListAkunSiswa> {
           akunSiswa = (data as List)
               .where((item) => item['role']?.toLowerCase() == 'siswa')
               .map((item) => {
+                    'id': item['id'].toString(),
                     'foto': item['image_url'] ?? '',
                     'nama': item['name'] ?? 'Nama tidak tersedia',
                     'email': item['email'] ?? 'Email tidak tersedia',
-                    'password': '********', // Jangan tampilkan password asli
+                    'password': '********',
                     'role': item['role'] ?? '',
                     'no_absen': item['nomor_absen']?.toString() ?? 'N/A',
                   })
@@ -58,6 +59,37 @@ class _ListAkunSiswaState extends State<ListAkunSiswa> {
         errorMessage = 'Terjadi kesalahan saat memuat data: $e';
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> deleteAkunSiswa(String id) async {
+    final String url = 'https://absen.djncloud.my.id/api/v1/account/$id';
+
+    try {
+      final response = await _dio.delete(
+        url,
+        options: Options(headers: {'Accept': 'application/json'}),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          akunSiswa.removeWhere((akun) => akun['id'] == id);
+        });
+        Get.snackbar('Berhasil', 'Akun berhasil dihapus',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green,
+            colorText: Colors.white);
+      } else {
+        Get.snackbar('Gagal', 'Gagal menghapus akun',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Kesalahan', 'Terjadi kesalahan saat menghapus akun',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white);
     }
   }
 
@@ -97,8 +129,7 @@ class _ListAkunSiswaState extends State<ListAkunSiswa> {
               : _buildListAkun(),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Get.toNamed(
-              '/tambahAkunSiswa'); // Direct ke halaman Tambah Akun Siswa
+          Get.toNamed('/tambahAkunSiswa');
         },
         label: Text(
           'Tambah Akun',
@@ -133,6 +164,7 @@ class _ListAkunSiswaState extends State<ListAkunSiswa> {
                 final akun = akunSiswa[index];
                 return _buildAkunCard(
                   context,
+                  id: akun['id'],
                   foto: akun['foto']!,
                   nama: akun['nama']!,
                   email: akun['email']!,
@@ -147,6 +179,7 @@ class _ListAkunSiswaState extends State<ListAkunSiswa> {
 
   Widget _buildAkunCard(
     BuildContext context, {
+    required String id,
     required String foto,
     required String nama,
     required String email,
@@ -229,6 +262,7 @@ class _ListAkunSiswaState extends State<ListAkunSiswa> {
               icon: Icon(Icons.edit, color: Colors.blueAccent),
               onPressed: () {
                 Get.toNamed('/editAkunSiswa', arguments: {
+                  'id': id,
                   'foto': foto,
                   'nama': nama,
                   'email': email,
@@ -236,6 +270,12 @@ class _ListAkunSiswaState extends State<ListAkunSiswa> {
                   'role': role,
                   'no_absen': noAbsen,
                 });
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.delete, color: Colors.red),
+              onPressed: () {
+                deleteAkunSiswa(id);
               },
             ),
           ],

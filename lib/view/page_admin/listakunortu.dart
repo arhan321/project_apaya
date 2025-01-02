@@ -32,16 +32,15 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
       if (response.statusCode == 200) {
         final data = response.data;
 
-        debugPrint('Data API: $data');
-
         setState(() {
           akunOrtu = (data as List)
               .where((item) => item['role']?.toLowerCase() == 'orang_tua')
               .map((item) => {
+                    'id': item['id'].toString(),
                     'foto': item['image_url'] ?? '',
                     'nama': item['name'] ?? 'Nama tidak tersedia',
                     'email': item['email'] ?? 'Email tidak tersedia',
-                    'password': '********', // Jangan tampilkan password asli
+                    'password': '********',
                     'role': item['role'] ?? '',
                   })
               .toList();
@@ -55,11 +54,41 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
         });
       }
     } catch (e) {
-      debugPrint('Kesalahan API: $e');
       setState(() {
         errorMessage = 'Terjadi kesalahan saat memuat data: $e';
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> deleteAkunOrtu(String id) async {
+    final String url = 'https://absen.djncloud.my.id/api/v1/account/$id';
+
+    try {
+      final response = await _dio.delete(
+        url,
+        options: Options(headers: {'Accept': 'application/json'}),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          akunOrtu.removeWhere((akun) => akun['id'] == id);
+        });
+        Get.snackbar('Berhasil', 'Akun berhasil dihapus',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green,
+            colorText: Colors.white);
+      } else {
+        Get.snackbar('Gagal', 'Gagal menghapus akun',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Kesalahan', 'Terjadi kesalahan saat menghapus akun',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white);
     }
   }
 
@@ -95,12 +124,16 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : errorMessage.isNotEmpty
-              ? _buildErrorWidget()
+              ? Center(
+                  child: Text(
+                    errorMessage,
+                    style: GoogleFonts.poppins(fontSize: 16, color: Colors.red),
+                  ),
+                )
               : _buildListAkun(),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Get.toNamed(
-              '/tambahAkunOrtu'); // Direct ke halaman Tambah Akun Orang Tua
+          Get.toNamed('/tambahAkunOrtu');
         },
         label: Text(
           'Tambah Akun',
@@ -135,6 +168,7 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
                 final akun = akunOrtu[index];
                 return _buildAkunCard(
                   context,
+                  id: akun['id'],
                   foto: akun['foto']!,
                   nama: akun['nama']!,
                   email: akun['email']!,
@@ -148,6 +182,7 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
 
   Widget _buildAkunCard(
     BuildContext context, {
+    required String id,
     required String foto,
     required String nama,
     required String email,
@@ -222,6 +257,7 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
               icon: Icon(Icons.edit, color: Colors.blueAccent),
               onPressed: () {
                 Get.toNamed('/editAkunOrtu', arguments: {
+                  'id': id,
                   'foto': foto,
                   'nama': nama,
                   'email': email,
@@ -230,17 +266,14 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
                 });
               },
             ),
+            IconButton(
+              icon: Icon(Icons.delete, color: Colors.red),
+              onPressed: () {
+                deleteAkunOrtu(id);
+              },
+            ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildErrorWidget() {
-    return Center(
-      child: Text(
-        errorMessage,
-        style: GoogleFonts.poppins(fontSize: 16, color: Colors.red),
       ),
     );
   }
