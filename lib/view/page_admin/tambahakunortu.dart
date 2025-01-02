@@ -50,11 +50,11 @@ class _TambahAkunOrtuState extends State<TambahAkunOrtu> {
   Future<void> _registerOrtu() async {
     const String url = 'https://absen.djncloud.my.id/api/v1/account/register';
 
-    if (namaController.text.isEmpty ||
-        emailController.text.isEmpty ||
-        passwordController.text.isEmpty ||
-        confirmPasswordController.text.isEmpty ||
-        selectedTanggalLahir == null) {
+    // Validasi: Nama, email, password, dan konfirmasi password harus diisi
+    if (namaController.text.trim().isEmpty ||
+        emailController.text.trim().isEmpty ||
+        passwordController.text.trim().isEmpty ||
+        confirmPasswordController.text.trim().isEmpty) {
       Get.snackbar('Error', 'Harap lengkapi semua field',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
@@ -62,6 +62,7 @@ class _TambahAkunOrtuState extends State<TambahAkunOrtu> {
       return;
     }
 
+    // Validasi: Password dan konfirmasi password harus cocok
     if (passwordController.text != confirmPasswordController.text) {
       Get.snackbar('Error', 'Password dan konfirmasi password tidak cocok',
           snackPosition: SnackPosition.BOTTOM,
@@ -72,15 +73,16 @@ class _TambahAkunOrtuState extends State<TambahAkunOrtu> {
 
     try {
       dio.FormData formData = dio.FormData.fromMap({
-        'name': namaController.text,
-        'email': emailController.text,
+        'name': namaController.text.trim(),
+        'email': emailController.text.trim(),
         'password': passwordController.text,
         'password_confirmation': confirmPasswordController.text,
         'role': selectedRole,
-        'tanggal_lahir': DateFormat('yyyy-MM-dd').format(selectedTanggalLahir!),
         'photo': _selectedImage != null
-            ? await dio.MultipartFile.fromFile(_selectedImage!.path,
-                filename: _selectedImage!.path.split('/').last)
+            ? await dio.MultipartFile.fromFile(
+                _selectedImage!.path,
+                filename: _selectedImage!.path.split('/').last,
+              )
             : null,
       });
 

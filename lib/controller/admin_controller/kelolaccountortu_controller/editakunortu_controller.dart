@@ -20,7 +20,7 @@ class EditAkunOrtuController extends GetxController {
   void onInit() {
     super.onInit();
     print('EditAkunOrtuController initialized');
-    namaController = TextEditingController(text: akun['nama']);
+    namaController = TextEditingController(text: akun['name']);
     usernameController = TextEditingController(text: akun['username']);
     emailController = TextEditingController(text: akun['email']);
     passwordController = TextEditingController(text: akun['password']);

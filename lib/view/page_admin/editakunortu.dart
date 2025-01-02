@@ -70,14 +70,14 @@ class EditAkunOrtu extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 16),
-                  TextField(
-                    controller: controller.usernameController,
-                    decoration: InputDecoration(
-                      labelText: 'Username',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 16),
+                  // TextField(
+                  //   controller: controller.usernameController,
+                  //   decoration: InputDecoration(
+                  //     labelText: 'Username',
+                  //     border: OutlineInputBorder(),
+                  //   ),
+                  // ),
+                  // SizedBox(height: 16),
                   TextField(
                     controller: controller.emailController,
                     decoration: InputDecoration(
