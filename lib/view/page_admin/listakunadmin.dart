@@ -36,9 +36,11 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
 
         setState(() {
           akunAdmin = (data as List)
-              .where((item) => item['role']?.toLowerCase() == 'admin')
+              .where((item) => (item['role'] ?? '').toLowerCase() == 'admin')
               .map((item) => {
-                    'foto': item['image_url'] ?? '',
+                    'id': item['id']?.toString() ??
+                        '', // Pastikan id adalah String
+                    'foto': item['image_url'] ?? '', // Beri nilai default ''
                     'username': item['name'] ?? 'Nama tidak tersedia',
                     'email': item['email'] ?? 'Email tidak tersedia',
                     'password': item['password'] ?? '********',
@@ -60,6 +62,37 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
         errorMessage = 'Terjadi kesalahan saat memuat data: $e';
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> deleteAkun(String id) async {
+    const String baseUrl = 'https://absen.djncloud.my.id/api/v1/account/';
+    try {
+      final response = await _dio.delete('$baseUrl$id');
+
+      if (response.statusCode == 200) {
+        setState(() {
+          akunAdmin.removeWhere((item) => item['id'] == id);
+        });
+        Get.snackbar(
+          'Sukses',
+          'Akun berhasil dihapus.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else {
+        Get.snackbar(
+          'Gagal',
+          'Tidak dapat menghapus akun.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (e) {
+      debugPrint('Kesalahan saat menghapus akun: $e');
+      Get.snackbar(
+        'Kesalahan',
+        'Terjadi kesalahan saat menghapus akun.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 
@@ -99,9 +132,7 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
               : _buildListAkun(),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          debugPrint('Navigating to /tambahAkunAdmin');
-          Get.toNamed(
-              '/tambahAkunAdmin'); // Direct ke halaman tambah akun admin
+          Get.toNamed('/tambahAkunAdmin');
         },
         label: Text(
           'Tambah Akun',
@@ -136,6 +167,7 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
                 final akun = akunAdmin[index];
                 return _buildAkunCard(
                   context,
+                  id: akun['id'],
                   foto: akun['foto']!,
                   username: akun['username']!,
                   email: akun['email']!,
@@ -149,6 +181,7 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
 
   Widget _buildAkunCard(
     BuildContext context, {
+    required String id,
     required String foto,
     required String username,
     required String email,
@@ -168,19 +201,8 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
             CircleAvatar(
               radius: 40,
               backgroundImage: foto.isNotEmpty
-                  ? NetworkImage(foto) // URL gambar lengkap
-                  : AssetImage('assets/default_profile.png')
-                      as ImageProvider, // Gambar default
-              onBackgroundImageError: (exception, stackTrace) {
-                debugPrint('Gagal memuat gambar: $exception');
-              },
-              child: foto.isEmpty
-                  ? Text(
-                      'No Image',
-                      style: TextStyle(color: Colors.black, fontSize: 12),
-                      textAlign: TextAlign.center,
-                    )
-                  : null,
+                  ? NetworkImage(foto)
+                  : AssetImage('assets/default_profile.png') as ImageProvider,
             ),
             SizedBox(width: 16),
             Expanded(
@@ -188,7 +210,7 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '$username',
+                    username,
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -211,7 +233,7 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
                     ),
                   ),
                   Text(
-                    'Password: ${'**********'}', // Sensor password
+                    'Password: ********',
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       color: Colors.grey[700],
@@ -220,20 +242,28 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
                 ],
               ),
             ),
-            IconButton(
-              icon: Icon(Icons.edit, color: Colors.blueAccent),
-              onPressed: () {
-                debugPrint('Navigating to /editAkunAdmin with data:');
-                debugPrint(
-                    'foto: $foto, username: $username, email: $email, password: $password, role: $role');
-                Get.toNamed('/editAkunAdmin', arguments: {
-                  'foto': foto,
-                  'username': username,
-                  'email': email,
-                  'password': password,
-                  'role': role,
-                });
-              },
+            Column(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.edit, color: Colors.blueAccent),
+                  onPressed: () {
+                    Get.toNamed('/editAkunAdmin', arguments: {
+                      'id': id,
+                      'foto': foto,
+                      'username': username,
+                      'email': email,
+                      'password': password,
+                      'role': role,
+                    });
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete, color: Colors.redAccent),
+                  onPressed: () {
+                    deleteAkun(id);
+                  },
+                ),
+              ],
             ),
           ],
         ),

@@ -39,12 +39,13 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
           akunGuru = (data as List)
               .where((item) => item['role']?.toLowerCase() == 'guru')
               .map((item) => {
+                    'id': item['id'].toString(),
                     'foto': item['photo'] != null && item['photo'] != ''
                         ? Uri.encodeFull('$baseUrl${item['photo']}')
-                        : '', // Tambahkan base URL untuk gambar relatif
+                        : '',
                     'nama': item['name'] ?? 'Nama tidak tersedia',
                     'email': item['email'] ?? 'Email tidak tersedia',
-                    'password': '********', // Jangan tampilkan password asli
+                    'password': '********',
                     'role': item['role'] ?? '',
                   })
               .toList();
@@ -63,6 +64,38 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
         errorMessage = 'Terjadi kesalahan saat memuat data: $e';
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> deleteAkunGuru(String id) async {
+    final String url = 'https://absen.djncloud.my.id/api/v1/account/$id';
+
+    try {
+      final response = await _dio.delete(
+        url,
+        options: Options(headers: {'Accept': 'application/json'}),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          akunGuru.removeWhere((akun) => akun['id'] == id);
+        });
+        Get.snackbar('Berhasil', 'Akun berhasil dihapus',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green,
+            colorText: Colors.white);
+      } else {
+        Get.snackbar('Gagal', 'Gagal menghapus akun',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white);
+      }
+    } catch (e) {
+      debugPrint('Kesalahan API: $e');
+      Get.snackbar('Kesalahan', 'Terjadi kesalahan saat menghapus akun',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white);
     }
   }
 
@@ -98,11 +131,16 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : errorMessage.isNotEmpty
-              ? _buildErrorWidget()
+              ? Center(
+                  child: Text(
+                    errorMessage,
+                    style: GoogleFonts.poppins(fontSize: 16, color: Colors.red),
+                  ),
+                )
               : _buildListAkun(),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Get.toNamed('/tambahAkunGuru'); // Arahkan ke halaman Tambah Akun Guru
+          Get.toNamed('/tambahAkunGuru');
         },
         label: Text(
           'Tambah Akun',
@@ -137,6 +175,7 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
                 final akun = akunGuru[index];
                 return _buildAkunCard(
                   context,
+                  id: akun['id'],
                   foto: akun['foto']!,
                   nama: akun['nama']!,
                   email: akun['email']!,
@@ -150,6 +189,7 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
 
   Widget _buildAkunCard(
     BuildContext context, {
+    required String id,
     required String foto,
     required String nama,
     required String email,
@@ -224,6 +264,7 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
               icon: Icon(Icons.edit, color: Colors.blueAccent),
               onPressed: () {
                 Get.toNamed('/editAkunGuru', arguments: {
+                  'id': id,
                   'foto': foto,
                   'nama': nama,
                   'email': email,
@@ -232,17 +273,14 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
                 });
               },
             ),
+            IconButton(
+              icon: Icon(Icons.delete, color: Colors.red),
+              onPressed: () {
+                deleteAkunGuru(id);
+              },
+            ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildErrorWidget() {
-    return Center(
-      child: Text(
-        errorMessage,
-        style: GoogleFonts.poppins(fontSize: 16, color: Colors.red),
       ),
     );
   }
