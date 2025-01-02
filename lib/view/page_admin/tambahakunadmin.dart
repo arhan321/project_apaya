@@ -110,7 +110,9 @@ class _TambahAkunAdminState extends State<TambahAkunAdmin> {
               TextButton(
                 onPressed: () {
                   Get.back(); // Tutup dialog
-                  Get.back(); // Kembali ke halaman sebelumnya
+                  Get.back(
+                      result:
+                          true); // Kembali ke halaman sebelumnya dengan hasil
                 },
                 child: Text('OK', style: GoogleFonts.poppins(fontSize: 16)),
               ),

@@ -22,7 +22,6 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
 
   Future<void> fetchAkunGuru() async {
     const String url = 'https://absen.djncloud.my.id/api/v1/account';
-    const String baseUrl = 'https://absen.djncloud.my.id/';
 
     try {
       final response = await _dio.get(
@@ -33,16 +32,12 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
       if (response.statusCode == 200) {
         final data = response.data;
 
-        debugPrint('Data API: $data');
-
         setState(() {
           akunGuru = (data as List)
               .where((item) => item['role']?.toLowerCase() == 'guru')
               .map((item) => {
                     'id': item['id'].toString(),
-                    'foto': item['photo'] != null && item['photo'] != ''
-                        ? Uri.encodeFull('$baseUrl${item['photo']}')
-                        : '',
+                    'foto': item['image_url'] ?? '',
                     'nama': item['name'] ?? 'Nama tidak tersedia',
                     'email': item['email'] ?? 'Email tidak tersedia',
                     'password': '********',
@@ -59,7 +54,6 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
         });
       }
     } catch (e) {
-      debugPrint('Kesalahan API: $e');
       setState(() {
         errorMessage = 'Terjadi kesalahan saat memuat data: $e';
         isLoading = false;
@@ -91,7 +85,6 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
             colorText: Colors.white);
       }
     } catch (e) {
-      debugPrint('Kesalahan API: $e');
       Get.snackbar('Kesalahan', 'Terjadi kesalahan saat menghapus akun',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
