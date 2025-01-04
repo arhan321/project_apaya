@@ -4,8 +4,21 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../controller/admin_controller/mainpage_controller/mainpageadmin_controller.dart';
 import '/routes/routes.dart';
 
-class AdminDashboard extends StatelessWidget {
+class AdminDashboard extends StatefulWidget {
+  @override
+  _AdminDashboardState createState() => _AdminDashboardState();
+}
+
+class _AdminDashboardState extends State<AdminDashboard> {
   final MainPageAdminController controller = Get.put(MainPageAdminController());
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context)?.isCurrent == true) {
+      controller.fetchAdminData();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,8 +130,7 @@ class AdminDashboard extends StatelessWidget {
                 style: GoogleFonts.poppins(),
               ),
               onTap: () {
-                controller
-                    .fetchAdminData(); // Memanggil metode untuk refresh data
+                controller.fetchAdminData();
                 Get.snackbar(
                   'Refresh',
                   'Data berhasil diperbarui!',

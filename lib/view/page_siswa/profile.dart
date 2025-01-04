@@ -8,10 +8,10 @@ class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  _ProfileSiswaPageState createState() => _ProfileSiswaPageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfileSiswaPageState extends State<ProfilePage> {
   String studentName = '';
   String studentClass = 'Kelas 6A'; // Informasi kelas dibuat statis
   String studentNumber = '';
@@ -28,7 +28,20 @@ class _ProfilePageState extends State<ProfilePage> {
     fetchUserData();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context)?.isCurrent == true) {
+      fetchUserData();
+    }
+  }
+
   Future<void> fetchUserData() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = '';
+    });
+
     const String url = 'https://absen.djncloud.my.id/auth/me';
 
     try {

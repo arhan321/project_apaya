@@ -5,8 +5,27 @@ import '/controller/siswa_controller/mainpage_controller.dart';
 import 'listabsen.dart';
 import 'profile.dart';
 
-class MainPage extends StatelessWidget {
+class MainPage extends StatefulWidget {
+  @override
+  _MainPageState createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
   final MainPageController controller = Get.put(MainPageController());
+
+  @override
+  void initState() {
+    super.initState();
+    controller.fetchUserData(); // Fetch initial data
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context)?.isCurrent == true) {
+      controller.fetchUserData(); // Refresh data when returning to this page
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

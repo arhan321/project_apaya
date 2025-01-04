@@ -5,8 +5,27 @@ import '../../controller/guru_controller/mainpageguru_controller.dart';
 import 'listabsensiswa.dart';
 import 'profileguru.dart';
 
-class MainPageGuru extends StatelessWidget {
+class MainPageGuru extends StatefulWidget {
+  @override
+  _MainPageGuruState createState() => _MainPageGuruState();
+}
+
+class _MainPageGuruState extends State<MainPageGuru> {
   final MainPageGuruController controller = Get.put(MainPageGuruController());
+
+  @override
+  void initState() {
+    super.initState();
+    controller.fetchUserData(); // Initial fetch
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context)?.isCurrent == true) {
+      controller.fetchUserData(); // Fetch data when coming back to this page
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -28,7 +28,20 @@ class _ProfileGuruPageState extends State<ProfileGuruPage> {
     fetchUserData();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context)?.isCurrent == true) {
+      fetchUserData();
+    }
+  }
+
   Future<void> fetchUserData() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = '';
+    });
+
     const String url = 'https://absen.djncloud.my.id/auth/me';
 
     try {
@@ -62,8 +75,7 @@ class _ProfileGuruPageState extends State<ProfileGuruPage> {
         setState(() {
           guruName = data['name'] ?? 'Nama tidak tersedia';
           photoUrl = data['image_url'];
-          birthDate = data['tanggal_lahir'] ??
-              'Tanggal lahir tidak tersedia'; // Tambahkan tanggal lahir
+          birthDate = data['tanggal_lahir'] ?? 'Tanggal lahir tidak tersedia';
           isLoading = false;
         });
       } else {
@@ -173,7 +185,6 @@ class _ProfileGuruPageState extends State<ProfileGuruPage> {
           child: Column(
             children: [
               SizedBox(height: 20),
-              // Profile Card
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
@@ -188,7 +199,7 @@ class _ProfileGuruPageState extends State<ProfileGuruPage> {
                         backgroundColor: Colors.grey[200],
                         backgroundImage:
                             photoUrl != null && photoUrl!.isNotEmpty
-                                ? NetworkImage(photoUrl!) // URL gambar profil
+                                ? NetworkImage(photoUrl!)
                                 : null,
                         child: photoUrl == null || photoUrl!.isEmpty
                             ? Text(

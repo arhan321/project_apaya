@@ -15,7 +15,7 @@ class _ProfileAdminPageState extends State<ProfileAdminPage> {
   String adminName = '';
   String role = 'Administrator';
   String? photoUrl;
-  String? birthDate; // Field untuk tanggal lahir
+  String? birthDate;
   bool isLoading = true;
   String errorMessage = '';
 
@@ -27,7 +27,20 @@ class _ProfileAdminPageState extends State<ProfileAdminPage> {
     fetchUserData();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context)?.isCurrent == true) {
+      fetchUserData();
+    }
+  }
+
   Future<void> fetchUserData() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = '';
+    });
+
     const String url = 'https://absen.djncloud.my.id/auth/me';
 
     try {
@@ -171,7 +184,6 @@ class _ProfileAdminPageState extends State<ProfileAdminPage> {
           child: Column(
             children: [
               SizedBox(height: 20),
-              // Profile Card
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
@@ -186,7 +198,7 @@ class _ProfileAdminPageState extends State<ProfileAdminPage> {
                         backgroundColor: Colors.grey[200],
                         backgroundImage:
                             photoUrl != null && photoUrl!.isNotEmpty
-                                ? NetworkImage(photoUrl!) // URL gambar profil
+                                ? NetworkImage(photoUrl!)
                                 : null,
                         child: photoUrl == null || photoUrl!.isEmpty
                             ? Text(

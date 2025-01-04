@@ -25,7 +25,20 @@ class _ProfilortuPageState extends State<ProfilortuPage> {
     fetchUserData();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context)?.isCurrent == true) {
+      fetchUserData();
+    }
+  }
+
   Future<void> fetchUserData() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = '';
+    });
+
     const String url = 'https://absen.djncloud.my.id/auth/me';
 
     try {

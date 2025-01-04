@@ -5,8 +5,27 @@ import '/controller/orangtua_controller/mainpageortu_controller.dart';
 import 'listabsenortu.dart';
 import 'profilortu.dart';
 
-class MainPageOrtu extends StatelessWidget {
+class MainPageOrtu extends StatefulWidget {
+  @override
+  _MainPageOrtuState createState() => _MainPageOrtuState();
+}
+
+class _MainPageOrtuState extends State<MainPageOrtu> {
   final MainPageOrtuController controller = Get.put(MainPageOrtuController());
+
+  @override
+  void initState() {
+    super.initState();
+    controller.fetchUserData(); // Fetch initial data
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context)?.isCurrent == true) {
+      controller.fetchUserData(); // Refresh data when returning to this page
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
