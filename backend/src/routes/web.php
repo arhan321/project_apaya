@@ -3,6 +3,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\CodeCheckController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 
 //route default
 Route::get('/', function () {
@@ -22,4 +25,11 @@ Route::group(['prefix' => 'api/v1/account'], function () {
 });
 Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/auth/me', [AuthController::class, 'getLoggedInUser'])->middleware('auth:sanctum');
+
+// Password reset routes
+Route::post('password/email', ForgotPasswordController::class);
+Route::post('password/code/check', CodeCheckController::class);
+Route::post('password/reset', [ResetPasswordController::class, '__invoke']);
+Route::get('/resetdata', [ForgotPasswordController::class, 'index']);
+
 
