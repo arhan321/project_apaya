@@ -1,8 +1,8 @@
 <?php
 
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DataKelasController;
 use App\Http\Controllers\Auth\CodeCheckController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -11,6 +11,11 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 Route::get('/', function () {
     return view('welcome');
 });
+// Password reset routes
+Route::post('password/email', ForgotPasswordController::class);
+Route::post('password/code/check', CodeCheckController::class);
+Route::post('password/reset', [ResetPasswordController::class, '__invoke']);
+Route::get('/resetdata', [ForgotPasswordController::class, 'index']);
 
 // api absen
 Route::group(['prefix' => 'api/v1/account'], function () {
@@ -26,10 +31,12 @@ Route::group(['prefix' => 'api/v1/account'], function () {
 Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/auth/me', [AuthController::class, 'getLoggedInUser'])->middleware('auth:sanctum');
 
-// Password reset routes
-Route::post('password/email', ForgotPasswordController::class);
-Route::post('password/code/check', CodeCheckController::class);
-Route::post('password/reset', [ResetPasswordController::class, '__invoke']);
-Route::get('/resetdata', [ForgotPasswordController::class, 'index']);
-
+//api data kelas 
+Route::group(['prefix' => 'api/v1/kelas'], function () {
+    Route::get('/', [DataKelasController::class, 'index']); 
+    Route::get('/{id}', [DataKelasController::class, 'show']); 
+    Route::post('/data-kelas', [DataKelasController::class, 'store']); 
+    Route::put('/{id}', [DataKelasController::class, 'update']); 
+    Route::delete('/{id}', [DataKelasController::class, 'destroy']);
+});
 
