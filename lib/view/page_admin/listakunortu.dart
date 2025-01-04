@@ -20,7 +20,20 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
     fetchAkunOrtu();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context)?.isCurrent == true) {
+      fetchAkunOrtu();
+    }
+  }
+
   Future<void> fetchAkunOrtu() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = '';
+    });
+
     const String url = 'https://absen.djncloud.my.id/api/v1/account';
 
     try {
@@ -124,12 +137,7 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : errorMessage.isNotEmpty
-              ? Center(
-                  child: Text(
-                    errorMessage,
-                    style: GoogleFonts.poppins(fontSize: 16, color: Colors.red),
-                  ),
-                )
+              ? _buildErrorWidget()
               : _buildListAkun(),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -274,6 +282,15 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    return Center(
+      child: Text(
+        errorMessage,
+        style: GoogleFonts.poppins(fontSize: 16, color: Colors.red),
       ),
     );
   }

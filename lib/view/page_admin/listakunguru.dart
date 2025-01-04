@@ -20,7 +20,20 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
     fetchAkunGuru();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context)?.isCurrent == true) {
+      fetchAkunGuru();
+    }
+  }
+
   Future<void> fetchAkunGuru() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = '';
+    });
+
     const String url = 'https://absen.djncloud.my.id/api/v1/account';
 
     try {

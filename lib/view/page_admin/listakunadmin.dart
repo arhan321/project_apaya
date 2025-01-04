@@ -20,7 +20,20 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
     fetchAkunAdmin();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context)?.isCurrent == true) {
+      fetchAkunAdmin();
+    }
+  }
+
   Future<void> fetchAkunAdmin() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = '';
+    });
+
     const String url = 'https://absen.djncloud.my.id/api/v1/account';
 
     try {
@@ -38,9 +51,8 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
           akunAdmin = (data as List)
               .where((item) => (item['role'] ?? '').toLowerCase() == 'admin')
               .map((item) => {
-                    'id': item['id']?.toString() ??
-                        '', // Pastikan id adalah String
-                    'foto': item['image_url'] ?? '', // Beri nilai default ''
+                    'id': item['id']?.toString() ?? '',
+                    'foto': item['image_url'] ?? '',
                     'username': item['name'] ?? 'Nama tidak tersedia',
                     'email': item['email'] ?? 'Email tidak tersedia',
                     'password': item['password'] ?? '********',

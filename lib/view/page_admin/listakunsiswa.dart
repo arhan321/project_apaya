@@ -20,7 +20,20 @@ class _ListAkunSiswaState extends State<ListAkunSiswa> {
     fetchAkunSiswa();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context)?.isCurrent == true) {
+      fetchAkunSiswa();
+    }
+  }
+
   Future<void> fetchAkunSiswa() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = '';
+    });
+
     const String url = 'https://absen.djncloud.my.id/api/v1/account';
 
     try {
