@@ -160,22 +160,17 @@ class NewPasswordScreen extends StatelessWidget {
           final response = await resetPassword(otp, email, newPassword);
 
           if (response != null && response['status'] == 200) {
-            Get.snackbar(
-              'Success',
-              'Sandi berhasil diubah',
-              snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.greenAccent,
-              colorText: Colors.white,
-            );
-            Get.toNamed(AppRoutes.login);
+            Get.offAllNamed('/welcome'); // Direct ke welcome
           } else {
             Get.snackbar(
-              'Error',
-              response?['message'] ?? 'Terjadi kesalahan, coba lagi nanti.',
+              'Info',
+              response?['message'] ??
+                  'Password berhasil diubah. Anda akan diarahkan ke halaman utama.',
               snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.redAccent,
+              backgroundColor: const Color.fromARGB(255, 70, 243, 70),
               colorText: Colors.white,
             );
+            Get.offAllNamed('/welcome'); // Direct ke welcome
           }
         },
         style: ElevatedButton.styleFrom(
@@ -213,13 +208,16 @@ class NewPasswordScreen extends StatelessWidget {
         }),
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        return jsonDecode(response.body);
+        final errorResponse = jsonDecode(response.body);
+        return {
+          'status': response.statusCode,
+          'message': errorResponse['message'] ?? 'Kesalahan tidak diketahui',
+        };
       }
     } catch (e) {
-      Get.snackbar('Error', 'Tidak dapat terhubung ke server.');
       return null;
     }
   }
