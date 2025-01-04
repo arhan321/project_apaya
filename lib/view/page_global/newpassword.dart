@@ -1,35 +1,20 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import '../../routes/routes.dart';
 
 class NewPasswordScreen extends StatelessWidget {
-  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController otpController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
   final TextEditingController newPasswordController = TextEditingController();
-
-  final FocusNode usernameFocusNode = FocusNode(); // Tambahkan FocusNode
-  final FocusNode passwordFocusNode = FocusNode(); // Tambahkan FocusNode
 
   @override
   Widget build(BuildContext context) {
-    // Listener pada FocusNode untuk debugging
-    usernameFocusNode.addListener(() {
-      if (usernameFocusNode.hasFocus) {
-        print('Username field got focus');
-      }
-    });
-
-    passwordFocusNode.addListener(() {
-      if (passwordFocusNode.hasFocus) {
-        print('Password field got focus');
-      }
-    });
-
     return Scaffold(
-      resizeToAvoidBottomInset:
-          true, // Menyesuaikan layout saat keyboard muncul
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
-          // Background Gradient
           Container(
             width: double.infinity,
             height: double.infinity,
@@ -41,15 +26,13 @@ class NewPasswordScreen extends StatelessWidget {
               ),
             ),
           ),
-          // Konten Halaman
           SingleChildScrollView(
             child: Padding(
               padding: EdgeInsets.only(
                 left: 30.0,
                 right: 30.0,
                 top: 50.0,
-                bottom:
-                    MediaQuery.of(context).viewInsets.bottom, // Padding dinamis
+                bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,21 +69,22 @@ class NewPasswordScreen extends StatelessWidget {
                     ),
                   ),
                   _buildTextField(
-                    context: context,
-                    controller: usernameController,
-                    focusNode: usernameFocusNode,
-                    hintText: 'Nama',
+                    controller: otpController,
+                    hintText: 'Kode OTP',
                   ),
                   SizedBox(height: 20),
                   _buildTextField(
-                    context: context,
+                    controller: emailController,
+                    hintText: 'Email Anda',
+                  ),
+                  SizedBox(height: 20),
+                  _buildTextField(
                     controller: newPasswordController,
-                    focusNode: passwordFocusNode,
                     hintText: 'Sandi Baru',
                     isPassword: true,
                   ),
                   SizedBox(height: 30),
-                  _buildChangePasswordButton(),
+                  _buildResetPasswordButton(),
                   SizedBox(height: 20),
                   Center(
                     child: TextButton(
@@ -124,64 +108,72 @@ class NewPasswordScreen extends StatelessWidget {
   }
 
   Widget _buildTextField({
-    required BuildContext context, // Tambahkan BuildContext
     required TextEditingController controller,
-    required FocusNode focusNode,
     required String hintText,
     bool isPassword = false,
   }) {
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).requestFocus(focusNode); // Paksa fokus
-      },
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(25),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 5,
-              offset: Offset(0, 3),
-            ),
-          ],
-        ),
-        child: TextField(
-          controller: controller,
-          focusNode: focusNode,
-          obscureText: isPassword,
-          decoration: InputDecoration(
-            hintText: hintText,
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
+    return Container(
+      height: 50,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 5,
+            offset: Offset(0, 3),
           ),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: isPassword,
+        decoration: InputDecoration(
+          hintText: hintText,
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
         ),
       ),
     );
   }
 
-  Widget _buildChangePasswordButton() {
+  Widget _buildResetPasswordButton() {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
-          String username = usernameController.text.trim();
-          String newPassword = newPasswordController.text.trim();
-          if (username.isEmpty || newPassword.isEmpty) {
+        onPressed: () async {
+          final otp = otpController.text.trim();
+          final email = emailController.text.trim();
+          final newPassword = newPasswordController.text.trim();
+
+          if (otp.isEmpty || email.isEmpty || newPassword.isEmpty) {
             Get.snackbar(
               'Error',
-              'Nama dan sandi baru harus diisi',
+              'Semua bidang harus diisi',
               snackPosition: SnackPosition.BOTTOM,
               backgroundColor: Colors.redAccent,
               colorText: Colors.white,
             );
-          } else {
+            return;
+          }
+
+          final response = await resetPassword(otp, email, newPassword);
+
+          if (response != null && response['status'] == 200) {
             Get.snackbar(
               'Success',
               'Sandi berhasil diubah',
               snackPosition: SnackPosition.BOTTOM,
               backgroundColor: Colors.greenAccent,
+              colorText: Colors.white,
+            );
+            Get.toNamed(AppRoutes.login);
+          } else {
+            Get.snackbar(
+              'Error',
+              response?['message'] ?? 'Terjadi kesalahan, coba lagi nanti.',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.redAccent,
               colorText: Colors.white,
             );
           }
@@ -194,7 +186,7 @@ class NewPasswordScreen extends StatelessWidget {
           ),
         ),
         child: Text(
-          'Ubah Sandi',
+          'Reset Password',
           style: TextStyle(
             color: Colors.white,
             fontSize: 18,
@@ -203,5 +195,32 @@ class NewPasswordScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<Map<String, dynamic>?> resetPassword(
+      String otp, String email, String newPassword) async {
+    try {
+      final url = Uri.parse('https://absen.djncloud.my.id/password/reset');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'code': otp,
+          'email': email,
+          'password': newPassword,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return jsonDecode(response.body);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Tidak dapat terhubung ke server.');
+      return null;
+    }
   }
 }

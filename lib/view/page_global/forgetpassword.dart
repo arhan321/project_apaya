@@ -1,9 +1,17 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import '../../routes/routes.dart';
 
-class ForgotPasswordScreen extends StatelessWidget {
+class ForgotPasswordScreen extends StatefulWidget {
+  @override
+  _ForgotPasswordScreenState createState() => _ForgotPasswordScreenState();
+}
+
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController usernameController = TextEditingController();
+  bool showResetPasswordButton = false;
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +31,7 @@ class ForgotPasswordScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Ikon back di pojok kiri atas
-              SizedBox(height: 40), // Jarak dari atas layar
+              SizedBox(height: 40),
               Align(
                 alignment: Alignment.topLeft,
                 child: IconButton(
@@ -33,9 +40,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                   onPressed: () => Get.back(),
                 ),
               ),
-              SizedBox(height: 10), // Jarak kecil antara ikon dan teks
-
-              // Teks "Absenku."
+              SizedBox(height: 10),
               Center(
                 child: Text(
                   'Absenku.',
@@ -46,9 +51,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 50), // Jarak ke ikon kunci
-
-              // Ikon kunci
+              SizedBox(height: 50),
               Center(
                 child: Icon(
                   Icons.lock,
@@ -57,8 +60,6 @@ class ForgotPasswordScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20),
-
-              // Deskripsi
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Center(
@@ -73,19 +74,16 @@ class ForgotPasswordScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 50),
-
-              // Input untuk nama pengguna
               Center(
                   child: _buildTextField(
                       usernameController, 'Masukkan Email Anda')),
               SizedBox(height: 20),
-
-              // Tombol Forgot Password
               _buildForgotPasswordButton(),
-
+              if (showResetPasswordButton) ...[
+                SizedBox(height: 20),
+                _buildResetPasswordButton(),
+              ],
               Spacer(),
-
-              // Teks Sign Up di bagian bawah
               Center(
                 child: TextButton(
                   onPressed: () => Get.toNamed(AppRoutes.register),
@@ -98,7 +96,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 10), // Jarak dari bawah
+              SizedBox(height: 10),
             ],
           ),
         ),
@@ -109,7 +107,7 @@ class ForgotPasswordScreen extends StatelessWidget {
   Widget _buildTextField(TextEditingController controller, String hintText) {
     return Container(
       height: 50,
-      width: double.infinity, // Agar input field memenuhi lebar layar
+      width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(25),
@@ -136,9 +134,33 @@ class ForgotPasswordScreen extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
-          // Navigasi langsung ke halaman NewPasswordScreen tanpa validasi input username
-          Get.toNamed(AppRoutes.newPassword);
+        onPressed: () async {
+          final email = usernameController.text.trim();
+          if (email.isEmpty) {
+            Get.snackbar('Error', 'Email tidak boleh kosong');
+            return;
+          }
+
+          Get.dialog(
+            Center(child: CircularProgressIndicator()),
+            barrierDismissible: false,
+          );
+
+          final response = await sendResetPasswordEmail(email);
+
+          Get.back();
+
+          if (response != null && response['status'] == 200) {
+            Get.snackbar('Success', 'kode OTP telah dikirim ke email anda');
+            setState(() {
+              showResetPasswordButton = true;
+            });
+          } else {
+            Get.snackbar(
+              'Error',
+              response?['message'] ?? 'Terjadi kesalahan, coba lagi nanti.',
+            );
+          }
         },
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.symmetric(vertical: 15),
@@ -157,5 +179,72 @@ class ForgotPasswordScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildResetPasswordButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () {
+          Get.toNamed('/new-password');
+        },
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.symmetric(vertical: 15),
+          backgroundColor: Colors.green,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ),
+        child: Text(
+          'Reset Password',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<Map<String, dynamic>?> sendResetPasswordEmail(String email) async {
+    try {
+      final url = Uri.parse('https://absen.djncloud.my.id/password/email');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'email': email}),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else if (response.statusCode >= 400 && response.statusCode < 500) {
+        Get.snackbar(
+          'Error',
+          'Kesalahan dari sisi klien: ${response.statusCode}',
+        );
+        return jsonDecode(response.body);
+      } else if (response.statusCode >= 500) {
+        Get.snackbar(
+          'Error',
+          'Kesalahan dari sisi server: ${response.statusCode}',
+        );
+        return jsonDecode(response.body);
+      } else {
+        Get.snackbar(
+          'Error',
+          'Kesalahan tidak diketahui. Status: ${response.statusCode}',
+        );
+        return null;
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Unexpected Error',
+        'Kesalahan tak terduga: ${e.toString()}',
+      );
+      return null;
+    }
   }
 }
