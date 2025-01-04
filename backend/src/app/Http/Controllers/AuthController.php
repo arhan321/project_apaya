@@ -142,8 +142,14 @@ class AuthController extends Controller
     }
 
 
-    public function index()
+    public function index(Request $request)
     {
+        // Periksa apakah permintaan berasal dari browser
+        $userAgent = $request->headers->get('User-Agent');
+        if ($userAgent && preg_match('/Mozilla|Chrome|Safari/', $userAgent)) {
+            return abort(404); // Balikan 404 jika berasal dari browser
+        }
+    
         $query = DB::connection('mysql')->table('users')->get();
     
         // Map setiap item untuk menambahkan image_url
@@ -168,6 +174,7 @@ class AuthController extends Controller
         // Kembalikan data dengan image_url
         return response()->json($data, 200);
     }
+    
     
     
 

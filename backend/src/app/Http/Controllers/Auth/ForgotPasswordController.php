@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Illuminate\Http\Request;
 use App\Models\ResetCodePassword;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -18,13 +19,24 @@ class ForgotPasswordController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
+        // Periksa apakah permintaan berasal dari browser
+        $userAgent = $request->headers->get('User-Agent');
+        if ($userAgent && preg_match('/Mozilla|Chrome|Safari/', $userAgent)) {
+            return abort(404); // Balikan 404 jika berasal dari browser
+        }
+    
+        // Ambil data dari database
         $query = DB::connection('mysql')->table('reset_code_passwords')->get();
+    
+        // Log data yang diambil
         Log::info('Retrieved all reset codes from the database', ['records' => $query]);
-        
+    
+        // Kembalikan data dalam format JSON
         return response()->json($query, 200);
     }
+    
 
     /**
      * Handle the incoming request to send reset code via email.

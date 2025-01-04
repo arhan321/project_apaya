@@ -78,7 +78,7 @@ class ResetPasswordController extends ApiController
             DB::commit();
 
             // Kembalikan respon sukses
-            return $this->jsonResponse(null, trans('site.password_has_been_successfully_reset'), 200);
+            return $this->jsonResponse(null, trans('password berhasil ke reset'), 200);
 
         } catch (Exception $e) {
             DB::rollBack();
