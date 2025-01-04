@@ -3,6 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\CodeCheckController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,3 +32,8 @@ use App\Http\Controllers\AuthController;
 //         'data' => $request->user()
 //     ]);
 // });
+
+ // Password reset routes
+//  Route::post('password/email',  ForgotPasswordController::class);
+//  Route::post('password/code/check', CodeCheckController::class);
+//  Route::post('api/v1/password/reset', ResetPasswordController::class);
