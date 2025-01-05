@@ -93,12 +93,18 @@ class _EditKelasPageState extends State<EditKelasPage> {
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
         setState(() {
-          users = data.map((user) {
+          users = data.where((user) => user['role'] == 'guru').map((user) {
             return {
               'id': int.tryParse(user['id'].toString()) ?? 0,
               'name': user['name'] ?? 'Nama tidak tersedia',
             };
           }).toList();
+
+          // Validasi selectedUserId
+          if (!users.any((user) => user['id'] == selectedUserId)) {
+            selectedUserId = users.isNotEmpty ? users.first['id'] : 0;
+          }
+
           isUserLoading = false;
         });
       } else {
@@ -263,33 +269,40 @@ class _EditKelasPageState extends State<EditKelasPage> {
             const SizedBox(height: 20),
             isUserLoading
                 ? CircularProgressIndicator()
-                : DropdownButtonFormField<int>(
-                    decoration: InputDecoration(
-                      labelText: 'Pilih User',
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
+                : users.isEmpty
+                    ? Text(
+                        "Tidak ada guru tersedia",
+                        style: GoogleFonts.poppins(
+                            fontSize: 16, color: Colors.red),
+                      )
+                    : DropdownButtonFormField<int>(
+                        decoration: InputDecoration(
+                          labelText: 'Pilih Guru',
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          prefixIcon:
+                              Icon(Icons.person, color: Colors.blueAccent),
+                        ),
+                        isExpanded: true,
+                        value: selectedUserId,
+                        onChanged: (int? newValue) {
+                          if (newValue != null) {
+                            setState(() {
+                              selectedUserId = newValue;
+                            });
+                          }
+                        },
+                        items: users.map<DropdownMenuItem<int>>((user) {
+                          return DropdownMenuItem<int>(
+                            value: user['id'],
+                            child: Text(user['name'] ?? 'Nama tidak tersedia',
+                                style: GoogleFonts.poppins()),
+                          );
+                        }).toList(),
                       ),
-                      prefixIcon: Icon(Icons.person, color: Colors.blueAccent),
-                    ),
-                    isExpanded: true,
-                    value: selectedUserId,
-                    onChanged: (int? newValue) {
-                      if (newValue != null) {
-                        setState(() {
-                          selectedUserId = newValue;
-                        });
-                      }
-                    },
-                    items: users.map<DropdownMenuItem<int>>((user) {
-                      return DropdownMenuItem<int>(
-                        value: user['id'],
-                        child: Text(user['name'] ?? 'Nama tidak tersedia',
-                            style: GoogleFonts.poppins()),
-                      );
-                    }).toList(),
-                  ),
             const SizedBox(height: 30),
             Center(
               child: ElevatedButton(
