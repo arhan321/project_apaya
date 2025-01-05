@@ -111,6 +111,7 @@ class _KelolaAbsensiPageState extends State<KelolaAbsensiPage> {
                       itemBuilder: (context, index) {
                         final kelas = kelasData[index];
                         return _buildKelasCard(
+                          id: kelas['id'], // Kirim ID kelas
                           namaKelas: kelas['nama_kelas'] ?? 'Tidak Ada Nama',
                           waliKelas: kelas['nama_user'] ?? 'Tidak Ada Wali',
                         );
@@ -124,12 +125,14 @@ class _KelolaAbsensiPageState extends State<KelolaAbsensiPage> {
   }
 
   Widget _buildKelasCard({
+    required int id,
     required String namaKelas,
     required String waliKelas,
   }) {
     return InkWell(
       onTap: () {
         Get.toNamed('/listAbsenAdmin', arguments: {
+          'id': id, // Kirim ID kelas ke halaman berikutnya
           'namaKelas': namaKelas,
           'waliKelas': waliKelas,
         });

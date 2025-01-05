@@ -18,7 +18,8 @@ class DetailAbsenAdminPage extends StatelessWidget {
         backgroundColor: Colors.blueAccent,
         title: Text(
           'Detail Absen',
-          style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+          style: GoogleFonts.poppins(
+              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         centerTitle: true,
         leading: IconButton(
@@ -30,7 +31,8 @@ class DetailAbsenAdminPage extends StatelessWidget {
         child: Card(
           margin: EdgeInsets.all(16),
           elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: Padding(
             padding: EdgeInsets.all(16),
             child: Column(
@@ -58,7 +60,8 @@ class DetailAbsenAdminPage extends StatelessWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
+            style:
+                GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           Text(
             value,
