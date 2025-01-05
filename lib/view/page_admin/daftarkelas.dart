@@ -44,6 +44,35 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
     }
   }
 
+  Future<void> deleteKelas(int id) async {
+    final url = Uri.parse("https://absen.djncloud.my.id/api/v1/kelas/$id");
+
+    try {
+      final response = await http.delete(url);
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        Get.snackbar(
+          'Berhasil',
+          'Kelas berhasil dihapus!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        fetchData(); // Refresh daftar kelas setelah penghapusan
+      } else {
+        throw Exception("Gagal menghapus kelas");
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Kesalahan',
+        'Terjadi kesalahan saat menghapus kelas',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      print("Error: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,7 +161,7 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
     );
   }
 
-  // Widget Card untuk menampilkan daftar kelas dengan tombol Edit
+  // Widget Card untuk menampilkan daftar kelas dengan tombol Edit dan Delete
   Widget _buildKelasCard({
     required int id,
     required String namaKelas,
@@ -204,6 +233,46 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
                     fetchData(); // Refresh daftar kelas jika berhasil diubah
                   }
                 });
+              },
+            ),
+            // Ikon Delete
+            IconButton(
+              icon: Icon(Icons.delete, color: Colors.redAccent),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(
+                      'Hapus Kelas',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    content: Text(
+                      'Apakah Anda yakin ingin menghapus kelas "$namaKelas"?',
+                      style: GoogleFonts.poppins(),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          'Batal',
+                          style: GoogleFonts.poppins(color: Colors.blueAccent),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          deleteKelas(id);
+                        },
+                        child: Text(
+                          'Hapus',
+                          style: GoogleFonts.poppins(color: Colors.redAccent),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
               },
             ),
           ],
