@@ -1,17 +1,54 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 
-class KelolaAbsensiPage extends StatelessWidget {
-  // Data kelas dan wali kelas
-  final List<Map<String, String>> kelasData = [
-    {"namaKelas": "Kelas 6A", "waliKelas": "Bu Siti"},
-    {"namaKelas": "Kelas 6B", "waliKelas": "Pak Budi"},
-    {"namaKelas": "Kelas 6C", "waliKelas": "Bu Yanti"},
-    {"namaKelas": "Kelas 6D", "waliKelas": "Pak Ahmad"},
-    {"namaKelas": "Kelas 6E", "waliKelas": "Bu Rina"},
-    {"namaKelas": "Kelas 6F", "waliKelas": "Pak Joko"},
-  ];
+class KelolaAbsensiPage extends StatefulWidget {
+  @override
+  _KelolaAbsensiPageState createState() => _KelolaAbsensiPageState();
+}
+
+class _KelolaAbsensiPageState extends State<KelolaAbsensiPage> {
+  List<dynamic> kelasData = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchKelasData();
+  }
+
+  Future<void> fetchKelasData() async {
+    final String url = "https://absen.djncloud.my.id/api/v1/kelas";
+
+    try {
+      print("Fetching data from $url...");
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          kelasData = data['data'] ?? [];
+          isLoading = false;
+        });
+      } else {
+        throw Exception("Failed to load kelas data");
+      }
+    } catch (e) {
+      print("Error fetching kelas data: $e");
+      setState(() {
+        isLoading = false;
+      });
+      Get.snackbar(
+        'Error',
+        'Gagal mengambil data kelas',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,37 +90,39 @@ class KelolaAbsensiPage extends StatelessWidget {
             end: Alignment.bottomRight,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              int crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
-              double aspectRatio = constraints.maxWidth > 600 ? 3 / 2 : 4 / 3;
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    int crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
+                    double aspectRatio =
+                        constraints.maxWidth > 600 ? 3 / 2 : 4 / 3;
 
-              return GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: aspectRatio,
+                    return GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: aspectRatio,
+                      ),
+                      itemCount: kelasData.length,
+                      itemBuilder: (context, index) {
+                        final kelas = kelasData[index];
+                        return _buildKelasCard(
+                          namaKelas: kelas['nama_kelas'] ?? 'Tidak Ada Nama',
+                          waliKelas: kelas['nama_user'] ?? 'Tidak Ada Wali',
+                        );
+                      },
+                    );
+                  },
                 ),
-                itemCount: kelasData.length,
-                itemBuilder: (context, index) {
-                  final kelas = kelasData[index];
-                  return _buildKelasCard(
-                    namaKelas: kelas['namaKelas']!,
-                    waliKelas: kelas['waliKelas']!,
-                  );
-                },
-              );
-            },
-          ),
-        ),
+              ),
       ),
     );
   }
 
-  // Widget Card untuk setiap kelas
   Widget _buildKelasCard({
     required String namaKelas,
     required String waliKelas,
