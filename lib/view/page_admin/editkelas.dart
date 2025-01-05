@@ -11,26 +11,121 @@ class EditKelasPage extends StatefulWidget {
 
 class _EditKelasPageState extends State<EditKelasPage> {
   final dio.Dio dioClient = dio.Dio();
-  final Map<String, dynamic> kelasData = Get.arguments;
+  late Map<String, dynamic> kelasData;
 
   late TextEditingController namaKelasController;
-  late TextEditingController userIdController;
+  late int selectedUserId;
 
-  bool isLoading = false;
+  bool isLoading = true;
+  bool isUserLoading = true;
+  List<Map<String, dynamic>> users = [];
 
   @override
   void initState() {
     super.initState();
-    namaKelasController =
-        TextEditingController(text: kelasData['nama_kelas'] ?? '');
-    userIdController =
-        TextEditingController(text: kelasData['user_id']?.toString() ?? '');
+
+    namaKelasController = TextEditingController();
+    selectedUserId = 0;
+
+    validateAndInitialize();
+    fetchUsers();
+  }
+
+  void validateAndInitialize() {
+    try {
+      if (Get.arguments == null || !(Get.arguments is Map<String, dynamic>)) {
+        print("Error: Arguments tidak valid atau null");
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Get.snackbar(
+            'Error',
+            'Data kelas tidak valid atau tidak ditemukan.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+          Get.back();
+        });
+        return;
+      }
+
+      kelasData = Get.arguments as Map<String, dynamic>;
+
+      if (kelasData['id'] == null) {
+        print("Error: ID kelas tidak ditemukan dalam arguments.");
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Get.snackbar(
+            'Error',
+            'ID kelas tidak ditemukan.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+          Get.back();
+        });
+        return;
+      }
+
+      namaKelasController.text = kelasData['nama_kelas'] ?? '';
+      selectedUserId = kelasData['user_id'] != null
+          ? int.tryParse(kelasData['user_id'].toString()) ?? 0
+          : 0;
+
+      print("Arguments diterima di EditKelasPage: $kelasData");
+    } catch (e) {
+      print("Unhandled Exception in validateAndInitialize: $e");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> fetchUsers() async {
+    final String url = 'https://absen.djncloud.my.id/api/v1/account';
+
+    try {
+      print("Fetching users from $url...");
+      final response = await dioClient.get(url);
+
+      print("Response Status Code: ${response.statusCode}");
+      print("Response Data: ${response.data}");
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        setState(() {
+          users = data.map((user) {
+            return {
+              'id': int.tryParse(user['id'].toString()) ?? 0,
+              'name': user['name'] ?? 'Nama tidak tersedia',
+            };
+          }).toList();
+          isUserLoading = false;
+        });
+      } else {
+        print("Error fetching users: ${response.data}");
+        Get.snackbar(
+          'Error',
+          'Gagal mengambil daftar user',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      print("Error fetching users: $e");
+      Get.snackbar(
+        'Kesalahan',
+        'Terjadi kesalahan saat mengambil daftar user',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 
   @override
   void dispose() {
     namaKelasController.dispose();
-    userIdController.dispose();
     super.dispose();
   }
 
@@ -38,7 +133,6 @@ class _EditKelasPageState extends State<EditKelasPage> {
     final String url =
         'https://absen.djncloud.my.id/api/v1/kelas/${kelasData['id']}';
 
-    // Validasi input
     if (namaKelasController.text.isEmpty) {
       Get.snackbar(
         'Error',
@@ -50,11 +144,10 @@ class _EditKelasPageState extends State<EditKelasPage> {
       return;
     }
 
-    if (userIdController.text.isEmpty ||
-        int.tryParse(userIdController.text) == null) {
+    if (selectedUserId == 0) {
       Get.snackbar(
         'Error',
-        'User ID harus berupa angka yang valid',
+        'User ID tidak boleh kosong',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -69,7 +162,7 @@ class _EditKelasPageState extends State<EditKelasPage> {
     try {
       Map<String, dynamic> data = {
         'nama_kelas': namaKelasController.text,
-        'user_id': int.parse(userIdController.text),
+        'user_id': selectedUserId,
       };
 
       print("Mengirim PUT ke $url dengan data: $data");
@@ -124,6 +217,16 @@ class _EditKelasPageState extends State<EditKelasPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Edit Kelas', style: GoogleFonts.poppins()),
+          centerTitle: true,
+        ),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
@@ -151,34 +254,60 @@ class _EditKelasPageState extends State<EditKelasPage> {
           },
         ),
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildInputField('Nama Kelas', namaKelasController),
-                  const SizedBox(height: 20),
-                  _buildInputField('User ID', userIdController),
-                  const SizedBox(height: 30),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: updateKelas,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 50, vertical: 14),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildInputField('Nama Kelas', namaKelasController),
+            const SizedBox(height: 20),
+            isUserLoading
+                ? CircularProgressIndicator()
+                : DropdownButtonFormField<int>(
+                    decoration: InputDecoration(
+                      labelText: 'Pilih User',
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Text(
-                        "Simpan Perubahan",
-                        style: GoogleFonts.poppins(color: Colors.white),
-                      ),
+                      prefixIcon: Icon(Icons.person, color: Colors.blueAccent),
                     ),
+                    isExpanded: true,
+                    value: selectedUserId,
+                    onChanged: (int? newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          selectedUserId = newValue;
+                        });
+                      }
+                    },
+                    items: users.map<DropdownMenuItem<int>>((user) {
+                      return DropdownMenuItem<int>(
+                        value: user['id'],
+                        child: Text(user['name'] ?? 'Nama tidak tersedia',
+                            style: GoogleFonts.poppins()),
+                      );
+                    }).toList(),
                   ),
-                ],
+            const SizedBox(height: 30),
+            Center(
+              child: ElevatedButton(
+                onPressed: updateKelas,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+                ),
+                child: Text(
+                  "Simpan Perubahan",
+                  style: GoogleFonts.poppins(color: Colors.white),
+                ),
               ),
             ),
+          ],
+        ),
+      ),
     );
   }
 
