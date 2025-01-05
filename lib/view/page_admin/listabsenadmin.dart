@@ -79,8 +79,12 @@ class _ListAbsenAdminPageState extends State<ListAbsenAdminPage> {
 
             setState(() {
               siswaAbsen = siswaJson.map((siswa) {
-                debugPrint('Mapping siswa: $siswa');
-                return {'name': siswa['nama']};
+                return {
+                  'name': siswa['nama'],
+                  'status': siswa['keterangan'],
+                  'time': siswa['jam_absen'],
+                  'color': _getStatusColor(siswa['keterangan']),
+                };
               }).toList();
               isLoading = false;
             });
@@ -115,6 +119,19 @@ class _ListAbsenAdminPageState extends State<ListAbsenAdminPage> {
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
+    }
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'hadir':
+        return Colors.green;
+      case 'sakit':
+        return Colors.blue;
+      case 'izin':
+        return Colors.orange;
+      default:
+        return Colors.red;
     }
   }
 
@@ -170,10 +187,10 @@ class _ListAbsenAdminPageState extends State<ListAbsenAdminPage> {
                           final siswa = siswaAbsen[index];
                           return _buildAbsenCard(
                             siswa['name'],
-                            'No ${index + 1}',
-                            'Hadir', // Static value for now
-                            Colors.green, // Static color for now
-                            '07:30', // Static time for now
+                            'No ${index + 1}', // Penyesuaian nomor dimulai dari data 1
+                            siswa['status'],
+                            siswa['color'],
+                            siswa['time'],
                             namaKelas,
                           );
                         },
@@ -276,6 +293,60 @@ class _ListAbsenAdminPageState extends State<ListAbsenAdminPage> {
                 ),
               ),
             ],
+          ),
+          SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.toNamed('/detailAbsenAdmin', arguments: {
+                      'name': name,
+                      'number': number,
+                      'kelas': kelas,
+                      'keterangan': status,
+                      'jamAbsen': jamAbsen,
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent),
+                  child: Text('Lihat Detail',
+                      style: GoogleFonts.poppins(
+                          fontSize: 14, color: Colors.white)),
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.toNamed('/editAbsenAdmin', arguments: {
+                      'name': name,
+                      'number': number,
+                      'status': status,
+                      'jamAbsen': jamAbsen,
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orangeAccent),
+                  child: Text('Edit',
+                      style: GoogleFonts.poppins(
+                          fontSize: 14, color: Colors.white)),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Get.toNamed('/catatanAdmin', arguments: {'name': name});
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              child: Text('Beri Catatan',
+                  style:
+                      GoogleFonts.poppins(fontSize: 14, color: Colors.white)),
+            ),
           ),
         ],
       ),
