@@ -108,8 +108,12 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
             bottom: 20,
             right: 20,
             child: FloatingActionButton.extended(
-              onPressed: () {
-                Get.toNamed('/tambahKelas');
+              onPressed: () async {
+                final result = await Get.toNamed(
+                    '/tambahKelas'); // Navigasi ke TambahKelasPage
+                if (result == true) {
+                  fetchData(); // Refresh daftar kelas jika berhasil
+                }
               },
               backgroundColor: Colors.blueAccent,
               icon: Icon(Icons.add, color: Colors.white),
@@ -196,7 +200,9 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
                     'user_id': userId,
                   },
                 )?.then((value) {
-                  fetchData();
+                  if (value == true) {
+                    fetchData(); // Refresh daftar kelas jika berhasil diubah
+                  }
                 });
               },
             ),
