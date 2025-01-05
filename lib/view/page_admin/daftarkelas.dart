@@ -192,10 +192,12 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
                   '/editKelas',
                   arguments: {
                     'id': id, // Kirim ID
-                    'nama_kelas': namaKelas, // Kirim nama kelas
-                    'user_id': userId, // Kirim user_id
+                    'nama_kelas': namaKelas,
+                    'user_id': userId,
                   },
-                );
+                )?.then((value) {
+                  fetchData();
+                });
               },
             ),
           ],
