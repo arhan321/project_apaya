@@ -160,7 +160,7 @@ class NewPasswordScreen extends StatelessWidget {
           final response = await resetPassword(otp, email, newPassword);
 
           if (response != null && response['status'] == 200) {
-            Get.offAllNamed('/welcome'); // Direct ke welcome
+            Get.offAllNamed('/welcome');
           } else {
             Get.snackbar(
               'Info',
@@ -170,7 +170,7 @@ class NewPasswordScreen extends StatelessWidget {
               backgroundColor: const Color.fromARGB(255, 70, 243, 70),
               colorText: Colors.white,
             );
-            Get.offAllNamed('/welcome'); // Direct ke welcome
+            Get.offAllNamed('/welcome');
           }
         },
         style: ElevatedButton.styleFrom(

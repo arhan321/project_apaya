@@ -1,16 +1,48 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 
-class DaftarKelasPage extends StatelessWidget {
-  final List<Map<String, String>> kelasData = [
-    {"namaKelas": "Kelas 6A", "waliKelas": "Bu Siti"},
-    {"namaKelas": "Kelas 6B", "waliKelas": "Pak Budi"},
-    {"namaKelas": "Kelas 6C", "waliKelas": "Bu Yanti"},
-    {"namaKelas": "Kelas 6D", "waliKelas": "Pak Ahmad"},
-    {"namaKelas": "Kelas 6E", "waliKelas": "Bu Rina"},
-    {"namaKelas": "Kelas 6F", "waliKelas": "Pak Joko"},
-  ];
+class DaftarKelasPage extends StatefulWidget {
+  @override
+  _DaftarKelasPageState createState() => _DaftarKelasPageState();
+}
+
+class _DaftarKelasPageState extends State<DaftarKelasPage> {
+  List<dynamic> kelasData = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  // Fetch data from API
+  Future<void> fetchData() async {
+    final url = Uri.parse("https://absen.djncloud.my.id/api/v1/kelas");
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        // Assign fetched data to kelasData
+        setState(() {
+          kelasData = data['data'] ?? [];
+          isLoading = false;
+        });
+      } else {
+        throw Exception("Failed to load data");
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print("Error: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +58,7 @@ class DaftarKelasPage extends StatelessWidget {
           ),
         ),
         title: Text(
-          'Daftar Kelas ',
+          'Daftar Kelas',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w700,
             fontSize: 20,
@@ -54,17 +86,22 @@ class DaftarKelasPage extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
             ),
-            child: ListView.builder(
-              padding: EdgeInsets.all(16.0),
-              itemCount: kelasData.length,
-              itemBuilder: (context, index) {
-                final kelas = kelasData[index];
-                return _buildKelasCard(
-                  namaKelas: kelas['namaKelas']!,
-                  waliKelas: kelas['waliKelas']!,
-                );
-              },
-            ),
+            child: isLoading
+                ? Center(child: CircularProgressIndicator()) // Loading spinner
+                : ListView.builder(
+                    padding: EdgeInsets.all(16.0),
+                    itemCount: kelasData.length,
+                    itemBuilder: (context, index) {
+                      final kelas = kelasData[index];
+                      return _buildKelasCard(
+                        id: kelas['id'], // Kirimkan ID ke halaman Edit
+                        namaKelas: kelas['nama_kelas'] ?? "Tidak Ada Nama",
+                        userId: kelas[
+                            'user_id'], // Kirimkan user_id ke halaman Edit
+                        namaUser: kelas['nama_user'] ?? "Tidak Ada Wali",
+                      );
+                    },
+                  ),
           ),
           // Tombol Tambah Kelas
           Positioned(
@@ -93,8 +130,10 @@ class DaftarKelasPage extends StatelessWidget {
 
   // Widget Card untuk menampilkan daftar kelas dengan tombol Edit
   Widget _buildKelasCard({
+    required int id,
     required String namaKelas,
-    required String waliKelas,
+    required int userId,
+    required String namaUser,
   }) {
     return Card(
       elevation: 4,
@@ -129,7 +168,7 @@ class DaftarKelasPage extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "Wali Kelas: $waliKelas",
+                    "Wali Kelas: $namaUser",
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       color: Colors.white70,
@@ -152,8 +191,9 @@ class DaftarKelasPage extends StatelessWidget {
                 Get.toNamed(
                   '/editKelas',
                   arguments: {
-                    'namaKelas': namaKelas,
-                    'waliKelas': waliKelas,
+                    'id': id, // Kirim ID
+                    'nama_kelas': namaKelas, // Kirim nama kelas
+                    'user_id': userId, // Kirim user_id
                   },
                 );
               },
