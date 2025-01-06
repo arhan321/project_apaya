@@ -42,7 +42,7 @@ class DetailAbsenAdminPage extends StatelessWidget {
                 _buildRow('Nama', name),
                 _buildRow('Nomor Absen', number),
                 _buildRow('Kelas', kelas),
-                _buildRow('Keterangan', keterangan),
+                _buildRow('status', keterangan), // Penyesuaian label
                 _buildRow('Jam Absen', jamAbsen),
               ],
             ),
@@ -60,12 +60,19 @@ class DetailAbsenAdminPage extends StatelessWidget {
         children: [
           Text(
             title,
-            style:
-                GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
+            style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87),
           ),
-          Text(
-            value,
-            style: GoogleFonts.poppins(fontSize: 16),
+          Flexible(
+            child: Text(
+              value,
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.black54),
+              textAlign:
+                  TextAlign.right, // Untuk menyelaraskan teks di sebelah kanan
+              overflow: TextOverflow.ellipsis, // Tambahkan overflow handling
+            ),
           ),
         ],
       ),

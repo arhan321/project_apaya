@@ -66,10 +66,12 @@ class ListAbsenAdminController extends GetxController {
               'id': siswa['id'],
               'name': siswa['nama'],
               'nomor_absen': siswa['nomor_absen'],
-              'status': siswa['keterangan'],
-              'time': siswa['jam_absen'],
-              'catatan': siswa['catatan'],
-              'color': _getStatusColor(siswa['keterangan']),
+              'kelas':
+                  siswa['kelas'] ?? kelas['nama_kelas'], // Nama kelas siswa
+              'status': siswa['keterangan'], // Status Kehadiran
+              'time': siswa['jam_absen'], // Jam Absen
+              'catatan': siswa['catatan'] ?? '-', // Catatan siswa
+              'color': _getStatusColor(siswa['keterangan']), // Warna Status
             };
           }).toList();
         } else {
@@ -84,13 +86,14 @@ class ListAbsenAdminController extends GetxController {
       } else {
         Get.snackbar(
           'Error',
-          'Gagal mengambil data absensi.',
+          'Gagal mengambil data absensi. Status: ${response.statusCode}',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
         );
       }
     } catch (e) {
+      print('Error fetching data: $e');
       Get.snackbar(
         'Error',
         'Terjadi kesalahan saat mengambil data absensi.',

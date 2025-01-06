@@ -57,12 +57,13 @@ class ListAbsenAdminPage extends StatelessWidget {
                     final siswa = controller.siswaAbsen[index];
                     return _buildAbsenCard(
                       siswa['name'] ?? 'Tidak ada nama',
-                      'No Absen ${siswa['nomor_absen'] ?? '-'}',
+                      siswa['nomor_absen'] ?? '-', // Nomor Absen
                       siswa['status'] ?? 'Tidak ada status',
                       siswa['color'] ?? Colors.grey,
                       siswa['time'] ?? 'Tidak ada waktu',
-                      controller.namaKelas,
-                      siswa['id'], // ID siswa
+                      siswa['kelas'] ?? '-', // Kelas
+                      siswa['id'], // ID Siswa
+                      siswa['status'] ?? 'Tidak ada keterangan', // Keterangan
                     );
                   },
                 ),
@@ -118,8 +119,16 @@ class ListAbsenAdminPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAbsenCard(String name, String number, String status,
-      Color statusColor, String jamAbsen, String kelas, int siswaId) {
+  Widget _buildAbsenCard(
+    String name,
+    String number,
+    String status,
+    Color statusColor,
+    String jamAbsen,
+    String kelas,
+    int siswaId,
+    String keterangan,
+  ) {
     return Container(
       margin: EdgeInsets.only(bottom: 12),
       padding: EdgeInsets.all(12),
@@ -146,7 +155,7 @@ class ListAbsenAdminPage extends StatelessWidget {
                       style: GoogleFonts.poppins(
                           fontSize: 16, fontWeight: FontWeight.w500)),
                   SizedBox(height: 4),
-                  Text(number,
+                  Text('No Absen $number',
                       style: GoogleFonts.poppins(
                           fontSize: 12, color: Colors.grey)),
                 ],
@@ -219,7 +228,9 @@ class ListAbsenAdminPage extends StatelessWidget {
                   'name': name,
                   'number': number,
                   'status': status,
+                  'kelas': kelas,
                   'jamAbsen': jamAbsen,
+                  'keterangan': keterangan, // Kirim keterangan ke detail
                 });
               },
               style:
