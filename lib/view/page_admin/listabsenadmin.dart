@@ -56,13 +56,13 @@ class ListAbsenAdminPage extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final siswa = controller.siswaAbsen[index];
                     return _buildAbsenCard(
-                      siswa['name'] ?? 'Tidak ada nama', // Handling null data
-                      'No ${siswa['nomor_absen'] ?? '-'}', // Default jika nomor_absen null
-                      siswa['status'] ??
-                          'Tidak ada status', // Default untuk status
-                      siswa['color'] ?? Colors.grey, // Default untuk warna
-                      siswa['time'] ?? 'Tidak ada waktu', // Default untuk waktu
+                      siswa['name'] ?? 'Tidak ada nama',
+                      'No Absen ${siswa['nomor_absen'] ?? '-'}',
+                      siswa['status'] ?? 'Tidak ada status',
+                      siswa['color'] ?? Colors.grey,
+                      siswa['time'] ?? 'Tidak ada waktu',
                       controller.namaKelas,
+                      siswa['id'], // ID siswa
                     );
                   },
                 ),
@@ -119,7 +119,7 @@ class ListAbsenAdminPage extends StatelessWidget {
   }
 
   Widget _buildAbsenCard(String name, String number, String status,
-      Color statusColor, String jamAbsen, String kelas) {
+      Color statusColor, String jamAbsen, String kelas, int siswaId) {
     return Container(
       margin: EdgeInsets.only(bottom: 12),
       padding: EdgeInsets.all(12),
@@ -174,26 +174,9 @@ class ListAbsenAdminPage extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.toNamed('/detailAbsenAdmin', arguments: {
-                      'name': name,
-                      'number': number,
-                      'kelas': kelas,
-                      'keterangan': status,
-                      'jamAbsen': jamAbsen,
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent),
-                  child: Text('Lihat Detail',
-                      style: GoogleFonts.poppins(
-                          fontSize: 14, color: Colors.white)),
-                ),
-              ),
-              SizedBox(width: 8),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
                     Get.toNamed('/editAbsenAdmin', arguments: {
+                      'kelasId': controller.selectedClassId, // ID kelas
+                      'siswaId': siswaId, // ID siswa
                       'name': name,
                       'number': number,
                       'status': status,
@@ -207,16 +190,41 @@ class ListAbsenAdminPage extends StatelessWidget {
                           fontSize: 14, color: Colors.white)),
                 ),
               ),
+              SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.toNamed('/catatanAdmin', arguments: {
+                      'kelasId': controller.selectedClassId,
+                      'siswaId': siswaId,
+                      'name': name,
+                    });
+                  },
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  child: Text('Beri Catatan',
+                      style: GoogleFonts.poppins(
+                          fontSize: 14, color: Colors.white)),
+                ),
+              ),
             ],
           ),
           SizedBox(height: 8),
           Center(
             child: ElevatedButton(
               onPressed: () {
-                Get.toNamed('/catatanAdmin', arguments: {'name': name});
+                Get.toNamed('/detailAbsenAdmin', arguments: {
+                  'kelasId': controller.selectedClassId,
+                  'siswaId': siswaId,
+                  'name': name,
+                  'number': number,
+                  'status': status,
+                  'jamAbsen': jamAbsen,
+                });
               },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              child: Text('Beri Catatan',
+              style:
+                  ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent),
+              child: Text('Detail',
                   style:
                       GoogleFonts.poppins(fontSize: 14, color: Colors.white)),
             ),

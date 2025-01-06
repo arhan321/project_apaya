@@ -14,7 +14,9 @@ class ListAbsenAdminController extends GetxController {
   void onInit() {
     super.onInit();
     final arguments = Get.arguments ?? {};
-    selectedClassId = arguments['id'];
+    print('Arguments received: $arguments');
+
+    selectedClassId = arguments['id'] as int?;
     namaKelas = arguments['namaKelas'] ?? 'Kelas';
     waliKelas = arguments['waliKelas'] ?? 'Wali Kelas';
 
@@ -26,9 +28,9 @@ class ListAbsenAdminController extends GetxController {
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
-    } else {
-      fetchData();
+      return;
     }
+    fetchData();
   }
 
   Future<void> fetchData() async {
@@ -46,31 +48,31 @@ class ListAbsenAdminController extends GetxController {
         final responseData = json.decode(response.body) as Map<String, dynamic>;
         final kelasData = responseData['data'] as List<dynamic>;
 
-        // Cari kelas berdasarkan ID
         final kelas = kelasData.firstWhere(
           (k) => k['id'] == selectedClassId,
           orElse: () => null,
         );
 
         if (kelas != null) {
-          // Decode ulang siswa yang masih berupa string
-          final siswaRawJson = kelas['siswa'] as String;
+          final siswaRawJson = kelas['siswa'] as String?;
+          if (siswaRawJson == null || siswaRawJson.isEmpty) {
+            siswaAbsen.value = [];
+            return;
+          }
+
           final siswaList = json.decode(siswaRawJson) as List<dynamic>;
-
-          print('Siswa data: $siswaList');
-
-          // Map data siswa
           siswaAbsen.value = siswaList.map((siswa) {
             return {
+              'id': siswa['id'],
               'name': siswa['nama'],
               'nomor_absen': siswa['nomor_absen'],
               'status': siswa['keterangan'],
               'time': siswa['jam_absen'],
+              'catatan': siswa['catatan'],
               'color': _getStatusColor(siswa['keterangan']),
             };
           }).toList();
         } else {
-          print('Kelas dengan ID $selectedClassId tidak ditemukan.');
           Get.snackbar(
             'Error',
             'Data kelas tidak ditemukan.',
@@ -80,17 +82,15 @@ class ListAbsenAdminController extends GetxController {
           );
         }
       } else {
-        print('Error: ${response.statusCode}');
         Get.snackbar(
           'Error',
-          'Gagal mengambil data absensi. Status: ${response.statusCode}',
+          'Gagal mengambil data absensi.',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
         );
       }
     } catch (e) {
-      print('Error fetching data: $e');
       Get.snackbar(
         'Error',
         'Terjadi kesalahan saat mengambil data absensi.',
