@@ -37,6 +37,8 @@ Route::group(['prefix' => 'api/v1/kelas'], function () {
     Route::get('/{id}', [DataKelasController::class, 'show']); 
     Route::post('/data-kelas', [DataKelasController::class, 'store']); 
     Route::put('/{id}', [DataKelasController::class, 'update']); 
+    Route::put('/update/{id}', [DataKelasController::class, 'update']); 
     Route::delete('/{id}', [DataKelasController::class, 'destroy']);
+    Route::delete('/delete/{id}', [DataKelasController::class, 'deleteSiswa']);
 });
 
