@@ -22,7 +22,8 @@ class EditAbsenAdminPage extends StatelessWidget {
         backgroundColor: Colors.blueAccent,
         title: Text(
           'Edit Absen',
-          style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+          style: GoogleFonts.poppins(
+              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         centerTitle: true,
         leading: IconButton(
@@ -38,7 +39,8 @@ class EditAbsenAdminPage extends StatelessWidget {
             SizedBox(height: 12),
             _buildTextField('Nomor', nomorController),
             SizedBox(height: 12),
-            _buildDropdown('Status Absensi', selectedStatus, statusList, (value) {
+            _buildDropdown('Status Absensi', selectedStatus, statusList,
+                (value) {
               selectedStatus = value!;
             }),
             SizedBox(height: 12),
@@ -51,7 +53,8 @@ class EditAbsenAdminPage extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blueAccent,
                 padding: EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
               ),
               child: Text(
                 'Simpan Perubahan',
@@ -75,7 +78,8 @@ class EditAbsenAdminPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDropdown(String label, String value, List<String> items, Function(String?) onChanged) {
+  Widget _buildDropdown(String label, String value, List<String> items,
+      Function(String?) onChanged) {
     return DropdownButtonFormField<String>(
       value: value,
       decoration: InputDecoration(
