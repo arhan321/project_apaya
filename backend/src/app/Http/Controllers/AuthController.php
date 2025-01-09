@@ -176,8 +176,6 @@ class AuthController extends Controller
     }
     
     
-    
-
     public function get_user($id)
     {
         $query = DB::connection('mysql')->table('user')->where('id', $id)->first();
