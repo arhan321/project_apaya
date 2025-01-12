@@ -138,7 +138,7 @@ class EditAbsenAdminPage extends StatelessWidget {
   }) async {
     final Dio dio = Dio();
     final String url =
-        'https://absen.djncloud.my.id/api/v1/kelas/update/$kelasId';
+        'https://absen.randijourney.my.id/api/v1/kelas/update/$kelasId';
 
     try {
       debugPrint('Sending data to API...');

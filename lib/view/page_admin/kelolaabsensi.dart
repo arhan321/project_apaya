@@ -20,7 +20,7 @@ class _KelolaAbsensiPageState extends State<KelolaAbsensiPage> {
   }
 
   Future<void> fetchKelasData() async {
-    final String url = "https://absen.djncloud.my.id/api/v1/kelas";
+    final String url = "https://absen.randijourney.my.id/api/v1/kelas";
 
     try {
       print("Fetching data from $url...");

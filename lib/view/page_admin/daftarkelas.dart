@@ -21,7 +21,7 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
 
   // Fetch data from API
   Future<void> fetchData() async {
-    final url = Uri.parse("https://absen.djncloud.my.id/api/v1/kelas");
+    final url = Uri.parse("https://absen.randijourney.my.id/api/v1/kelas");
 
     try {
       final response = await http.get(url);
@@ -45,7 +45,7 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
   }
 
   Future<void> deleteKelas(int id) async {
-    final url = Uri.parse("https://absen.djncloud.my.id/api/v1/kelas/$id");
+    final url = Uri.parse("https://absen.randijourney.my.id/api/v1/kelas/$id");
 
     try {
       final response = await http.delete(url);
