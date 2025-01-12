@@ -48,7 +48,8 @@ class _TambahAkunOrtuState extends State<TambahAkunOrtu> {
   }
 
   Future<void> _registerOrtu() async {
-    const String url = 'https://absen.djncloud.my.id/api/v1/account/register';
+    const String url =
+        'https://absen.randijourney.my.id/api/v1/account/register';
 
     // Validasi: Nama, email, password, dan konfirmasi password harus diisi
     if (namaController.text.trim().isEmpty ||

@@ -40,7 +40,7 @@ class EditProfileSiswaController extends GetxController {
       }
 
       final response = await _dio.get(
-        'https://absen.djncloud.my.id/auth/me',
+        'https://absen.randijourney.my.id/auth/me',
         options: dio.Options(
           headers: {
             'Authorization': 'Bearer $authToken',
@@ -87,7 +87,7 @@ class EditProfileSiswaController extends GetxController {
     }
 
     final String url =
-        'https://absen.djncloud.my.id/api/v1/account/$userId/foto';
+        'https://absen.randijourney.my.id/api/v1/account/$userId/foto';
 
     try {
       if (imageFile != null) {
@@ -134,7 +134,8 @@ class EditProfileSiswaController extends GetxController {
       return;
     }
 
-    final String url = 'https://absen.djncloud.my.id/api/v1/account/$userId';
+    final String url =
+        'https://absen.randijourney.my.id/api/v1/account/$userId';
 
     try {
       Map<String, dynamic> data = {

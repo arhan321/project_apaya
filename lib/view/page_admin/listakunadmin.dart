@@ -34,7 +34,7 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
       errorMessage = '';
     });
 
-    const String url = 'https://absen.djncloud.my.id/api/v1/account';
+    const String url = 'https://absen.randijourney.my.id/api/v1/account';
 
     try {
       final response = await _dio.get(
@@ -78,7 +78,7 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
   }
 
   Future<void> deleteAkun(String id) async {
-    const String baseUrl = 'https://absen.djncloud.my.id/api/v1/account/';
+    const String baseUrl = 'https://absen.randijourney.my.id/api/v1/account/';
     try {
       final response = await _dio.delete('$baseUrl$id');
 

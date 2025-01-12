@@ -34,7 +34,7 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
       errorMessage = '';
     });
 
-    const String url = 'https://absen.djncloud.my.id/api/v1/account';
+    const String url = 'https://absen.randijourney.my.id/api/v1/account';
 
     try {
       final response = await _dio.get(
@@ -75,7 +75,7 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
   }
 
   Future<void> deleteAkunOrtu(String id) async {
-    final String url = 'https://absen.djncloud.my.id/api/v1/account/$id';
+    final String url = 'https://absen.randijourney.my.id/api/v1/account/$id';
 
     try {
       final response = await _dio.delete(

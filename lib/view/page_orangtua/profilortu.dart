@@ -39,7 +39,7 @@ class _ProfilortuPageState extends State<ProfilortuPage> {
       errorMessage = '';
     });
 
-    const String url = 'https://absen.djncloud.my.id/auth/me';
+    const String url = 'https://absen.randijourney.my.id/auth/me';
 
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -93,7 +93,7 @@ class _ProfilortuPageState extends State<ProfilortuPage> {
   }
 
   void deleteAccount() async {
-    const String url = 'https://absen.djncloud.my.id/api/v1/account/logout';
+    const String url = 'https://absen.randijourney.my.id/api/v1/account/logout';
 
     try {
       final prefs = await SharedPreferences.getInstance();

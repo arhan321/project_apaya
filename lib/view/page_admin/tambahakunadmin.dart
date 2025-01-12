@@ -48,7 +48,8 @@ class _TambahAkunAdminState extends State<TambahAkunAdmin> {
   }
 
   Future<void> _registerAccount() async {
-    const String url = 'https://absen.djncloud.my.id/api/v1/account/register';
+    const String url =
+        'https://absen.randijourney.my.id/api/v1/account/register';
 
     if (namaController.text.isEmpty ||
         emailController.text.isEmpty ||

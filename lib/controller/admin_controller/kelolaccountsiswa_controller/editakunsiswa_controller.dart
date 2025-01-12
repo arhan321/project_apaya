@@ -45,7 +45,7 @@ class EditAkunSiswaController extends GetxController {
 
   Future<void> updateProfile() async {
     final String url =
-        'https://absen.djncloud.my.id/api/v1/account/${akun['id']}';
+        'https://absen.randijourney.my.id/api/v1/account/${akun['id']}';
     print('Updating student account with URL: $url');
 
     if (namaController.text.isEmpty || emailController.text.isEmpty) {
@@ -111,7 +111,7 @@ class EditAkunSiswaController extends GetxController {
     }
 
     final String url =
-        'https://absen.djncloud.my.id/api/v1/account/${akun['id']}/foto';
+        'https://absen.randijourney.my.id/api/v1/account/${akun['id']}/foto';
     print('Uploading photo to URL: $url');
 
     try {

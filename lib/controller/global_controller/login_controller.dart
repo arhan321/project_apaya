@@ -30,7 +30,7 @@ class LoginController extends GetxController {
       isLoading(true);
 
       final response = await _dio.post(
-        'https://absen.djncloud.my.id/api/v1/account/login',
+        'https://absen.randijourney.my.id/api/v1/account/login',
         data: {'email': email, 'password': password},
         options: Options(
           headers: {'Accept': 'application/json'},

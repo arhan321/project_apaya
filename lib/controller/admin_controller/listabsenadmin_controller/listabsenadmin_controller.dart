@@ -38,7 +38,7 @@ class ListAbsenAdminController extends GetxController {
 
     try {
       final response = await http.get(
-        Uri.parse('https://absen.djncloud.my.id/api/v1/kelas'),
+        Uri.parse('https://absen.randijourney.my.id/api/v1/kelas'),
       );
 
       print('Response status: ${response.statusCode}');

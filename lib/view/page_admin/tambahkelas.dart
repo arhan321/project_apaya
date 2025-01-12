@@ -24,7 +24,7 @@ class _TambahKelasPageState extends State<TambahKelasPage> {
   }
 
   Future<void> fetchUsers() async {
-    final String url = 'https://absen.djncloud.my.id/api/v1/account';
+    final String url = 'https://absen.randijourney.my.id/api/v1/account';
 
     try {
       print("Fetching users from $url...");
@@ -67,7 +67,8 @@ class _TambahKelasPageState extends State<TambahKelasPage> {
   }
 
   Future<void> tambahKelas() async {
-    final String url = 'https://absen.djncloud.my.id/api/v1/kelas/data-kelas';
+    final String url =
+        'https://absen.randijourney.my.id/api/v1/kelas/data-kelas';
 
     if (namaKelasController.text.isEmpty || selectedUserId == null) {
       Get.snackbar(

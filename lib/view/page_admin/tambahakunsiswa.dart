@@ -49,7 +49,8 @@ class _TambahAkunSiswaState extends State<TambahAkunSiswa> {
   }
 
   Future<void> _registerSiswa() async {
-    const String url = 'https://absen.djncloud.my.id/api/v1/account/register';
+    const String url =
+        'https://absen.randijourney.my.id/api/v1/account/register';
 
     if (namaController.text.isEmpty ||
         noAbsenController.text.isEmpty ||

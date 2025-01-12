@@ -195,7 +195,7 @@ class NewPasswordScreen extends StatelessWidget {
   Future<Map<String, dynamic>?> resetPassword(
       String otp, String email, String newPassword) async {
     try {
-      final url = Uri.parse('https://absen.djncloud.my.id/password/reset');
+      final url = Uri.parse('https://absen.randijourney.my.id/password/reset');
       final response = await http.post(
         url,
         headers: {

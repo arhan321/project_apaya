@@ -150,7 +150,7 @@ class RegisterController extends GetxController {
       isLoading(true);
 
       final response = await http.post(
-        Uri.parse('https://absen.djncloud.my.id/api/v1/account/register'),
+        Uri.parse('https://absen.randijourney.my.id/api/v1/account/register'),
         headers: {'Accept': 'application/json'},
         body: {
           'name': name,

@@ -209,7 +209,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   Future<Map<String, dynamic>?> sendResetPasswordEmail(String email) async {
     try {
-      final url = Uri.parse('https://absen.djncloud.my.id/password/email');
+      final url = Uri.parse('https://absen.randijourney.my.id/password/email');
       final response = await http.post(
         url,
         headers: {
