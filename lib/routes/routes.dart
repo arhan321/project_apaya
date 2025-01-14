@@ -51,7 +51,7 @@ import '../page_orangtua/profilortu.dart';
 import '../page_admin/laporan.dart';
 // Import halaman RekapAdminPage
 import '../page_admin/downloadpdf.dart'; // Import halaman DownloadPDFPage
-
+import '../page_guru/tambahabsen.dart'; // Import halaman TambahAbsenPage
 import '../page_orangtua/editprofileortu.dart';
 // import '../page_admin/tambahakunsiswa.dart';
 // import '../page_admin/manage_users.dart'; // Halaman Kelola Pengguna (Admin)
@@ -113,6 +113,7 @@ static const profilOrtu = '/profilOrtu';
 static const rekapAdmin = '/rekapAdmin';
  static const laporan = '/laporan';
 static const downloadPDF = '/downloadPDF'; // Route untuk Download PDF
+ static const tambahAbsen = '/tambahAbsen'; // Rute Tambah Absen
 
   static List<GetPage> routes = [
     GetPage(
@@ -315,6 +316,10 @@ static const downloadPDF = '/downloadPDF'; // Route untuk Download PDF
         waliKelas: 'Tatang Sutarman',
       ),
      ),
+     GetPage(
+      name: tambahAbsen,
+      page: () => TambahAbsenPage(),
+    ),
   
 
   ];
