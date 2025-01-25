@@ -1,24 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '/controller/siswa_controller/formabsencontroller.dart';
 
-class FormAbsenPage extends StatefulWidget {
-  @override
-  _FormAbsenPageState createState() => _FormAbsenPageState();
-}
+class FormAbsenPage extends StatelessWidget {
+  final int classId;
+  final FormAbsenController controller = Get.put(FormAbsenController());
 
-class _FormAbsenPageState extends State<FormAbsenPage> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController noAbsenController = TextEditingController();
-  String selectedKeterangan = 'Hadir'; // Default value
-  final TextEditingController kelasController = TextEditingController();
-
-  final List<String> keteranganOptions = [
-    'Hadir',
-    'Izin',
-    'Sakit',
-    'Tidak Hadir'
-  ];
+  FormAbsenPage({required this.classId});
 
   @override
   Widget build(BuildContext context) {
@@ -45,52 +34,82 @@ class _FormAbsenPageState extends State<FormAbsenPage> {
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.white),
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blueAccent, Colors.lightBlueAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildTextField(
-                controller: nameController,
+                controller: controller.idController, // Tambahkan form ID
+                hintText: 'Masukkan ID Siswa (opsional)',
+                label: 'ID Siswa',
+                keyboardType: TextInputType.number,
+              ),
+              SizedBox(height: 15),
+              _buildTextField(
+                controller: controller.nameController,
                 hintText: 'Masukkan Nama',
                 label: 'Nama',
               ),
               SizedBox(height: 15),
               _buildTextField(
-                controller: noAbsenController,
+                controller: controller.noAbsenController,
                 hintText: 'Masukkan Nomor Absen',
                 label: 'Nomor Absen',
                 keyboardType: TextInputType.number,
               ),
               SizedBox(height: 15),
-              _buildDropdownField(
-                label: 'Keterangan Hadir',
-                options: keteranganOptions,
-                value: selectedKeterangan,
-                onChanged: (value) {
-                  setState(() {
-                    selectedKeterangan = value!;
-                  });
-                },
-              ),
-              SizedBox(height: 15),
               _buildTextField(
-                controller: kelasController,
+                controller: controller.kelasController,
                 hintText: 'Masukkan Kelas',
                 label: 'Kelas',
               ),
+              SizedBox(height: 15),
+              _buildTimePickerField(
+                context: context,
+                controller: controller.jamAbsenController,
+                label: 'Jam Absen',
+              ),
+              SizedBox(height: 15),
+              _buildTextField(
+                controller: controller.catatanController,
+                hintText: 'Masukkan Catatan (opsional)',
+                label: 'Catatan',
+              ),
+              SizedBox(height: 15),
+              _buildDatePickerField(
+                context: context,
+                controller: controller.tanggalAbsenController,
+                label: 'Tanggal Absen',
+              ),
+              SizedBox(height: 15),
+              Obx(() => _buildDropdownField(
+                    label: 'Keterangan Hadir',
+                    options: controller.keteranganOptions,
+                    value: controller.selectedKeterangan.value,
+                    onChanged: (value) {
+                      controller.selectedKeterangan.value = value!;
+                    },
+                  )),
               SizedBox(height: 30),
-              _buildSubmitButton(),
+              ElevatedButton(
+                onPressed: () => controller.submitAbsen(classId),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 40),
+                  backgroundColor: Colors.blueAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  'Submit',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -112,34 +131,102 @@ class _FormAbsenPageState extends State<FormAbsenPage> {
           style: GoogleFonts.poppins(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
           ),
         ),
         SizedBox(height: 5),
-        Container(
-          height: 50,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 5,
-                offset: Offset(0, 3),
-              ),
-            ],
+        TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          decoration: InputDecoration(
+            hintText: hintText,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
-          child: TextField(
-            controller: controller,
-            keyboardType: keyboardType,
-            decoration: InputDecoration(
-              hintText: hintText,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTimePickerField({
+    required BuildContext context,
+    required TextEditingController controller,
+    required String label,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: 5),
+        GestureDetector(
+          onTap: () async {
+            final timeOfDay = await showTimePicker(
+              context: context,
+              initialTime: TimeOfDay.now(),
+            );
+            if (timeOfDay != null) {
+              controller.text = timeOfDay.format(context);
+            }
+          },
+          child: AbsorbPointer(
+            child: TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                hintText: 'Pilih waktu (HH:mm)',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-              contentPadding:
-                  EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDatePickerField({
+    required BuildContext context,
+    required TextEditingController controller,
+    required String label,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: 5),
+        GestureDetector(
+          onTap: () async {
+            final date = await showDatePicker(
+              context: context,
+              initialDate: DateTime.now(),
+              firstDate: DateTime(2000),
+              lastDate: DateTime(2100),
+            );
+            if (date != null) {
+              controller.text = "${date.year}-${date.month}-${date.day}";
+            }
+          },
+          child: AbsorbPointer(
+            child: TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                hintText: 'Pilih tanggal (yyyy-MM-dd)',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
             ),
           ),
         ),
@@ -161,81 +248,25 @@ class _FormAbsenPageState extends State<FormAbsenPage> {
           style: GoogleFonts.poppins(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
           ),
         ),
         SizedBox(height: 5),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 5,
-                offset: Offset(0, 3),
-              ),
-            ],
-          ),
-          child: DropdownButton<String>(
-            isExpanded: true,
-            value: value,
-            items: options.map((option) {
-              return DropdownMenuItem(
-                value: option,
-                child: Text(option, style: GoogleFonts.poppins(fontSize: 14)),
-              );
-            }).toList(),
-            onChanged: onChanged,
-            underline: SizedBox(),
+        DropdownButtonFormField<String>(
+          value: value,
+          items: options
+              .map((option) => DropdownMenuItem(
+                    value: option,
+                    child: Text(option),
+                  ))
+              .toList(),
+          onChanged: onChanged,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildSubmitButton() {
-    return Center(
-      child: ElevatedButton(
-        onPressed: () {
-          if (nameController.text.isEmpty ||
-              noAbsenController.text.isEmpty ||
-              kelasController.text.isEmpty) {
-            Get.snackbar(
-              'Error',
-              'Semua field harus diisi!',
-              snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.redAccent,
-              colorText: Colors.white,
-            );
-            return;
-          }
-
-          Get.snackbar(
-            'Sukses',
-            'Absen berhasil disimpan!',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 40),
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-        child: Text(
-          'Absen',
-          style: GoogleFonts.poppins(
-            color: Colors.blueAccent,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
     );
   }
 }

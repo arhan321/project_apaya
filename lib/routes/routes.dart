@@ -166,7 +166,9 @@ class AppRoutes {
     ),
     GetPage(
       name: formAbsen,
-      page: () => FormAbsenPage(), // Form Absen
+      page: () => FormAbsenPage(
+        classId: Get.arguments['classId'], // Ambil classId dari arguments
+      ),
     ),
     GetPage(
       name: profileGuru,

@@ -152,8 +152,10 @@ class _ListAbsenPageState extends State<ListAbsenPage> {
                       child: Center(
                         child: ElevatedButton(
                           onPressed: () {
-                            // Arahkan ke FormAbsenPage
-                            Get.toNamed('/formAbsen');
+                            print(
+                                'Navigating to FormAbsenPage with classId: ${widget.classId}');
+                            Get.toNamed('/formAbsen',
+                                arguments: {'classId': widget.classId});
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent,
