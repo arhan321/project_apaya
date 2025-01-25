@@ -10,21 +10,39 @@ class MainPage extends StatefulWidget {
   _MainPageState createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   final MainPageController controller = Get.put(MainPageController());
 
   @override
   void initState() {
     super.initState();
-    controller.fetchUserData(); // Fetch initial data
+    controller
+        .fetchClassData(); // Fetch data kelas saat halaman pertama kali dibuka
+    WidgetsBinding.instance.addObserver(this); // Tambahkan observer
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Ketika aplikasi kembali aktif, refresh data
+      controller.fetchClassData();
+    }
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (ModalRoute.of(context)?.isCurrent == true) {
-      controller.fetchUserData(); // Refresh data when returning to this page
+      // Ketika halaman kembali menjadi aktif, refresh data
+      controller.fetchClassData();
     }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance
+        .removeObserver(this); // Hapus observer saat widget dihancurkan
+    super.dispose();
   }
 
   @override
@@ -62,6 +80,12 @@ class _MainPageState extends State<MainPage> {
         ],
       ),
       drawer: _buildDrawer(context),
+      onDrawerChanged: (isOpened) {
+        // Auto-refresh saat drawer dibuka
+        if (isOpened) {
+          controller.fetchClassData();
+        }
+      },
       body: Obx(() {
         if (controller.isLoading.value) {
           return Center(child: CircularProgressIndicator());
@@ -128,7 +152,7 @@ class _MainPageState extends State<MainPage> {
                 style: GoogleFonts.poppins(),
               ),
               onTap: () {
-                controller.fetchUserData(); // Memanggil method refresh
+                controller.fetchClassData();
                 Get.snackbar(
                   'Refresh',
                   'Data berhasil diperbarui!',
@@ -168,27 +192,24 @@ class _MainPageState extends State<MainPage> {
         child: Column(
           children: [
             Expanded(
-              child: ListView(
-                children: [
-                  _buildCard(
-                    title: 'Kelas 6A',
-                    subtitle: 'SD NEGERI RANCAGONG 1',
-                    teacher: 'Tatang Sutarman',
-                    onTap: () {
-                      Get.to(() => ListAbsenPage(className: 'Kelas 6A'));
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  _buildCard(
-                    title: 'Kelas 6B',
-                    subtitle: 'SD NEGERI RANCAGONG 1',
-                    teacher: 'Budiono Siregar',
-                    onTap: () {
-                      Get.to(() => ListAbsenPage(className: 'Kelas 6B'));
-                    },
-                  ),
-                ],
-              ),
+              child: Obx(() {
+                return ListView.builder(
+                  itemCount: controller.classList.length,
+                  itemBuilder: (context, index) {
+                    final classData = controller.classList[index];
+                    return _buildCard(
+                      title: classData['nama_kelas'] ?? 'Tidak ada nama kelas',
+                      subtitle: 'Pengajar: ${classData['nama_user'] ?? 'N/A'}',
+                      teacher: 'ID Kelas: ${classData['id'] ?? '-'}',
+                      onTap: () {
+                        Get.to(() => ListAbsenPage(
+                              classId: classData['id'], // Kirimkan classId
+                            ));
+                      },
+                    );
+                  },
+                );
+              }),
             ),
             _buildLogoutButton(),
           ],
@@ -207,6 +228,7 @@ class _MainPageState extends State<MainPage> {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(16),
+        margin: EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Colors.purpleAccent, Colors.lightBlue],

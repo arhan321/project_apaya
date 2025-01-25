@@ -13,7 +13,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfileSiswaPageState extends State<ProfilePage> {
   String studentName = '';
-  String studentClass = 'Kelas 6A'; // Informasi kelas dibuat statis
+  String studentClass = ''; // Informasi kelas dibuat statis
   String studentNumber = '';
   String? studentBirthDate; // Tambahan: Tanggal lahir siswa
   String? photoUrl;
@@ -77,6 +77,7 @@ class _ProfileSiswaPageState extends State<ProfilePage> {
           studentNumber = data['nomor_absen']?.toString() ?? 'N/A';
           studentBirthDate =
               data['tanggal_lahir'] ?? 'Tidak tersedia'; // Tanggal lahir
+          studentClass = data['kelas'] ?? 'kelas tidak terbaca'; //kelas
           photoUrl = data['image_url'];
           isLoading = false;
         });

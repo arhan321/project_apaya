@@ -65,6 +65,7 @@ class ListAbsenAdminPage extends StatelessWidget {
                       siswa['id'], // ID Siswa
                       siswa['status'] ?? 'Tidak ada keterangan', // Keterangan
                       siswa['catatan'], // Tetap kirim catatan ke detail
+                      siswa['tanggal_absen'] ?? '-', // Tambahkan tanggal_absen
                     );
                   },
                 ),
@@ -130,6 +131,7 @@ class ListAbsenAdminPage extends StatelessWidget {
     int siswaId,
     String keterangan,
     String catatan, // Tetap diterima sebagai parameter untuk dikirim ke detail
+    String tanggalAbsen, // Tambahkan tanggal_absen untuk dikirim ke detail
   ) {
     return Container(
       margin: EdgeInsets.only(bottom: 12),
@@ -195,6 +197,8 @@ class ListAbsenAdminPage extends StatelessWidget {
                       'jamAbsen': jamAbsen,
                       'keterangan': keterangan, // Kirim keterangan ke detail
                       'catatan': catatan, // Kirim catatan ke detail
+                      'tanggal_absen':
+                          tanggalAbsen, // Kirim tanggal_absen ke detail
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -217,13 +221,19 @@ class ListAbsenAdminPage extends StatelessWidget {
                       'number': number,
                       'status': status,
                       'jamAbsen': jamAbsen,
+                      'tanggalAbsen': tanggalAbsen, // Tambahkan tanggal_absen
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orangeAccent),
-                  child: Text('Edit',
-                      style: GoogleFonts.poppins(
-                          fontSize: 14, color: Colors.white)),
+                    backgroundColor: Colors.orangeAccent,
+                  ),
+                  child: Text(
+                    'Edit',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
             ],

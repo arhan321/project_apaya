@@ -90,7 +90,14 @@ class EditProfileSiswaPage extends StatelessWidget {
                 SizedBox(height: 30),
                 _buildInputField('Nama Siswa', _.nameController),
                 SizedBox(height: 20),
-                _buildInputField('Kelas', _.classController, isEnabled: false),
+                _buildDropdownField(
+                  'Kelas',
+                  _.kelasList,
+                  _.classController.text,
+                  (value) {
+                    _.classController.text = value!;
+                  },
+                ),
                 SizedBox(height: 20),
                 _buildInputField('Nomor Absen', _.numberController),
                 SizedBox(height: 20),

@@ -71,6 +71,8 @@ class ListAbsenAdminController extends GetxController {
               'status': siswa['keterangan'], // Status Kehadiran
               'time': siswa['jam_absen'], // Jam Absen
               'catatan': siswa['catatan'] ?? '-', // Catatan siswa
+              'tanggal_absen':
+                  siswa['tanggal_absen'] ?? '-', // Tambahkan tanggal_absen
               'color': _getStatusColor(siswa['keterangan']), // Warna Status
             };
           }).toList();

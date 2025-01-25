@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfileSiswaController extends GetxController {
   final nameController = TextEditingController();
-  final classController = TextEditingController(text: 'Kelas 6A');
+  final classController = TextEditingController(); // Kelas
   final numberController = TextEditingController(); // Nomor absen
   final birthDateController = TextEditingController(); // Tanggal lahir
   final agamaController = TextEditingController(); // Agama
@@ -19,6 +19,15 @@ class EditProfileSiswaController extends GetxController {
   String? userId;
   String? authToken;
   String errorMessage = '';
+  List<String> kelasList = []; // Daftar kelas dari API
+  // final List<String> agamaList = [
+  //   'Islam',
+  //   'Kristen',
+  //   'Katolik',
+  //   'Hindu',
+  //   'Budha',
+  //   'Konghucu',
+  // ]; // Daftar nilai untuk dropdown agama
 
   final dio.Dio _dio = dio.Dio();
   final picker = ImagePicker();
@@ -26,7 +35,44 @@ class EditProfileSiswaController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _loadKelas();
     _loadProfileData();
+  }
+
+  Future<void> _loadKelas() async {
+    try {
+      final response = await _dio.get(
+        'https://absen.randijourney.my.id/api/v1/kelas',
+        options: dio.Options(
+          headers: {
+            'Accept': 'application/json',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final kelasData = response.data['data'] as List<dynamic>;
+        kelasList = kelasData.map((k) => k['nama_kelas'] as String).toList();
+        update(); // Refresh UI
+      } else {
+        Get.snackbar(
+          'Error',
+          'Gagal mengambil data kelas.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Terjadi kesalahan saat mengambil data kelas.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      debugPrint('Error fetching kelas: $e');
+    }
   }
 
   Future<void> _loadProfileData() async {
@@ -54,6 +100,7 @@ class EditProfileSiswaController extends GetxController {
       if (response.statusCode == 200) {
         final data = response.data;
         nameController.text = data['name'] ?? '';
+        classController.text = data['kelas'] ?? ''; // Ambil kelas dari API
         numberController.text = data['nomor_absen']?.toString() ?? '';
         birthDateController.text = data['tanggal_lahir'] ?? '';
         agamaController.text = data['agama'] ?? '';
@@ -148,6 +195,7 @@ class EditProfileSiswaController extends GetxController {
     try {
       Map<String, dynamic> data = {
         if (nameController.text.isNotEmpty) 'name': nameController.text,
+        if (classController.text.isNotEmpty) 'kelas': classController.text,
         if (numberController.text.isNotEmpty)
           'nomor_absen': numberController.text,
         if (agamaController.text.isNotEmpty) 'agama': agamaController.text,

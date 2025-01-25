@@ -158,7 +158,11 @@ class AppRoutes {
     ),
     GetPage(
       name: listAbsen,
-      page: () => ListAbsenPage(className: 'Default Class'), // Daftar Absen
+      page: () {
+        final int classId =
+            Get.arguments['classId'] ?? 0; // Ambil classId dari arguments
+        return ListAbsenPage(classId: classId);
+      },
     ),
     GetPage(
       name: formAbsen,

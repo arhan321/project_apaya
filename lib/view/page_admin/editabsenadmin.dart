@@ -7,6 +7,7 @@ class EditAbsenAdminPage extends StatelessWidget {
   final TextEditingController namaController = TextEditingController();
   final TextEditingController nomorController = TextEditingController();
   final TextEditingController jamAbsenController = TextEditingController();
+  final TextEditingController tanggalAbsenController = TextEditingController();
   final List<String> statusList = ['Hadir', 'Sakit', 'Izin', 'Tidak Hadir'];
 
   @override
@@ -16,10 +17,11 @@ class EditAbsenAdminPage extends StatelessWidget {
     final int kelasId = arguments['kelasId'] ?? 0; // ID kelas
     final int siswaId = arguments['siswaId'] ?? 0; // ID siswa
     namaController.text = arguments['name'] ?? '';
-    // Hanya ambil angka dari nomor absen
     nomorController.text =
-        (arguments['number'] ?? '').replaceAll('No Absen ', '');
+        (arguments['number'] ?? '').replaceAll('No Absen ', ''); // Nomor Absen
     jamAbsenController.text = arguments['jamAbsen'] ?? '';
+    tanggalAbsenController.text =
+        arguments['tanggalAbsen'] ?? ''; // Tanggal Absen
     String selectedStatus = arguments['status'] ?? 'Hadir';
 
     return Scaffold(
@@ -42,7 +44,7 @@ class EditAbsenAdminPage extends StatelessWidget {
           children: [
             _buildTextField('Nama Siswa', namaController),
             SizedBox(height: 12),
-            _buildTextField('Nomor Absen', nomorController), // Ubah label
+            _buildTextField('Nomor Absen', nomorController),
             SizedBox(height: 12),
             _buildDropdown('Status Absensi', selectedStatus, statusList,
                 (value) {
@@ -50,6 +52,9 @@ class EditAbsenAdminPage extends StatelessWidget {
             }),
             SizedBox(height: 12),
             _buildTextField('Jam Absen', jamAbsenController),
+            SizedBox(height: 12),
+            _buildTextField(
+                'Tanggal Absen', tanggalAbsenController), // Tanggal Absen
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
@@ -60,6 +65,7 @@ class EditAbsenAdminPage extends StatelessWidget {
                   nomorAbsen: nomorController.text,
                   jamAbsen: jamAbsenController.text,
                   status: selectedStatus,
+                  tanggalAbsen: tanggalAbsenController.text,
                 );
 
                 if (response['success']) {
@@ -135,6 +141,7 @@ class EditAbsenAdminPage extends StatelessWidget {
     required String nomorAbsen,
     required String jamAbsen,
     required String status,
+    required String tanggalAbsen, // Tambahkan tanggal absen
   }) async {
     final Dio dio = Dio();
     final String url =
@@ -151,6 +158,7 @@ class EditAbsenAdminPage extends StatelessWidget {
             'nomor_absen': nomorAbsen,
             'keterangan': status,
             'jam_absen': jamAbsen,
+            'tanggal_absen': tanggalAbsen, // Tanggal Absen
           }
         ]
       }}');
@@ -166,6 +174,7 @@ class EditAbsenAdminPage extends StatelessWidget {
               'nomor_absen': nomorAbsen,
               'keterangan': status,
               'jam_absen': jamAbsen,
+              'tanggal_absen': tanggalAbsen, // Tanggal Absen
             }
           ],
         },
