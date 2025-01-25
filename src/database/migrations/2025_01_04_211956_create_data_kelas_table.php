@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users');
             $table->string('nama_kelas')->nullable();
-            $table->date('tanggal_absen')->nullable();
+            // $table->date('tanggal_absen')->nullable();
             $table->json('siswa')->nullable();
             $table->timestamps();
         });

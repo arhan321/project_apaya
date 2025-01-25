@@ -10,7 +10,7 @@ class DataKelas extends Model
     protected $fillable = [
         'user_id',
         'nama_kelas',
-        'tanggal_absen',
+        // 'tanggal_absen',
         'siswa'
     ];
     protected $casts = [
