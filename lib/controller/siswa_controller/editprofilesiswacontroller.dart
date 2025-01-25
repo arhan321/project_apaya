@@ -8,10 +8,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 class EditProfileSiswaController extends GetxController {
   final nameController = TextEditingController();
   final classController = TextEditingController(text: 'Kelas 6A');
-  final numberController = TextEditingController();
-  final birthDateController =
-      TextEditingController(); // Tambahkan controller untuk tanggal lahir
-  final userIdController = TextEditingController();
+  final numberController = TextEditingController(); // Nomor absen
+  final birthDateController = TextEditingController(); // Tanggal lahir
+  final agamaController = TextEditingController(); // Agama
+  final nisnController = TextEditingController(); // NISN
+  final umurController = TextEditingController(); // Umur
+
   File? imageFile;
   String? imageUrl;
   String? userId;
@@ -53,17 +55,20 @@ class EditProfileSiswaController extends GetxController {
         final data = response.data;
         nameController.text = data['name'] ?? '';
         numberController.text = data['nomor_absen']?.toString() ?? '';
-        birthDateController.text =
-            data['tanggal_lahir'] ?? ''; // Set tanggal lahir
-        userIdController.text = data['id']?.toString() ?? '';
+        birthDateController.text = data['tanggal_lahir'] ?? '';
+        agamaController.text = data['agama'] ?? '';
+        nisnController.text = data['nisn']?.toString() ?? '';
+        umurController.text = data['umur'] ?? '';
         userId = data['id']?.toString();
         imageUrl = data['image_url'];
         update(); // Refresh UI
       } else {
         errorMessage = 'Failed to fetch profile data. Please try again later.';
+        debugPrint('Error: ${response.data}');
       }
     } catch (e) {
       errorMessage = 'Error occurred while loading profile data';
+      debugPrint('Error occurred in _loadProfileData: $e');
     }
   }
 
@@ -76,6 +81,7 @@ class EditProfileSiswaController extends GetxController {
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to pick image');
+      debugPrint('Error occurred in pickImage: $e');
     }
   }
 
@@ -118,12 +124,14 @@ class EditProfileSiswaController extends GetxController {
           update();
         } else {
           Get.snackbar('Error', 'Failed to upload photo.');
+          debugPrint('Error: ${response.data}');
         }
       } else {
         Get.snackbar('Error', 'No photo selected.');
       }
     } catch (e) {
       Get.snackbar('Error', 'An error occurred while uploading photo.');
+      debugPrint('Error occurred in uploadPhoto: $e');
     }
   }
 
@@ -142,8 +150,11 @@ class EditProfileSiswaController extends GetxController {
         if (nameController.text.isNotEmpty) 'name': nameController.text,
         if (numberController.text.isNotEmpty)
           'nomor_absen': numberController.text,
+        if (agamaController.text.isNotEmpty) 'agama': agamaController.text,
+        if (nisnController.text.isNotEmpty) 'nisn': nisnController.text,
+        if (umurController.text.isNotEmpty) 'umur': umurController.text,
         if (birthDateController.text.isNotEmpty)
-          'tanggal_lahir': birthDateController.text, // Tambahkan tanggal lahir
+          'tanggal_lahir': birthDateController.text,
       };
 
       final response = await _dio.put(
@@ -162,9 +173,11 @@ class EditProfileSiswaController extends GetxController {
         Get.snackbar('Success', 'Profile updated successfully.');
       } else {
         Get.snackbar('Error', 'Failed to update profile.');
+        debugPrint('Error: ${response.data}');
       }
     } catch (e) {
       Get.snackbar('Error', 'An error occurred while updating your profile.');
+      debugPrint('Error occurred in updateProfile: $e');
     }
   }
 }

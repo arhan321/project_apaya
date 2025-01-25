@@ -7,6 +7,15 @@ import '/controller/siswa_controller/editprofilesiswacontroller.dart';
 class EditProfileSiswaPage extends StatelessWidget {
   final controller = Get.put(EditProfileSiswaController());
 
+  final List<String> agamaList = [
+    'islam',
+    'kristen',
+    'katolik',
+    'hindu',
+    'budha',
+    'konghucu',
+  ]; // Daftar nilai enum untuk dropdown
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,6 +94,19 @@ class EditProfileSiswaPage extends StatelessWidget {
                 SizedBox(height: 20),
                 _buildInputField('Nomor Absen', _.numberController),
                 SizedBox(height: 20),
+                _buildDropdownField(
+                  'Agama',
+                  agamaList,
+                  _.agamaController.text,
+                  (value) {
+                    _.agamaController.text = value!;
+                  },
+                ),
+                SizedBox(height: 20),
+                _buildInputField('NISN', _.nisnController),
+                SizedBox(height: 20),
+                _buildInputField('Umur', _.umurController),
+                SizedBox(height: 20),
                 _buildDateField(
                     context, 'Tanggal Lahir', _.birthDateController),
                 SizedBox(height: 20),
@@ -128,6 +150,28 @@ class EditProfileSiswaPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
       ),
+    );
+  }
+
+  Widget _buildDropdownField(String label, List<String> items, String? value,
+      ValueChanged<String?> onChanged) {
+    return DropdownButtonFormField<String>(
+      value: (value != null && value.isNotEmpty) ? value : null,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      items: items
+          .map((item) => DropdownMenuItem<String>(
+                value: item,
+                child: Text(item, style: GoogleFonts.poppins()),
+              ))
+          .toList(),
+      onChanged: onChanged,
     );
   }
 
