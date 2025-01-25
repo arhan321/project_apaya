@@ -12,6 +12,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+//api logout
+Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+//api session
+Route::get('/auth/me', [AuthController::class, 'getLoggedInUser'])->middleware('auth:sanctum');
+
 // Password reset routes
 Route::post('password/email', ForgotPasswordController::class);
 Route::post('password/code/check', CodeCheckController::class);
@@ -23,14 +28,12 @@ Route::group(['prefix' => 'api/v1/account'], function () {
     Route::get('/', [AuthController::class, 'index']);
     Route::get('/{id}', [AuthController::class, 'get_user']);
     Route::post('/register', [AuthController::class, 'register']);
+    //api login
     Route::post('/login', [AuthController::class, 'login']);
-    // Route::post('/logout', [AuthController::class, 'logout']);
     Route::put('/{id}', [AuthController::class, 'update']);
     Route::post('/{id}/foto', [AuthController::class, 'uploadPhoto']);
     Route::delete('/{id}', [AuthController::class, 'delete']);
 });
-Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-Route::get('/auth/me', [AuthController::class, 'getLoggedInUser'])->middleware('auth:sanctum');
 
 //api data kelas 
 Route::group(['prefix' => 'api/v1/kelas'], function () {
