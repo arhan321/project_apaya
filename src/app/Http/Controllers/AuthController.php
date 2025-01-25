@@ -355,6 +355,7 @@ class AuthController extends Controller
                 'nip_guru' => $user->nip_guru,
                 'agama' => $user->agama,
                 'umur' => $user->umur,
+                'kelas' => $user->kelas,
                 'image_url' => $user->photo ? asset('storage/' . $user->photo) : null,
                 'token' => $currentToken,
             ], 200);
