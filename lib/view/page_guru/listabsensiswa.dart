@@ -48,86 +48,110 @@ class ListAbsenSiswaPage extends StatelessWidget {
           },
         ),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: Colors.blue,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Selamat Datang',
-                  style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Tatang Sutarman',
-                  style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
-                ),
-                SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                color: Colors.blue,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      formattedDate,
+                      'Selamat Datang',
                       style: GoogleFonts.poppins(
-                          fontSize: 14, color: Colors.white),
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500),
                     ),
+                    SizedBox(height: 4),
                     Text(
-                      dayName,
+                      'Tatang Sutarman',
                       style: GoogleFonts.poppins(
-                          fontSize: 14, color: Colors.white),
+                          fontSize: 16, color: Colors.white),
                     ),
-                  ],
-                ),
-                SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          hintText: 'Cari Nama Siswa',
-                          hintStyle: GoogleFonts.poppins(fontSize: 14),
-                          prefixIcon: Icon(Icons.search, color: Colors.grey),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
+                    SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          formattedDate,
+                          style: GoogleFonts.poppins(
+                              fontSize: 14, color: Colors.white),
+                        ),
+                        Text(
+                          dayName,
+                          style: GoogleFonts.poppins(
+                              fontSize: 14, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              hintText: 'Cari Nama Siswa',
+                              hintStyle: GoogleFonts.poppins(fontSize: 14),
+                              prefixIcon:
+                                  Icon(Icons.search, color: Colors.grey),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    IconButton(
-                      icon: Icon(Icons.filter_list, color: Colors.white),
-                      onPressed: () {
-                        // Logika filter, bisa ditambahkan sesuai kebutuhan
-                        print("Filter icon clicked");
-                      },
+                        SizedBox(width: 8),
+                        IconButton(
+                          icon: Icon(Icons.filter_list, color: Colors.white),
+                          onPressed: () {
+                            // Logika filter, bisa ditambahkan sesuai kebutuhan
+                            print("Filter icon clicked");
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.all(16),
+                  children: [
+                    _buildAbsenCard(
+                        'Ilham God', 'No 1', 'Hadir', Colors.green, '08:30'),
+                    _buildAbsenCard('Putra Dewantara', 'No 2', 'Sakit',
+                        Colors.blue, '08:45'),
+                    _buildAbsenCard(
+                        'Adi Santoso', 'No 3', 'Izin', Colors.orange, '09:00'),
+                    _buildAbsenCard('Wahyu Kurniawan', 'No 4', 'Tidak Hadir',
+                        Colors.red, 'Tidak Ada'),
+                  ],
+                ),
+              ),
+            ],
           ),
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.all(16),
-              children: [
-                _buildAbsenCard(
-                    'Ilham God', 'No 1', 'Hadir', Colors.green, '08:30'),
-                _buildAbsenCard(
-                    'Putra Dewantara', 'No 2', 'Sakit', Colors.blue, '08:45'),
-                _buildAbsenCard(
-                    'Adi Santoso', 'No 3', 'Izin', Colors.orange, '09:00'),
-                _buildAbsenCard('Wahyu Kurniawan', 'No 4', 'Tidak Hadir',
-                    Colors.red, 'Tidak Ada'),
-              ],
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: FloatingActionButton.extended(
+              onPressed: () {
+                Get.toNamed('/tambahAbsen'); // Navigasi ke halaman tambah absen
+              },
+              backgroundColor: Colors.blue,
+              icon: Icon(Icons.add, color: Colors.white),
+              label: Text(
+                'Tambah Absen Siswa',
+                style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
             ),
           ),
         ],

@@ -57,6 +57,7 @@ import '../view/page_admin/laporan.dart';
 import '../view/page_admin/downloadpdf.dart'; // Import halaman DownloadPDFPage
 
 import '../view/page_orangtua/editprofileortu.dart';
+import '../view/page_guru/tambahabsen.dart'; // Import halaman TambahAbsenPage
 
 class AppRoutes {
   // Daftar Konstanta Rute
@@ -115,6 +116,7 @@ class AppRoutes {
   static const rekapAdmin = '/rekapAdmin';
   static const laporan = '/laporan';
   static const downloadPDF = '/downloadPDF'; // Route untuk Download PDF
+  static const tambahAbsen = '/tambahAbsen';
 
   static List<GetPage> routes = [
     GetPage(
@@ -305,6 +307,10 @@ class AppRoutes {
     GetPage(
       name: rekapAdmin,
       page: () => RekapAdminPage(),
+    ),
+    GetPage(
+      name: tambahAbsen,
+      page: () => TambahAbsenPage(),
     ),
     GetPage(
       name: downloadPDF,
