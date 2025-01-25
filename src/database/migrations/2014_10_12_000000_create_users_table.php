@@ -21,6 +21,11 @@ return new class extends Migration
             $table->string('photo')->nullable();
             $table->date('tanggal_lahir')->nullable();
             $table->biginteger('nomor_absen')->nullable();
+            $table->biginteger('nisn')->nullable();
+            $table->biginteger('nip_guru')->nullable();
+            $table->string('kelas')->nullable();
+            $table->enum('agama', ['islam', 'kristen','katolik','hindu','budha','konghucu'])->nullable();
+            $table->string('umur')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

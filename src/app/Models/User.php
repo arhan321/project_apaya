@@ -25,6 +25,11 @@ class User extends Authenticatable
         'photo',
         'tanggal_lahir',
         'nomor_absen',
+        'nisn',
+        'kelas',
+        'nip_guru',
+        'agama',
+        'umur',
     ];
 
     /**

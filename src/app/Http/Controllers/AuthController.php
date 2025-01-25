@@ -128,8 +128,6 @@ class AuthController extends Controller
 }
 
     
-    
-
     public function logout(Request $request)
     {
         Auth::guard('sanctum')->logout(); // Log out using Sanctum
@@ -194,12 +192,29 @@ class AuthController extends Controller
             'name' => 'nullable|string|max:255',
             'email' => 'nullable|string|email|max:255',
             'password' => 'nullable|string|min:8',
-            'role' => 'nullable|string|in:admin,siswa,guru,orang_tua,kepala_sekolah',
+            'role' => 'nullable|string|in:admin,siswa,guru,kepala_sekolah,orang_tua',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:102400', // Maksimum 100 MB
             'nomor_absen' => 'nullable|integer|min:1',
-            'tanggal_lahir' => 'nullable|date', // Validasi tanggal lahir
+            'tanggal_lahir' => 'nullable|date',
+            'nisn' => 'nullable|integer',
+            'nip_guru' => 'nullable|integer',
+            'agama' => 'nullable|string|in:islam,kristen,katolik,hindu,budha,konghucu',
+            'umur' => 'nullable|string|max:3',
+            'kelas' => 'nullable|string',
         ]);
     
+        // Validasi khusus untuk role tertentu
+        if ($request->role === 'siswa') {
+            $request->validate([
+                'nisn' => 'required|integer',
+            ]);
+        }
+
+        if ($request->role === 'guru') {
+            $request->validate([
+                'nip_guru' => 'required|integer',
+            ]);
+        }
         // Cari user berdasarkan ID
         $user = User::find($id);
         if (!$user) {
@@ -212,6 +227,11 @@ class AuthController extends Controller
         $user->role = $request->role ?? $user->role;
         $user->nomor_absen = $request->nomor_absen ?? $user->nomor_absen;
         $user->tanggal_lahir = $request->tanggal_lahir ?? $user->tanggal_lahir;
+        $user->nisn = $request->nisn ?? $user->nisn;
+        $user->kelas = $request->kelas ?? $user->kelas;
+        $user->nip_guru = $request->nip_guru ?? $user->nip_guru;
+        $user->agama = $request->agama ?? $user->agama;
+        $user->umur = $request->umur ?? $user->umur;
     
         // Password dihash jika diperbarui
         if ($request->filled('password')) {
@@ -243,6 +263,11 @@ class AuthController extends Controller
                     'role' => $user->role,
                     'nomor_absen' => $user->nomor_absen,
                     'tanggal_lahir' => $user->tanggal_lahir,
+                    'nisn' => $user->nisn,
+                    'nip_guru' => $user->nip_guru,
+                    'agama' => $user->agama,
+                    'umur' => $user->umur,
+                    'kelas' => $user->kelas,
                     'image_url' => $user->photo ? asset('storage/' . $user->photo) : null,
                 ]
             ], 200);
@@ -325,7 +350,11 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'role' => $user->role,
                 'nomor_absen' => $user->nomor_absen,
-                'tanggal_lahir' => $user->tanggal_lahir, // Tanggal lahir ditambahkan ke respons
+                'tanggal_lahir' => $user->tanggal_lahir,
+                'nisn' => $user->nisn,
+                'nip_guru' => $user->nip_guru,
+                'agama' => $user->agama,
+                'umur' => $user->umur,
                 'image_url' => $user->photo ? asset('storage/' . $user->photo) : null,
                 'token' => $currentToken,
             ], 200);
