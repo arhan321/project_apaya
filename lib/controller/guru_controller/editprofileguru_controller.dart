@@ -6,10 +6,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfileGuruController extends GetxController {
-  final nameController = TextEditingController();
-  final waliKelasController = TextEditingController(text: 'Kelas 6A');
-  final roleController = TextEditingController(text: 'Guru');
-  final birthDateController = TextEditingController(); // Tanggal lahir
+  final nameController = TextEditingController(); // Nama
+  final nipGuruController = TextEditingController(); // NIP Guru
+  final agamaController = TextEditingController(); // Agama
+  final umurController = TextEditingController(); // Umur
+  final waliKelasController =
+      TextEditingController(text: 'Kelas 6A'); // Wali Kelas
+  final roleController = TextEditingController(text: 'Guru'); // Role
+  final birthDateController = TextEditingController(); // Tanggal Lahir
 
   File? imageFile;
   String? imageUrl;
@@ -50,14 +54,21 @@ class EditProfileGuruController extends GetxController {
       if (response.statusCode == 200) {
         final data = response.data;
         nameController.text = data['name'] ?? '';
-        birthDateController.text =
-            data['tanggal_lahir'] ?? ''; // Load tanggal lahir
+        nipGuruController.text = data['nip_guru']?.toString() ?? '';
+        agamaController.text = data['agama'] ?? '';
+        umurController.text = data['umur'] ?? '';
+        birthDateController.text = data['tanggal_lahir'] ?? '';
         userId = data['id']?.toString();
         imageUrl = data['image_url'];
         update();
+      } else {
+        Get.snackbar('Error', 'Failed to fetch profile data.',
+            snackPosition: SnackPosition.BOTTOM);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Error occurred while loading profile data.');
+      Get.snackbar('Error', 'Error occurred while loading profile data.',
+          snackPosition: SnackPosition.BOTTOM);
+      debugPrint('Error: $e');
     }
   }
 
@@ -69,13 +80,16 @@ class EditProfileGuruController extends GetxController {
         update();
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to pick image');
+      Get.snackbar('Error', 'Failed to pick image',
+          snackPosition: SnackPosition.BOTTOM);
+      debugPrint('Error: $e');
     }
   }
 
   Future<void> uploadPhoto() async {
     if (authToken == null || userId == null) {
-      Get.snackbar('Error', 'Session expired or missing information.');
+      Get.snackbar('Error', 'Session expired or missing information.',
+          snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
@@ -107,22 +121,28 @@ class EditProfileGuruController extends GetxController {
 
         if (response.statusCode == 200) {
           imageUrl = response.data['image_url'];
-          Get.snackbar('Success', 'Photo uploaded successfully.');
+          Get.snackbar('Success', 'Photo uploaded successfully.',
+              snackPosition: SnackPosition.BOTTOM);
           update();
         } else {
-          Get.snackbar('Error', 'Failed to upload photo.');
+          Get.snackbar('Error', 'Failed to upload photo.',
+              snackPosition: SnackPosition.BOTTOM);
         }
       } else {
-        Get.snackbar('Error', 'No photo selected.');
+        Get.snackbar('Error', 'No photo selected.',
+            snackPosition: SnackPosition.BOTTOM);
       }
     } catch (e) {
-      Get.snackbar('Error', 'An error occurred while uploading photo.');
+      Get.snackbar('Error', 'An error occurred while uploading photo.',
+          snackPosition: SnackPosition.BOTTOM);
+      debugPrint('Error: $e');
     }
   }
 
   Future<void> updateProfile() async {
     if (authToken == null || userId == null) {
-      Get.snackbar('Error', 'Session expired or missing information.');
+      Get.snackbar('Error', 'Session expired or missing information.',
+          snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
@@ -132,6 +152,10 @@ class EditProfileGuruController extends GetxController {
     try {
       Map<String, dynamic> data = {
         if (nameController.text.isNotEmpty) 'name': nameController.text,
+        if (nipGuruController.text.isNotEmpty)
+          'nip_guru': nipGuruController.text,
+        if (agamaController.text.isNotEmpty) 'agama': agamaController.text,
+        if (umurController.text.isNotEmpty) 'umur': umurController.text,
         if (birthDateController.text.isNotEmpty)
           'tanggal_lahir': birthDateController.text,
       };
@@ -149,12 +173,16 @@ class EditProfileGuruController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        Get.snackbar('Success', 'Profile updated successfully.');
+        Get.snackbar('Success', 'Profile updated successfully.',
+            snackPosition: SnackPosition.BOTTOM);
       } else {
-        Get.snackbar('Error', 'Failed to update profile.');
+        Get.snackbar('Error', 'Failed to update profile.',
+            snackPosition: SnackPosition.BOTTOM);
       }
     } catch (e) {
-      Get.snackbar('Error', 'An error occurred while updating your profile.');
+      Get.snackbar('Error', 'An error occurred while updating your profile.',
+          snackPosition: SnackPosition.BOTTOM);
+      debugPrint('Error: $e');
     }
   }
 }

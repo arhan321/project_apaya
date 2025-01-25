@@ -12,6 +12,8 @@ class DetailAbsenAdminPage extends StatelessWidget {
     final String kelas = arguments['kelas'] ?? '-';
     final String keterangan = arguments['keterangan'] ?? '-';
     final String jamAbsen = arguments['jamAbsen'] ?? '-';
+    final String catatan =
+        arguments['catatan'] ?? 'Tidak ada catatan'; // Field catatan
 
     return Scaffold(
       appBar: AppBar(
@@ -42,8 +44,9 @@ class DetailAbsenAdminPage extends StatelessWidget {
                 _buildRow('Nama', name),
                 _buildRow('Nomor Absen', number),
                 _buildRow('Kelas', kelas),
-                _buildRow('status', keterangan), // Penyesuaian label
+                _buildRow('Status', keterangan),
                 _buildRow('Jam Absen', jamAbsen),
+                _buildRow('Catatan', catatan), // Field catatan ditambahkan
               ],
             ),
           ),
@@ -69,8 +72,7 @@ class DetailAbsenAdminPage extends StatelessWidget {
             child: Text(
               value,
               style: GoogleFonts.poppins(fontSize: 16, color: Colors.black54),
-              textAlign:
-                  TextAlign.right, // Untuk menyelaraskan teks di sebelah kanan
+              textAlign: TextAlign.right,
               overflow: TextOverflow.ellipsis, // Tambahkan overflow handling
             ),
           ),

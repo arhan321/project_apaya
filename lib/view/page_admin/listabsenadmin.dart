@@ -64,6 +64,7 @@ class ListAbsenAdminPage extends StatelessWidget {
                       siswa['kelas'] ?? '-', // Kelas
                       siswa['id'], // ID Siswa
                       siswa['status'] ?? 'Tidak ada keterangan', // Keterangan
+                      siswa['catatan'], // Tetap kirim catatan ke detail
                     );
                   },
                 ),
@@ -128,6 +129,7 @@ class ListAbsenAdminPage extends StatelessWidget {
     String kelas,
     int siswaId,
     String keterangan,
+    String catatan, // Tetap diterima sebagai parameter untuk dikirim ke detail
   ) {
     return Container(
       margin: EdgeInsets.only(bottom: 12),
@@ -192,13 +194,16 @@ class ListAbsenAdminPage extends StatelessWidget {
                       'kelas': kelas,
                       'jamAbsen': jamAbsen,
                       'keterangan': keterangan, // Kirim keterangan ke detail
+                      'catatan': catatan, // Kirim catatan ke detail
                     });
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent),
-                  child: Text('Lihat Detail',
-                      style: GoogleFonts.poppins(
-                          fontSize: 14, color: Colors.white)),
+                  child: Text(
+                    'Lihat Detail',
+                    style:
+                        GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+                  ),
                 ),
               ),
               SizedBox(width: 8),

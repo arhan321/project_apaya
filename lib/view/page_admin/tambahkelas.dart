@@ -27,7 +27,7 @@ class _TambahKelasPageState extends State<TambahKelasPage> {
     final String url = 'https://absen.randijourney.my.id/api/v1/account';
 
     try {
-      print("Fetching users from $url...");
+      debugPrint("Fetching users from $url...");
       final response = await dioClient.get(url);
 
       if (response.statusCode == 200) {
@@ -48,17 +48,17 @@ class _TambahKelasPageState extends State<TambahKelasPage> {
       } else {
         Get.snackbar(
           'Error',
-          'Gagal mengambil daftar user',
+          'Gagal mengambil daftar user. Status Code: ${response.statusCode}',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
         );
       }
     } catch (e) {
-      print("Error fetching users: $e");
+      debugPrint("Error fetching users: $e");
       Get.snackbar(
         'Kesalahan',
-        'Terjadi kesalahan saat mengambil daftar user',
+        'Terjadi kesalahan saat mengambil daftar user.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -73,7 +73,7 @@ class _TambahKelasPageState extends State<TambahKelasPage> {
     if (namaKelasController.text.isEmpty || selectedUserId == null) {
       Get.snackbar(
         'Error',
-        'Nama kelas dan wali kelas tidak boleh kosong',
+        'Nama kelas dan wali kelas tidak boleh kosong.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -87,7 +87,7 @@ class _TambahKelasPageState extends State<TambahKelasPage> {
         'user_id': selectedUserId,
       };
 
-      print("Mengirim POST ke $url dengan data: $data");
+      debugPrint("Mengirim POST ke $url dengan data: $data");
 
       final response = await dioClient.post(
         url,
@@ -109,52 +109,23 @@ class _TambahKelasPageState extends State<TambahKelasPage> {
           colorText: Colors.white,
         );
 
-        // Tampilkan dialog konfirmasi sebelum kembali
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text(
-                'Kelas Ditambahkan',
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              content: Text(
-                'Kelas "${namaKelasController.text}" berhasil ditambahkan!',
-                style: GoogleFonts.poppins(),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Get.back(result: true);
-                  },
-                  child: Text(
-                    'OK',
-                    style: GoogleFonts.poppins(
-                      color: Colors.blueAccent,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
+        // Kembalikan result ke halaman sebelumnya
+        Get.back(result: true);
       } else {
+        debugPrint("Gagal menambahkan kelas: ${response.data}");
         Get.snackbar(
           'Error',
-          'Gagal menambahkan kelas: ${response.data}',
+          'Gagal menambahkan kelas. Coba lagi.',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
         );
       }
     } catch (e) {
-      print("Error saat menambahkan kelas: $e");
+      debugPrint("Error saat menambahkan kelas: $e");
       Get.snackbar(
         'Kesalahan',
-        'Terjadi kesalahan saat menambahkan kelas',
+        'Terjadi kesalahan saat menambahkan kelas.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -205,7 +176,7 @@ class _TambahKelasPageState extends State<TambahKelasPage> {
             ),
             SizedBox(height: 20),
             isUserLoading
-                ? CircularProgressIndicator()
+                ? Center(child: CircularProgressIndicator())
                 : DropdownButtonFormField<int>(
                     decoration: InputDecoration(
                       labelText: 'Pilih Guru',
@@ -223,8 +194,7 @@ class _TambahKelasPageState extends State<TambahKelasPage> {
                     items: users.map<DropdownMenuItem<int>>((user) {
                       return DropdownMenuItem<int>(
                         value: user['id'],
-                        child: Text(user['name'] ?? 'Nama tidak tersedia',
-                            style: GoogleFonts.poppins()),
+                        child: Text(user['name'], style: GoogleFonts.poppins()),
                       );
                     }).toList(),
                   ),

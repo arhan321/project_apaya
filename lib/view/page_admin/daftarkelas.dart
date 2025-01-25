@@ -16,10 +16,18 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
   @override
   void initState() {
     super.initState();
-    fetchData();
+    fetchData(); // Fetch data saat pertama kali halaman dimuat
   }
 
-  // Fetch data from API
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context)?.isCurrent == true) {
+      fetchData(); // Refresh data ketika kembali dari halaman lain
+    }
+  }
+
+  // Fetch data dari API
   Future<void> fetchData() async {
     final url = Uri.parse("https://absen.randijourney.my.id/api/v1/kelas");
 
@@ -28,28 +36,37 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
-        // Assign fetched data to kelasData
         setState(() {
           kelasData = data['data'] ?? [];
           isLoading = false;
         });
       } else {
-        throw Exception("Failed to load data");
+        throw Exception("Gagal memuat data kelas.");
       }
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-      print("Error: $e");
+      Get.snackbar(
+        'Kesalahan',
+        'Gagal mengambil data kelas: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
+  // Hapus kelas dari API
   Future<void> deleteKelas(int id) async {
     final url = Uri.parse("https://absen.randijourney.my.id/api/v1/kelas/$id");
 
     try {
       final response = await http.delete(url);
       if (response.statusCode == 200 || response.statusCode == 204) {
+        setState(() {
+          kelasData.removeWhere((kelas) => kelas['id'] == id);
+        });
         Get.snackbar(
           'Berhasil',
           'Kelas berhasil dihapus!',
@@ -57,19 +74,17 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        fetchData(); // Refresh daftar kelas setelah penghapusan
       } else {
-        throw Exception("Gagal menghapus kelas");
+        throw Exception("Gagal menghapus kelas.");
       }
     } catch (e) {
       Get.snackbar(
         'Kesalahan',
-        'Terjadi kesalahan saat menghapus kelas',
+        'Terjadi kesalahan saat menghapus kelas.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
-      print("Error: $e");
     }
   }
 
@@ -116,21 +131,30 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
               ),
             ),
             child: isLoading
-                ? Center(child: CircularProgressIndicator()) // Loading spinner
-                : ListView.builder(
-                    padding: EdgeInsets.all(16.0),
-                    itemCount: kelasData.length,
-                    itemBuilder: (context, index) {
-                      final kelas = kelasData[index];
-                      return _buildKelasCard(
-                        id: kelas['id'], // Kirimkan ID ke halaman Edit
-                        namaKelas: kelas['nama_kelas'] ?? "Tidak Ada Nama",
-                        userId: kelas[
-                            'user_id'], // Kirimkan user_id ke halaman Edit
-                        namaUser: kelas['nama_user'] ?? "Tidak Ada Wali",
-                      );
-                    },
-                  ),
+                ? Center(child: CircularProgressIndicator())
+                : kelasData.isEmpty
+                    ? Center(
+                        child: Text(
+                          'Tidak ada data kelas.',
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: EdgeInsets.all(16.0),
+                        itemCount: kelasData.length,
+                        itemBuilder: (context, index) {
+                          final kelas = kelasData[index];
+                          return _buildKelasCard(
+                            id: kelas['id'],
+                            namaKelas: kelas['nama_kelas'] ?? "Tidak Ada Nama",
+                            userId: kelas['user_id'],
+                            namaUser: kelas['nama_user'] ?? "Tidak Ada Wali",
+                          );
+                        },
+                      ),
           ),
           // Tombol Tambah Kelas
           Positioned(
@@ -138,10 +162,9 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
             right: 20,
             child: FloatingActionButton.extended(
               onPressed: () async {
-                final result = await Get.toNamed(
-                    '/tambahKelas'); // Navigasi ke TambahKelasPage
+                final result = await Get.toNamed('/tambahKelas');
                 if (result == true) {
-                  fetchData(); // Refresh daftar kelas jika berhasil
+                  fetchData(); // Refresh data jika berhasil tambah kelas
                 }
               },
               backgroundColor: Colors.blueAccent,
@@ -161,7 +184,7 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
     );
   }
 
-  // Widget Card untuk menampilkan daftar kelas dengan tombol Edit dan Delete
+  // Widget Card untuk menampilkan daftar kelas
   Widget _buildKelasCard({
     required int id,
     required String namaKelas,
@@ -186,7 +209,6 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
         ),
         child: Row(
           children: [
-            // Informasi kelas
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,25 +239,23 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
                 ],
               ),
             ),
-            // Ikon Edit
             IconButton(
               icon: Icon(Icons.edit, color: Colors.white),
               onPressed: () {
                 Get.toNamed(
                   '/editKelas',
                   arguments: {
-                    'id': id, // Kirim ID
+                    'id': id,
                     'nama_kelas': namaKelas,
                     'user_id': userId,
                   },
                 )?.then((value) {
                   if (value == true) {
-                    fetchData(); // Refresh daftar kelas jika berhasil diubah
+                    fetchData(); // Refresh data jika kelas diubah
                   }
                 });
               },
             ),
-            // Ikon Delete
             IconButton(
               icon: Icon(Icons.delete, color: Colors.redAccent),
               onPressed: () {
@@ -244,9 +264,7 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
                   builder: (context) => AlertDialog(
                     title: Text(
                       'Hapus Kelas',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
                     ),
                     content: Text(
                       'Apakah Anda yakin ingin menghapus kelas "$namaKelas"?',
