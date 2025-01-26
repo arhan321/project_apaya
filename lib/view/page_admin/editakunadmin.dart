@@ -80,8 +80,18 @@ class EditAkunAdminPage extends StatelessWidget {
                 SizedBox(height: 20),
                 _buildInputField('Email', _.emailController),
                 SizedBox(height: 20),
+                _buildDropdownField(
+                  'Agama',
+                  ['islam', 'kristen', 'katolik', 'hindu', 'budha', 'konghucu'],
+                  _.selectedReligion,
+                  (value) => _.selectedReligion = value,
+                ),
+                SizedBox(height: 20),
                 _buildDatePickerField(
                     'Tanggal Lahir', context, _.birthDateController),
+                SizedBox(height: 20),
+                _buildInputField('Umur', _.ageController,
+                    keyboardType: TextInputType.number),
                 SizedBox(height: 20),
                 _buildInputField(
                     'Password (jika ingin di ganti)', _.passwordController,
@@ -119,10 +129,12 @@ class EditAkunAdminPage extends StatelessWidget {
   }
 
   Widget _buildInputField(String label, TextEditingController controller,
-      {bool isPassword = false}) {
+      {bool isPassword = false,
+      TextInputType keyboardType = TextInputType.text}) {
     return TextField(
       controller: controller,
       obscureText: isPassword,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: label,
         filled: true,
@@ -131,6 +143,28 @@ class EditAkunAdminPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
       ),
+    );
+  }
+
+  Widget _buildDropdownField(String label, List<String> items,
+      String? selectedValue, ValueChanged<String?> onChanged) {
+    return DropdownButtonFormField<String>(
+      value: selectedValue,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      items: items
+          .map((item) => DropdownMenuItem<String>(
+                value: item,
+                child: Text(item),
+              ))
+          .toList(),
     );
   }
 

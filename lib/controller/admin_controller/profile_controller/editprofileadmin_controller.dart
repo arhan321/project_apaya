@@ -6,12 +6,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfileAdminController extends GetxController {
-  // final nameController = TextEditingController();
   final emailController = TextEditingController();
   final roleController = TextEditingController();
   final birthDateController = TextEditingController(); // Untuk tanggal lahir
-  final usernameController = TextEditingController(); // Tambahkan ini
-  final passwordController = TextEditingController(); // Tambahkan ini
+  final usernameController = TextEditingController(); // Untuk username
+  final passwordController = TextEditingController(); // Untuk password
+  final ageController = TextEditingController(); // Untuk umur
+  final nipGuruController = TextEditingController(); // Tambahan untuk NIP Guru
+  String? selectedReligion; // Tambahkan untuk agama
 
   File? imageFile;
   String? imageUrl;
@@ -51,11 +53,13 @@ class EditProfileAdminController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = response.data;
-        // nameController.text = data['name'] ?? '';
         emailController.text = data['email'] ?? '';
         usernameController.text = data['name'] ?? ''; // Inisialisasi
         roleController.text = data['role'] ?? 'Administrator';
         birthDateController.text = data['tanggal_lahir'] ?? '';
+        ageController.text =
+            data['umur']?.toString() ?? ''; // Inisialisasi umur
+        selectedReligion = data['agama'] ?? null; // Inisialisasi agama
         userId = data['id']?.toString();
         imageUrl = data['image_url'];
         update();
@@ -134,6 +138,9 @@ class EditProfileAdminController extends GetxController {
         'https://absen.randijourney.my.id/api/v1/account/$userId';
 
     try {
+      // Debug log untuk memantau nilai selectedReligion
+      print('Selected Religion: $selectedReligion');
+
       Map<String, dynamic> data = {
         if (usernameController.text.isNotEmpty)
           'username': usernameController.text,
@@ -142,6 +149,10 @@ class EditProfileAdminController extends GetxController {
           'password': passwordController.text,
         if (birthDateController.text.isNotEmpty)
           'tanggal_lahir': birthDateController.text,
+        if (ageController.text.isNotEmpty)
+          'umur': int.parse(ageController.text),
+        if (selectedReligion != null && selectedReligion!.isNotEmpty)
+          'agama': selectedReligion,
       };
 
       final response = await _dio.put(
@@ -162,6 +173,7 @@ class EditProfileAdminController extends GetxController {
         Get.snackbar('Error', 'Failed to update profile.');
       }
     } catch (e) {
+      print('Error: $e'); // Log error untuk debugging
       Get.snackbar('Error', 'An error occurred while updating your profile.');
     }
   }
