@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
@@ -21,14 +22,26 @@ class FormAbsenController extends GetxController {
     'Tidak Hadir',
   ];
 
+  @override
+  void onInit() {
+    super.onInit();
+    // Generate random ID siswa
+    idController.text = Random().nextInt(100000).toString();
+
+    // Set waktu absen dan tanggal absen ke waktu sekarang
+    final now = DateTime.now();
+    jamAbsenController.text =
+        "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
+    tanggalAbsenController.text =
+        "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+  }
+
   Future<void> submitAbsen(int classId) async {
     // Validasi input
     if (idController.text.isEmpty ||
         nameController.text.isEmpty ||
         noAbsenController.text.isEmpty ||
-        kelasController.text.isEmpty ||
-        jamAbsenController.text.isEmpty ||
-        tanggalAbsenController.text.isEmpty) {
+        kelasController.text.isEmpty) {
       Get.snackbar(
         'Error',
         'Semua field harus diisi!',
@@ -139,13 +152,18 @@ class FormAbsenController extends GetxController {
 
   // Membersihkan field input
   void clearFields() {
-    idController.clear(); // Bersihkan ID
     nameController.clear();
     noAbsenController.clear();
     kelasController.clear();
     catatanController.clear();
-    jamAbsenController.clear();
-    tanggalAbsenController.clear();
     selectedKeterangan.value = 'Hadir';
+
+    // Generate ulang ID, waktu, dan tanggal saat membersihkan
+    idController.text = Random().nextInt(100000).toString();
+    final now = DateTime.now();
+    jamAbsenController.text =
+        "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
+    tanggalAbsenController.text =
+        "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
   }
 }

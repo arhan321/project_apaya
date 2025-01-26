@@ -20,14 +20,6 @@ class EditProfileSiswaController extends GetxController {
   String? authToken;
   String errorMessage = '';
   List<String> kelasList = []; // Daftar kelas dari API
-  // final List<String> agamaList = [
-  //   'Islam',
-  //   'Kristen',
-  //   'Katolik',
-  //   'Hindu',
-  //   'Budha',
-  //   'Konghucu',
-  // ]; // Daftar nilai untuk dropdown agama
 
   final dio.Dio _dio = dio.Dio();
   final picker = ImagePicker();
@@ -35,11 +27,11 @@ class EditProfileSiswaController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _loadKelas();
+    fetchKelasData();
     _loadProfileData();
   }
 
-  Future<void> _loadKelas() async {
+  Future<void> fetchKelasData() async {
     try {
       final response = await _dio.get(
         'https://absen.randijourney.my.id/api/v1/kelas',
@@ -53,6 +45,17 @@ class EditProfileSiswaController extends GetxController {
       if (response.statusCode == 200) {
         final kelasData = response.data['data'] as List<dynamic>;
         kelasList = kelasData.map((k) => k['nama_kelas'] as String).toList();
+
+        // Jika kelasList kosong, ambil data dari pengguna
+        if (kelasList.isEmpty) {
+          final prefs = await SharedPreferences.getInstance();
+          String? userKelas = prefs.getString('kelas');
+          if (userKelas != null && userKelas.isNotEmpty) {
+            kelasList.add(userKelas);
+            classController.text = userKelas;
+          }
+        }
+
         update(); // Refresh UI
       } else {
         Get.snackbar(
@@ -100,7 +103,7 @@ class EditProfileSiswaController extends GetxController {
       if (response.statusCode == 200) {
         final data = response.data;
         nameController.text = data['name'] ?? '';
-        classController.text = data['kelas'] ?? ''; // Ambil kelas dari API
+        classController.text = data['kelas'] ?? '';
         numberController.text = data['nomor_absen']?.toString() ?? '';
         birthDateController.text = data['tanggal_lahir'] ?? '';
         agamaController.text = data['agama'] ?? '';

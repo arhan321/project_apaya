@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:math';
 import '/controller/siswa_controller/formabsencontroller.dart';
 
 class FormAbsenPage extends StatelessWidget {
   final int classId;
   final FormAbsenController controller = Get.put(FormAbsenController());
 
-  FormAbsenPage({required this.classId});
+  FormAbsenPage({required this.classId}) {
+    // Generate random ID
+    controller.idController.text = Random().nextInt(100000).toString();
+    // Set current time and date
+    final now = DateTime.now();
+    controller.jamAbsenController.text =
+        "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
+    controller.tanggalAbsenController.text =
+        "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    // Clear catatan
+    controller.catatanController.text = "";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +52,11 @@ class FormAbsenPage extends StatelessWidget {
           child: Column(
             children: [
               _buildTextField(
-                controller: controller.idController, // Tambahkan form ID
-                hintText: 'Masukkan ID Siswa (opsional)',
+                controller: controller.idController, // Auto-generated ID
+                hintText: 'ID Siswa (otomatis)',
                 label: 'ID Siswa',
                 keyboardType: TextInputType.number,
+                enabled: false, // Disable editing
               ),
               SizedBox(height: 15),
               _buildTextField(
@@ -65,10 +78,11 @@ class FormAbsenPage extends StatelessWidget {
                 label: 'Kelas',
               ),
               SizedBox(height: 15),
-              _buildTimePickerField(
-                context: context,
-                controller: controller.jamAbsenController,
+              _buildTextField(
+                controller: controller.jamAbsenController, // Auto-filled time
+                hintText: 'Waktu absen (otomatis)',
                 label: 'Jam Absen',
+                enabled: false, // Disable editing
               ),
               SizedBox(height: 15),
               _buildTextField(
@@ -77,10 +91,12 @@ class FormAbsenPage extends StatelessWidget {
                 label: 'Catatan',
               ),
               SizedBox(height: 15),
-              _buildDatePickerField(
-                context: context,
-                controller: controller.tanggalAbsenController,
+              _buildTextField(
+                controller:
+                    controller.tanggalAbsenController, // Auto-filled date
+                hintText: 'Tanggal absen (otomatis)',
                 label: 'Tanggal Absen',
+                enabled: false, // Disable editing
               ),
               SizedBox(height: 15),
               Obx(() => _buildDropdownField(
@@ -122,6 +138,7 @@ class FormAbsenPage extends StatelessWidget {
     required String hintText,
     required String label,
     TextInputType keyboardType = TextInputType.text,
+    bool enabled = true,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,96 +154,11 @@ class FormAbsenPage extends StatelessWidget {
         TextField(
           controller: controller,
           keyboardType: keyboardType,
+          enabled: enabled,
           decoration: InputDecoration(
             hintText: hintText,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTimePickerField({
-    required BuildContext context,
-    required TextEditingController controller,
-    required String label,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        SizedBox(height: 5),
-        GestureDetector(
-          onTap: () async {
-            final timeOfDay = await showTimePicker(
-              context: context,
-              initialTime: TimeOfDay.now(),
-            );
-            if (timeOfDay != null) {
-              controller.text = timeOfDay.format(context);
-            }
-          },
-          child: AbsorbPointer(
-            child: TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                hintText: 'Pilih waktu (HH:mm)',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDatePickerField({
-    required BuildContext context,
-    required TextEditingController controller,
-    required String label,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        SizedBox(height: 5),
-        GestureDetector(
-          onTap: () async {
-            final date = await showDatePicker(
-              context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2100),
-            );
-            if (date != null) {
-              controller.text = "${date.year}-${date.month}-${date.day}";
-            }
-          },
-          child: AbsorbPointer(
-            child: TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                hintText: 'Pilih tanggal (yyyy-MM-dd)',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
             ),
           ),
         ),

@@ -48,6 +48,10 @@ class EditProfileSiswaPage extends StatelessWidget {
         ),
       ),
       body: GetBuilder<EditProfileSiswaController>(
+        initState: (_) async {
+          // Fetch kelas data saat halaman dimulai
+          await controller.fetchKelasData();
+        },
         builder: (_) {
           return SingleChildScrollView(
             padding: EdgeInsets.all(20),
