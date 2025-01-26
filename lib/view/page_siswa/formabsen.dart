@@ -86,12 +86,6 @@ class FormAbsenPage extends StatelessWidget {
               ),
               SizedBox(height: 15),
               _buildTextField(
-                controller: controller.catatanController,
-                hintText: 'Masukkan Catatan (opsional)',
-                label: 'Catatan',
-              ),
-              SizedBox(height: 15),
-              _buildTextField(
                 controller:
                     controller.tanggalAbsenController, // Auto-filled date
                 hintText: 'Tanggal absen (otomatis)',
