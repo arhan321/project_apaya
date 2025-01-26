@@ -19,6 +19,8 @@ class FormAbsenPage extends StatelessWidget {
         "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
     // Clear catatan
     controller.catatanController.text = "";
+    // Fetch classes from API
+    controller.fetchClasses();
   }
 
   @override
@@ -72,11 +74,14 @@ class FormAbsenPage extends StatelessWidget {
                 keyboardType: TextInputType.number,
               ),
               SizedBox(height: 15),
-              _buildTextField(
-                controller: controller.kelasController,
-                hintText: 'Masukkan Kelas',
-                label: 'Kelas',
-              ),
+              Obx(() => _buildDropdownField(
+                    label: 'Kelas',
+                    options: controller.kelasOptions,
+                    value: controller.selectedKelas.value,
+                    onChanged: (value) {
+                      controller.selectedKelas.value = value!;
+                    },
+                  )),
               SizedBox(height: 15),
               _buildTextField(
                 controller: controller.jamAbsenController, // Auto-filled time

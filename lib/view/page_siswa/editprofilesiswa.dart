@@ -97,7 +97,9 @@ class EditProfileSiswaPage extends StatelessWidget {
                 _buildDropdownField(
                   'Kelas',
                   _.kelasList,
-                  _.classController.text,
+                  (_.kelasList.contains(_.classController.text))
+                      ? _.classController.text
+                      : null,
                   (value) {
                     _.classController.text = value!;
                   },
@@ -108,7 +110,10 @@ class EditProfileSiswaPage extends StatelessWidget {
                 _buildDropdownField(
                   'Agama',
                   agamaList,
-                  _.agamaController.text,
+                  (_.agamaController.text.isNotEmpty &&
+                          agamaList.contains(_.agamaController.text))
+                      ? _.agamaController.text
+                      : null,
                   (value) {
                     _.agamaController.text = value!;
                   },
@@ -166,8 +171,10 @@ class EditProfileSiswaPage extends StatelessWidget {
 
   Widget _buildDropdownField(String label, List<String> items, String? value,
       ValueChanged<String?> onChanged) {
+    final validValue = (value != null && items.contains(value)) ? value : null;
+
     return DropdownButtonFormField<String>(
-      value: (value != null && value.isNotEmpty) ? value : null,
+      value: validValue, // Validasi nilai
       decoration: InputDecoration(
         labelText: label,
         filled: true,
@@ -177,6 +184,7 @@ class EditProfileSiswaPage extends StatelessWidget {
         ),
       ),
       items: items
+          .toSet() // Hapus elemen duplikat
           .map((item) => DropdownMenuItem<String>(
                 value: item,
                 child: Text(item, style: GoogleFonts.poppins()),

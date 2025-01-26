@@ -13,7 +13,10 @@ class FormAbsenController extends GetxController {
   final jamAbsenController = TextEditingController();
   final tanggalAbsenController = TextEditingController();
   var selectedKeterangan = 'Hadir'.obs; // Default value
+  var selectedKelas = ''.obs; // Kelas yang dipilih
   final Dio dio = Dio();
+
+  var kelasOptions = <String>[].obs; // List untuk pilihan kelas
 
   final List<String> keteranganOptions = [
     'Hadir',
@@ -34,6 +37,48 @@ class FormAbsenController extends GetxController {
         "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
     tanggalAbsenController.text =
         "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+
+    // Fetch data kelas dari API
+    fetchClasses();
+  }
+
+  Future<void> fetchClasses() async {
+    final String url = 'https://absen.randijourney.my.id/api/v1/kelas';
+
+    try {
+      print("Fetching data kelas dari API...");
+      final response = await dio.get(url);
+      if (response.statusCode == 200) {
+        final List<dynamic> data =
+            response.data['data']; // Sesuaikan struktur API
+        kelasOptions.value =
+            data.map((item) => item['nama_kelas'] as String).toList();
+        if (kelasOptions.isNotEmpty) {
+          selectedKelas.value = kelasOptions[0]; // Pilihan default
+        }
+        print("Data kelas berhasil diambil: $kelasOptions");
+      } else {
+        throw Exception("Gagal mengambil data kelas dari server.");
+      }
+    } on DioException catch (dioError) {
+      print("DioError: ${dioError.message}");
+      Get.snackbar(
+        'Error',
+        'Gagal mengambil data kelas dari server.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      print("Unhandled Exception: $e");
+      Get.snackbar(
+        'Error',
+        'Terjadi kesalahan: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+    }
   }
 
   Future<void> submitAbsen(int classId) async {
@@ -41,7 +86,7 @@ class FormAbsenController extends GetxController {
     if (idController.text.isEmpty ||
         nameController.text.isEmpty ||
         noAbsenController.text.isEmpty ||
-        kelasController.text.isEmpty) {
+        selectedKelas.value.isEmpty) {
       Get.snackbar(
         'Error',
         'Semua field harus diisi!',
@@ -58,7 +103,7 @@ class FormAbsenController extends GetxController {
           DateTime.now().millisecondsSinceEpoch, // ID siswa
       "nama": nameController.text,
       "nomor_absen": noAbsenController.text,
-      "kelas": kelasController.text,
+      "kelas": selectedKelas.value, // Kelas yang dipilih
       "keterangan": selectedKeterangan.value,
       "jam_absen": jamAbsenController.text,
       "catatan": catatanController.text.isEmpty
@@ -100,45 +145,15 @@ class FormAbsenController extends GetxController {
         throw Exception(response.data['message'] ?? 'Gagal menyimpan absen.');
       }
     } on DioException catch (dioError) {
-      // Mapping error dari Dio
       print("DioError: ${dioError.message}");
-      if (dioError.type == DioExceptionType.connectionTimeout) {
-        Get.snackbar(
-          'Error',
-          'Koneksi ke server timeout.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
-        );
-      } else if (dioError.type == DioExceptionType.receiveTimeout) {
-        Get.snackbar(
-          'Error',
-          'Timeout saat menerima data dari server.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
-        );
-      } else if (dioError.type == DioExceptionType.badResponse) {
-        final errorMessage = dioError.response?.data['message'] ??
-            'Kesalahan dari server: ${dioError.response?.statusCode}';
-        Get.snackbar(
-          'Error',
-          errorMessage,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
-        );
-      } else {
-        Get.snackbar(
-          'Error',
-          'Terjadi kesalahan jaringan.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
-        );
-      }
+      Get.snackbar(
+        'Error',
+        'Terjadi kesalahan jaringan saat mengirim data.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
     } catch (e) {
-      // Tangani error lainnya
       print("Unhandled Exception: $e");
       Get.snackbar(
         'Error',
@@ -154,7 +169,6 @@ class FormAbsenController extends GetxController {
   void clearFields() {
     nameController.clear();
     noAbsenController.clear();
-    kelasController.clear();
     catatanController.clear();
     selectedKeterangan.value = 'Hadir';
 
