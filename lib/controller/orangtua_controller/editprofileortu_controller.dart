@@ -129,6 +129,7 @@ class EditProfileOrtuController extends GetxController {
         agama = data['agama'];
         userId = data['id']?.toString();
         imageUrl = data['image_url'];
+        selectedWaliMurid = data['wali_murid']; // Set default Wali Murid
         update();
       } else {
         debugPrint('Failed to fetch profile data: ${response.data}');
