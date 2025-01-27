@@ -5,7 +5,14 @@ import 'package:google_fonts/google_fonts.dart';
 class ViewDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final args = Get.arguments;
+    final args = Get.arguments ?? {};
+
+    // Pastikan data memiliki nilai default jika null
+    final String name = args['name'] ?? 'Tidak diketahui';
+    final String number = args['number'] ?? '-';
+    final String kelas = args['kelas'] ?? 'Tidak diketahui';
+    final String keterangan = args['keterangan'] ?? 'Tidak diketahui';
+    final String jamAbsen = args['jamAbsen'] ?? '-';
 
     return Scaffold(
       appBar: AppBar(
@@ -44,15 +51,15 @@ class ViewDetailPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildDetailRow(label: 'Nama', value: args['name']),
+                _buildDetailRow(label: 'Nama', value: name),
                 SizedBox(height: 15),
-                _buildDetailRow(label: 'Nomor Absen', value: args['number']),
+                _buildDetailRow(label: 'Nomor Absen', value: number),
                 SizedBox(height: 15),
-                _buildDetailRow(label: 'Kelas', value: args['kelas']),
+                _buildDetailRow(label: 'Kelas', value: kelas),
                 SizedBox(height: 15),
-                _buildDetailRow(label: 'Keterangan', value: args['keterangan']),
+                _buildDetailRow(label: 'Keterangan', value: keterangan),
                 SizedBox(height: 15),
-                _buildDetailRow(label: 'Jam Absen', value: args['jamAbsen']),
+                _buildDetailRow(label: 'Jam Absen', value: jamAbsen),
               ],
             ),
           ),

@@ -40,8 +40,8 @@ class EditProfileOrtuPage extends StatelessWidget {
           return SingleChildScrollView(
             padding: EdgeInsets.all(20),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 20),
                 Center(
                   child: Stack(
                     children: [
@@ -80,27 +80,87 @@ class EditProfileOrtuPage extends StatelessWidget {
                 SizedBox(height: 20),
                 _buildInputField('Email', _.emailController),
                 SizedBox(height: 20),
-                _buildInputField('Wali Murid', _.waliMuridController,
-                    isEnabled: false),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _.updateProfile,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
-                  ),
-                  child: Text("Simpan Perubahan",
-                      style: GoogleFonts.poppins(color: Colors.white)),
+                _buildInputField(
+                  'Umur',
+                  _.umurController,
+                  keyboardType: TextInputType.number,
                 ),
-                SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: _.uploadPhoto,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+                SizedBox(height: 20),
+                DropdownButtonFormField<String>(
+                  value: _.agama,
+                  onChanged: _.setAgama,
+                  decoration: InputDecoration(
+                    labelText: 'Agama',
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                  child: Text("Upload Foto",
-                      style: GoogleFonts.poppins(color: Colors.white)),
+                  items: _.agamaOptions.map((agama) {
+                    return DropdownMenuItem(
+                      value: agama,
+                      child: Text(agama),
+                    );
+                  }).toList(),
+                ),
+                SizedBox(height: 20),
+                DropdownButtonFormField<String>(
+                  value: _.selectedWaliMurid,
+                  onChanged: _.setWaliMurid,
+                  decoration: InputDecoration(
+                    labelText: 'Wali Murid',
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  items: _.waliMuridList.isEmpty
+                      ? [
+                          DropdownMenuItem(
+                            value: null,
+                            child: Text('Memuat...'),
+                          )
+                        ]
+                      : _.waliMuridList.map((wali) {
+                          return DropdownMenuItem(
+                            value: wali,
+                            child: Text(wali),
+                          );
+                        }).toList(),
+                ),
+                SizedBox(height: 30),
+                Center(
+                  child: Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: _.updateProfile,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 50, vertical: 14),
+                        ),
+                        child: Text(
+                          "Simpan Perubahan",
+                          style: GoogleFonts.poppins(color: Colors.white),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _.uploadPhoto,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 50, vertical: 14),
+                        ),
+                        child: Text(
+                          "Upload Foto",
+                          style: GoogleFonts.poppins(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -111,10 +171,12 @@ class EditProfileOrtuPage extends StatelessWidget {
   }
 
   Widget _buildInputField(String label, TextEditingController controller,
-      {bool isEnabled = true}) {
+      {bool isEnabled = true,
+      TextInputType keyboardType = TextInputType.text}) {
     return TextField(
       controller: controller,
       enabled: isEnabled,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: label,
         filled: true,

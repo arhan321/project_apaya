@@ -268,6 +268,7 @@ class _ListAbsenPageState extends State<ListAbsenPage> {
                 arguments: {
                   'name': name,
                   'number': number,
+                  'kelas': className, // Tambahkan kelas
                   'keterangan': badge,
                   'jamAbsen': jamAbsen,
                 },
