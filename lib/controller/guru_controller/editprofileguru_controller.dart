@@ -10,8 +10,7 @@ class EditProfileGuruController extends GetxController {
   final nipGuruController = TextEditingController(); // NIP Guru
   final agamaController = TextEditingController(); // Agama
   final umurController = TextEditingController(); // Umur
-  final waliKelasController =
-      TextEditingController(text: 'Kelas 6A'); // Wali Kelas
+  final waliKelasController = TextEditingController(); // Wali Kelas
   final roleController = TextEditingController(text: 'Guru'); // Role
   final birthDateController = TextEditingController(); // Tanggal Lahir
 
@@ -20,13 +19,59 @@ class EditProfileGuruController extends GetxController {
   String? userId;
   String? authToken;
 
+  List<String> waliKelasList = []; // Daftar wali_kelas dari API
+
   final dio.Dio _dio = dio.Dio();
   final picker = ImagePicker();
 
   @override
   void onInit() {
     super.onInit();
+    fetchWaliKelasData();
     _loadProfileData();
+  }
+
+  Future<void> fetchWaliKelasData() async {
+    try {
+      final response = await _dio.get(
+        'https://absen.randijourney.my.id/api/v1/kelas',
+        options: dio.Options(
+          headers: {
+            'Accept': 'application/json',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final waliKelasData = response.data['data'] as List<dynamic>;
+        waliKelasList =
+            waliKelasData.map((k) => k['nama_kelas'] as String).toList();
+
+        // Jika waliKelasList kosong, gunakan default value dari controller
+        if (waliKelasList.isEmpty) {
+          waliKelasList.add(waliKelasController.text);
+        }
+
+        update(); // Refresh UI
+      } else {
+        Get.snackbar(
+          'Error',
+          'Gagal mengambil data wali_kelas.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Terjadi kesalahan saat mengambil data wali_kelas.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      debugPrint('Error fetching wali_kelas: $e');
+    }
   }
 
   Future<void> _loadProfileData() async {
@@ -57,6 +102,7 @@ class EditProfileGuruController extends GetxController {
         nipGuruController.text = data['nip_guru']?.toString() ?? '';
         agamaController.text = data['agama'] ?? '';
         umurController.text = data['umur'] ?? '';
+        waliKelasController.text = data['wali_kelas'] ?? '';
         birthDateController.text = data['tanggal_lahir'] ?? '';
         userId = data['id']?.toString();
         imageUrl = data['image_url'];
@@ -156,6 +202,8 @@ class EditProfileGuruController extends GetxController {
           'nip_guru': nipGuruController.text,
         if (agamaController.text.isNotEmpty) 'agama': agamaController.text,
         if (umurController.text.isNotEmpty) 'umur': umurController.text,
+        if (waliKelasController.text.isNotEmpty)
+          'wali_kelas': waliKelasController.text,
         if (birthDateController.text.isNotEmpty)
           'tanggal_lahir': birthDateController.text,
       };

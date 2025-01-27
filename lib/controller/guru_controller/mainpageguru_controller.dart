@@ -6,9 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class MainPageGuruController extends GetxController {
   var userName = 'Guest'.obs;
   var userEmail = ''.obs;
-  var kelas = ''.obs;
-  var waliKelas = ''.obs;
+  var userRole = ''.obs;
   var userImageUrl = Rxn<String>();
+  var kelasList = <Map<String, dynamic>>[].obs; // List kelas yang diampu guru
   var isLoading = true.obs;
   var errorMessage = ''.obs;
 
@@ -18,12 +18,14 @@ class MainPageGuruController extends GetxController {
   void onInit() {
     super.onInit();
     fetchUserData();
+    fetchKelasData(); // Muat data kelas saat pertama kali diinisialisasi
   }
 
   @override
   void onReady() {
     super.onReady();
-    fetchUserData(); // Memastikan data diperbarui setiap kali MainPage dibuka
+    fetchUserData();
+    fetchKelasData(); // Memastikan data kelas diperbarui saat halaman siap
   }
 
   Future<void> fetchUserData() async {
@@ -31,8 +33,7 @@ class MainPageGuruController extends GetxController {
 
     try {
       isLoading.value = true;
-      final prefs = await SharedPreferences
-          .getInstance(); // Pindahkan inisialisasi ke sini
+      final prefs = await SharedPreferences.getInstance();
       final authToken = prefs.getString('authToken');
 
       if (authToken == null) {
@@ -55,14 +56,55 @@ class MainPageGuruController extends GetxController {
         final data = response.data;
         userName.value = data['name'] ?? 'Nama tidak tersedia';
         userEmail.value = data['email'] ?? 'Email tidak tersedia';
-        kelas.value = data['kelas'] ?? 'Kelas tidak diketahui';
-        waliKelas.value = data['wali_kelas'] ?? 'Tidak ada wali kelas';
+        userRole.value = data['role'] ?? 'Role tidak diketahui';
         userImageUrl.value = data['image_url'];
       } else {
-        errorMessage.value = 'Gagal mengambil data: ${response.data}';
+        errorMessage.value =
+            'Gagal mengambil data pengguna. Status Code: ${response.statusCode}';
       }
     } catch (e) {
-      errorMessage.value = 'Terjadi kesalahan saat memuat data.';
+      errorMessage.value = 'Terjadi kesalahan saat memuat data pengguna.';
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchKelasData() async {
+    const String url = 'https://absen.randijourney.my.id/api/v1/kelas/';
+
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      if (authToken == null) {
+        errorMessage.value = 'Token tidak ditemukan. Silakan login ulang.';
+        Get.offAllNamed('/welcome');
+        return;
+      }
+
+      final response = await _dio.get(
+        url,
+        options: Options(
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $authToken',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data['data'] as List;
+        kelasList.value = data
+            .map((e) => e as Map<String, dynamic>)
+            .toList(); // Simpan data kelas
+      } else {
+        errorMessage.value =
+            'Gagal mengambil data kelas. Status Code: ${response.statusCode}';
+      }
+    } catch (e) {
+      errorMessage.value = 'Terjadi kesalahan saat memuat data kelas.';
     } finally {
       isLoading.value = false;
     }
@@ -72,8 +114,7 @@ class MainPageGuruController extends GetxController {
     const String url = 'https://absen.randijourney.my.id/api/v1/account/logout';
 
     try {
-      final prefs = await SharedPreferences
-          .getInstance(); // Pindahkan inisialisasi ke sini
+      final prefs = await SharedPreferences.getInstance();
       final authToken = prefs.getString('authToken');
 
       if (authToken == null) {

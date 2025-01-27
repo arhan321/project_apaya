@@ -10,21 +10,39 @@ class MainPageGuru extends StatefulWidget {
   _MainPageGuruState createState() => _MainPageGuruState();
 }
 
-class _MainPageGuruState extends State<MainPageGuru> {
+class _MainPageGuruState extends State<MainPageGuru>
+    with WidgetsBindingObserver {
   final MainPageGuruController controller = Get.put(MainPageGuruController());
 
   @override
   void initState() {
     super.initState();
-    controller.fetchUserData(); // Initial fetch
+    controller.fetchKelasData(); // Perbaikan nama method
+    WidgetsBinding.instance.addObserver(this); // Tambahkan observer
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Ketika aplikasi kembali aktif, refresh data
+      controller.fetchKelasData(); // Perbaikan nama method
+    }
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (ModalRoute.of(context)?.isCurrent == true) {
-      controller.fetchUserData(); // Fetch data when coming back to this page
+      // Ketika halaman kembali menjadi aktif, refresh data
+      controller.fetchKelasData(); // Perbaikan nama method
     }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance
+        .removeObserver(this); // Hapus observer saat widget dihancurkan
+    super.dispose();
   }
 
   @override
@@ -67,6 +85,8 @@ class _MainPageGuruState extends State<MainPageGuru> {
           return Center(child: CircularProgressIndicator());
         } else if (controller.errorMessage.value.isNotEmpty) {
           return Center(child: Text(controller.errorMessage.value));
+        } else if (controller.kelasList.isEmpty) {
+          return Center(child: Text("Belum ada kelas yang diampu."));
         } else {
           return _buildDashboardContent();
         }
@@ -122,23 +142,13 @@ class _MainPageGuruState extends State<MainPageGuru> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.download, color: Colors.blueAccent),
-              title: Text(
-                'Unduh Rekap Absen',
-                style: GoogleFonts.poppins(),
-              ),
-              onTap: () {
-                Get.toNamed('/rekapAbsen'); // Route untuk unduh rekap absen
-              },
-            ),
-            ListTile(
               leading: Icon(Icons.refresh, color: Colors.blueAccent),
               title: Text(
                 'Refresh (jika data tidak valid)',
                 style: GoogleFonts.poppins(),
               ),
               onTap: () {
-                controller.fetchUserData(); // Refresh data
+                controller.fetchKelasData();
                 Get.snackbar(
                   'Refresh',
                   'Data berhasil diperbarui!',
@@ -178,29 +188,26 @@ class _MainPageGuruState extends State<MainPageGuru> {
         child: Column(
           children: [
             Expanded(
-              child: ListView(
-                children: [
-                  _buildCard(
-                    title: 'Kelas 6A',
-                    subtitle: 'SD NEGERI RANCAGONG 1',
-                    teacher: 'Tatang Sutarman',
-                    onTap: () {
-                      Get.to(() => ListAbsenSiswaPage(className: 'Kelas 6A'));
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  _buildCard(
-                    title: 'Kelas 6B',
-                    subtitle: 'SD NEGERI RANCAGONG 1',
-                    teacher: 'Budiono Siregar',
-                    onTap: () {
-                      Get.to(() => ListAbsenSiswaPage(className: 'Kelas 6B'));
-                    },
-                  ),
-                ],
-              ),
+              child: Obx(() {
+                return ListView.builder(
+                  itemCount: controller.kelasList.length,
+                  itemBuilder: (context, index) {
+                    final classData = controller.kelasList[index];
+                    return _buildCard(
+                      title: classData['nama_kelas'] ?? 'Tidak ada nama kelas',
+                      subtitle: 'Pengajar: ${classData['nama_user'] ?? 'N/A'}',
+                      teacher: 'ID Kelas: ${classData['id'] ?? '-'}',
+                      onTap: () {
+                        Get.to(() => ListAbsenSiswaPage(
+                              className: classData['nama_kelas'] ??
+                                  'Tidak ada nama kelas',
+                            ));
+                      },
+                    );
+                  },
+                );
+              }),
             ),
-            _buildLogoutButton(),
           ],
         ),
       ),
@@ -217,6 +224,7 @@ class _MainPageGuruState extends State<MainPageGuru> {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(16),
+        margin: EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Colors.purpleAccent, Colors.lightBlue],
@@ -260,32 +268,6 @@ class _MainPageGuruState extends State<MainPageGuru> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLogoutButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () {
-          controller.logout();
-        },
-        style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.symmetric(vertical: 10),
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
-          ),
-        ),
-        child: Text(
-          'Logout',
-          style: GoogleFonts.poppins(
-            color: Colors.blueAccent,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
         ),
       ),
     );

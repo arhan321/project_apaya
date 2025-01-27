@@ -46,6 +46,10 @@ class EditProfileGuruPage extends StatelessWidget {
         ),
       ),
       body: GetBuilder<EditProfileGuruController>(
+        initState: (_) async {
+          // Fetch wali_kelas data saat halaman dimulai
+          await controller.fetchWaliKelasData();
+        },
         builder: (_) {
           return SingleChildScrollView(
             padding: EdgeInsets.all(20),
@@ -101,8 +105,14 @@ class EditProfileGuruPage extends StatelessWidget {
                 SizedBox(height: 20),
                 _buildInputField('Umur', _.umurController),
                 SizedBox(height: 20),
-                _buildInputField('Wali Kelas', _.waliKelasController,
-                    isEnabled: false),
+                _buildDropdownField(
+                  'Wali Kelas',
+                  _.waliKelasList,
+                  _.waliKelasController.text,
+                  (value) {
+                    _.waliKelasController.text = value!;
+                  },
+                ),
                 SizedBox(height: 20),
                 _buildInputField('Role', _.roleController, isEnabled: false),
                 SizedBox(height: 20),

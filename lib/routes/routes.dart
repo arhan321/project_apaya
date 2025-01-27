@@ -180,9 +180,14 @@ class AppRoutes {
     ),
     GetPage(
       name: listAbsenSiswa,
-      page: () =>
-          ListAbsenSiswaPage(className: 'Kelas 6A'), // Daftar Absen Siswa
+      page: () {
+        final String className =
+            Get.arguments['className'] ?? ''; // Ambil className dari arguments
+        return ListAbsenSiswaPage(
+            className: className); // Halaman Daftar Absen Siswa
+      },
     ),
+
     GetPage(
       name: editAbsen,
       page: () => EditAbsenPage(), // Edit Absen
