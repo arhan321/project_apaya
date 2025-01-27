@@ -1,16 +1,71 @@
+import 'dart:convert'; // Untuk decoding JSON string siswa
 import 'package:flutter/material.dart';
-import 'package:forum/view/page_orangtua/mainpageortu.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'profilortu.dart'; // Import ProfilortuPage
 
-class ListAbsenOrtu extends StatelessWidget {
+class ListAbsenOrtu extends StatefulWidget {
+  final int classId; // Parameter untuk ID kelas
+
+  const ListAbsenOrtu({Key? key, required this.classId}) : super(key: key);
+
+  @override
+  _ListAbsenOrtuState createState() => _ListAbsenOrtuState();
+}
+
+class _ListAbsenOrtuState extends State<ListAbsenOrtu> {
+  bool isLoading = true;
+  String errorMessage = '';
+  String className = '';
+  List<Map<String, dynamic>> students = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchClassData(widget.classId);
+  }
+
+  Future<void> fetchClassData(int classId) async {
+    const String urlBase = 'https://absen.randijourney.my.id/api/v1/kelas/';
+    final String url = '$urlBase$classId';
+
+    try {
+      setState(() {
+        isLoading = true;
+        errorMessage = '';
+      });
+
+      final response = await GetConnect().get(url);
+
+      if (response.statusCode == 200) {
+        final data = response.body['data'];
+
+        setState(() {
+          className = data['nama_kelas'] ?? 'Tidak diketahui';
+          students = (jsonDecode(data['siswa']) as List)
+              .map((e) => e as Map<String, dynamic>)
+              .toList();
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          errorMessage =
+              'Gagal memuat data. Status Code: ${response.statusCode}';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Terjadi kesalahan saat memuat data.';
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final DateTime now = DateTime.now();
-    final String year = now.year.toString();
-    final String month = now.month.toString().padLeft(2, '0');
-    final String day = now.day.toString().padLeft(2, '0');
+    final String formattedDate =
+        "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
     final List<String> daysInWeek = [
       'Minggu',
       'Senin',
@@ -34,7 +89,7 @@ class ListAbsenOrtu extends StatelessWidget {
           ),
         ),
         title: Text(
-          'Absenku.',
+          'Absen $className',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -50,107 +105,102 @@ class ListAbsenOrtu extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.account_circle, color: Colors.white),
             onPressed: () {
-              // Navigasi tanpa parameter tambahan
-              Get.to(() => ProfilortuPage());
+              Get.toNamed('/profilOrtu');
             },
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: Colors.blue,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Selamat Datang Wali Murid',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : errorMessage.isNotEmpty
+              ? Center(
+                  child: Text(
+                    errorMessage,
+                    style: GoogleFonts.poppins(color: Colors.red),
                   ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Udin Siregar',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    color: Colors.white,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                )
+              : Column(
                   children: [
-                    Text(
-                      '$year-$day-$month',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Text(
-                      dayOfWeek,
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          hintText: 'Cari Nama?',
-                          hintStyle: GoogleFonts.poppins(fontSize: 14),
-                          prefixIcon: Icon(Icons.search, color: Colors.grey),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      color: Colors.blue,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Selamat Datang Wali Murid',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Udin Siregar',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                formattedDate,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                dayOfWeek,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.filter_list, color: Colors.white),
-                      onPressed: () {
-                        // Tambahkan aksi untuk filter di sini
-                      },
+                    Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: students.length,
+                        itemBuilder: (context, index) {
+                          final student = students[index];
+                          return AbsenCard(
+                            name: student['nama'] ?? 'Tidak diketahui',
+                            number: 'No ${student['nomor_absen'] ?? '-'}',
+                            status: student['keterangan'] ?? 'Tidak diketahui',
+                            statusColor: _getStatusColor(
+                                student['keterangan'] ?? 'Tidak diketahui'),
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.all(16),
-              children: [
-                AbsenCard(
-                  name: 'Ilham God',
-                  status: 'Hadir',
-                  statusColor: Colors.green,
-                  number: 'No 1',
-                ),
-                AbsenCard(
-                  name: 'Putra Dewantara',
-                  status: 'Sakit',
-                  statusColor: Colors.blue,
-                  number: 'No 2',
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Hadir':
+        return Colors.green;
+      case 'Sakit':
+        return Colors.blue;
+      case 'Izin':
+        return Colors.orange;
+      case 'Tidak Hadir':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
   }
 }
 
@@ -170,8 +220,8 @@ class AbsenCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
@@ -208,7 +258,7 @@ class AbsenCard extends StatelessWidget {
                 ],
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: statusColor.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(10),

@@ -16,14 +16,16 @@ class _MainPageOrtuState extends State<MainPageOrtu> {
   @override
   void initState() {
     super.initState();
-    controller.fetchUserData(); // Fetch initial data
+    controller.fetchUserData(); // Fetch user data
+    controller.fetchClassData(); // Fetch class data
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (ModalRoute.of(context)?.isCurrent == true) {
-      controller.fetchUserData(); // Refresh data when returning to this page
+      controller.fetchUserData(); // Refresh user data
+      controller.fetchClassData(); // Refresh class data
     }
   }
 
@@ -129,6 +131,7 @@ class _MainPageOrtuState extends State<MainPageOrtu> {
               ),
               onTap: () {
                 controller.fetchUserData();
+                controller.fetchClassData();
                 Get.snackbar(
                   'Refresh',
                   'Data berhasil diperbarui!',
@@ -168,29 +171,26 @@ class _MainPageOrtuState extends State<MainPageOrtu> {
         child: Column(
           children: [
             Expanded(
-              child: ListView(
-                children: [
-                  _buildCard(
-                    title: 'Kelas 6A',
-                    subtitle: 'SD NEGERI RANCAGONG 1',
-                    teacher: 'Tatang Sutarman',
-                    onTap: () {
-                      Get.to(
-                          () => ListAbsenOrtu()); // Tidak menggunakan className
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  _buildCard(
-                    title: 'Kelas 6B',
-                    subtitle: 'SD NEGERI RANCAGONG 1',
-                    teacher: 'Budiono Siregar',
-                    onTap: () {
-                      Get.to(
-                          () => ListAbsenOrtu()); // Tidak menggunakan className
-                    },
-                  ),
-                ],
-              ),
+              child: Obx(() {
+                return ListView.builder(
+                  itemCount: controller.classList.length,
+                  itemBuilder: (context, index) {
+                    final classData = controller.classList[index];
+                    return _buildCard(
+                      title: classData['nama_kelas'] ?? 'Tidak ada nama kelas',
+                      subtitle:
+                          'Pengajar: ${classData['nama_user'] ?? 'Tidak diketahui'}',
+                      teacher: 'ID Kelas: ${classData['id'] ?? '-'}',
+                      onTap: () {
+                        Get.toNamed(
+                          '/listAbsenOrtu',
+                          arguments: {'classId': classData['id']},
+                        );
+                      },
+                    );
+                  },
+                );
+              }),
             ),
             _buildLogoutButton(),
           ],
@@ -209,6 +209,7 @@ class _MainPageOrtuState extends State<MainPageOrtu> {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(16),
+        margin: EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Colors.purpleAccent, Colors.lightBlue],

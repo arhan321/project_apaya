@@ -9,6 +9,7 @@ class MainPageOrtuController extends GetxController {
   var userImageUrl = Rxn<String>();
   var isLoading = true.obs;
   var errorMessage = ''.obs;
+  var classList = <Map<String, dynamic>>[].obs; // Tambahkan untuk daftar kelas
 
   final Dio _dio = Dio();
 
@@ -16,6 +17,7 @@ class MainPageOrtuController extends GetxController {
   void onInit() {
     super.onInit();
     fetchUserData();
+    fetchClassData(); // Tambahkan untuk memuat data kelas saat init
   }
 
   Future<void> fetchUserData() async {
@@ -52,6 +54,47 @@ class MainPageOrtuController extends GetxController {
       }
     } catch (e) {
       errorMessage.value = 'Terjadi kesalahan saat memuat data.';
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchClassData() async {
+    const String url = 'https://absen.randijourney.my.id/api/v1/kelas/';
+
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      if (authToken == null) {
+        errorMessage.value = 'Token tidak ditemukan. Silakan login ulang.';
+        Get.offAllNamed('/welcome');
+        return;
+      }
+
+      final response = await _dio.get(
+        url,
+        options: Options(
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $authToken',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data['data'] as List;
+        classList.value = data
+            .map((e) => e as Map<String, dynamic>)
+            .toList(); // Simpan data kelas
+      } else {
+        errorMessage.value =
+            'Gagal mengambil data kelas. Status Code: ${response.statusCode}';
+      }
+    } catch (e) {
+      errorMessage.value = 'Terjadi kesalahan saat memuat data kelas.';
     } finally {
       isLoading.value = false;
     }

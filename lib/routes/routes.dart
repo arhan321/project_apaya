@@ -191,10 +191,18 @@ class AppRoutes {
       name: rekapAbsen,
       page: () => RekapAbsenPage(), // Rekap Absen
     ),
+    // GetPage(
+    //   name: listAbsenOrtu,
+    //   page: () => ListAbsenOrtu(), // Daftar Absen Orang Tua
+    // ),
     GetPage(
-      name: listAbsenOrtu,
-      page: () => ListAbsenOrtu(), // Daftar Absen Orang Tua
+      name: '/listAbsenOrtu',
+      page: () {
+        final int classId = Get.arguments?['classId'] ?? 0; // Default ke 0
+        return ListAbsenOrtu(classId: classId);
+      },
     ),
+
     GetPage(
       name: detailAbsenOrtu,
       page: () => DetailAbsenOrtu(), // Detail Absen Orang Tua
