@@ -17,15 +17,14 @@ class _MainPageGuruState extends State<MainPageGuru>
   @override
   void initState() {
     super.initState();
-    controller.fetchKelasData(); // Perbaikan nama method
-    WidgetsBinding.instance.addObserver(this); // Tambahkan observer
+    controller.fetchKelasData();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // Ketika aplikasi kembali aktif, refresh data
-      controller.fetchKelasData(); // Perbaikan nama method
+      controller.fetchKelasData();
     }
   }
 
@@ -33,15 +32,13 @@ class _MainPageGuruState extends State<MainPageGuru>
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (ModalRoute.of(context)?.isCurrent == true) {
-      // Ketika halaman kembali menjadi aktif, refresh data
-      controller.fetchKelasData(); // Perbaikan nama method
+      controller.fetchKelasData();
     }
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance
-        .removeObserver(this); // Hapus observer saat widget dihancurkan
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -199,8 +196,7 @@ class _MainPageGuruState extends State<MainPageGuru>
                       teacher: 'ID Kelas: ${classData['id'] ?? '-'}',
                       onTap: () {
                         Get.to(() => ListAbsenSiswaPage(
-                              className: classData['nama_kelas'] ??
-                                  'Tidak ada nama kelas',
+                              classId: classData['id'], // Menggunakan classId
                             ));
                       },
                     );

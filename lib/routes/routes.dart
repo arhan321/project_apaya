@@ -181,13 +181,10 @@ class AppRoutes {
     GetPage(
       name: listAbsenSiswa,
       page: () {
-        final String className =
-            Get.arguments['className'] ?? ''; // Ambil className dari arguments
-        return ListAbsenSiswaPage(
-            className: className); // Halaman Daftar Absen Siswa
+        final int classId = Get.arguments['classId'] ?? 0;
+        return ListAbsenSiswaPage(classId: classId);
       },
     ),
-
     GetPage(
       name: editAbsen,
       page: () => EditAbsenPage(), // Edit Absen
@@ -201,7 +198,7 @@ class AppRoutes {
     //   page: () => ListAbsenOrtu(), // Daftar Absen Orang Tua
     // ),
     GetPage(
-      name: '/listAbsenOrtu',
+      name: listAbsenOrtu,
       page: () {
         final int classId = Get.arguments?['classId'] ?? 0; // Default ke 0
         return ListAbsenOrtu(classId: classId);
