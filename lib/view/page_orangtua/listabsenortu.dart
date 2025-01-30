@@ -161,6 +161,10 @@ class _ListAbsenOrtuState extends State<ListAbsenOrtu> {
                 status: student['keterangan'] ?? 'Tidak diketahui',
                 statusColor: controller
                     .getStatusColor(student['keterangan'] ?? 'Tidak diketahui'),
+                kelasid: student['kelas'] ?? 'Tidak diketahui',
+                time: student['jam_absen'] ?? 'Tidak diketahui',
+                tanggal: student['tanggal_absen'] ?? 'Tidak diketahui',
+                catatan: student['catatan'] ?? 'Tidak ada catatan',
               );
             },
           )),
@@ -173,12 +177,20 @@ class AbsenCard extends StatelessWidget {
   final String status;
   final Color statusColor;
   final String number;
+  final String kelasid;
+  final String time;
+  final String tanggal;
+  final String catatan;
 
   const AbsenCard({
     required this.name,
     required this.status,
     required this.statusColor,
     required this.number,
+    required this.kelasid,
+    required this.time,
+    required this.tanggal,
+    required this.catatan,
   });
 
   @override
@@ -248,10 +260,14 @@ class AbsenCard extends StatelessWidget {
                       'name': name,
                       'number': number,
                       'status': status,
+                      'kelasid': kelasid,
+                      'time': time,
+                      'tanggal': tanggal,
+                      'catatan': catatan,
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // **Warna Biru**
+                    backgroundColor: Colors.blue, // Warna Biru
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -269,10 +285,14 @@ class AbsenCard extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.toNamed('/cekCatatan', arguments: {'name': name});
+                    Get.toNamed('/cekCatatan', arguments: {
+                      'name': name,
+                      'tanggal': tanggal,
+                      'catatan': catatan,
+                    });
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green, // **Warna Hijau**
+                    backgroundColor: Colors.green, // Warna Hijau
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

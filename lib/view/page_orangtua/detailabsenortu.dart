@@ -9,11 +9,11 @@ class DetailAbsenOrtu extends StatelessWidget {
     final arguments = Get.arguments ?? {};
     final String name = arguments['name'] ?? 'Nama Siswa';
     final String number = arguments['number'] ?? '-';
-    final String kelas = arguments['kelas'] ?? '-';
-    final String keterangan = arguments['keterangan'] ?? '-';
-    final String jamAbsen = arguments['jamAbsen'] ?? '-';
+    final String kelasid = arguments['kelasid'] ?? '-';
+    final String status = arguments['status'] ?? '-';
+    final String time = arguments['time'] ?? '-';
     final String catatan = arguments['catatan'] ?? 'Tidak ada catatan';
-    final String tanggalAbsen = arguments['tanggal_absen'] ?? '-';
+    final String tanggal = arguments['tanggal'] ?? '-';
 
     return Scaffold(
       appBar: AppBar(
@@ -47,10 +47,10 @@ class DetailAbsenOrtu extends StatelessWidget {
                 children: [
                   _buildRow('Nama', name),
                   _buildRow('Nomor Absen', number),
-                  _buildRow('Kelas', kelas),
-                  _buildRow('Status', keterangan),
-                  _buildRow('Jam Absen', jamAbsen),
-                  _buildRow('Tanggal Absen', tanggalAbsen),
+                  _buildRow('Kelas', kelasid),
+                  _buildRow('Status', status),
+                  _buildRow('Jam Absen', time),
+                  _buildRow('Tanggal Absen', tanggal),
                   _buildMultiLineRow('Catatan', catatan),
                 ],
               ),
@@ -83,7 +83,6 @@ class DetailAbsenOrtu extends StatelessWidget {
                 color: Colors.black54,
               ),
               textAlign: TextAlign.right,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
