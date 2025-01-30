@@ -17,6 +17,7 @@ class _ListAbsenOrtuState extends State<ListAbsenOrtu> {
   String errorMessage = '';
   String className = '';
   List<Map<String, dynamic>> students = [];
+  List<Map<String, dynamic>> filteredStudents = [];
 
   @override
   void initState() {
@@ -44,6 +45,7 @@ class _ListAbsenOrtuState extends State<ListAbsenOrtu> {
           students = (jsonDecode(data['siswa']) as List)
               .map((e) => e as Map<String, dynamic>)
               .toList();
+          filteredStudents = List.from(students);
           isLoading = false;
         });
       } else {
@@ -164,15 +166,133 @@ class _ListAbsenOrtuState extends State<ListAbsenOrtu> {
                               ),
                             ],
                           ),
+                          SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  onChanged: (value) {
+                                    setState(() {
+                                      filteredStudents = students
+                                          .where((student) =>
+                                              student['nama']
+                                                  ?.toLowerCase()
+                                                  ?.contains(
+                                                      value.toLowerCase()) ??
+                                              false)
+                                          .toList();
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    hintText: 'Cari Nama Siswa',
+                                    hintStyle:
+                                        GoogleFonts.poppins(fontSize: 14),
+                                    prefixIcon:
+                                        Icon(Icons.search, color: Colors.grey),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              IconButton(
+                                icon: Icon(Icons.filter_list,
+                                    color: Colors.white),
+                                onPressed: () {
+                                  // Filter modal
+                                  Get.bottomSheet(
+                                    Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.vertical(
+                                          top: Radius.circular(16),
+                                        ),
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            'Filter Siswa',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('Hadir',
+                                                style: GoogleFonts.poppins()),
+                                            onTap: () {
+                                              setState(() {
+                                                filteredStudents = students
+                                                    .where((student) =>
+                                                        student['keterangan'] ==
+                                                        'Hadir')
+                                                    .toList();
+                                              });
+                                              Get.back();
+                                            },
+                                          ),
+                                          ListTile(
+                                            title: Text('Izin',
+                                                style: GoogleFonts.poppins()),
+                                            onTap: () {
+                                              setState(() {
+                                                filteredStudents = students
+                                                    .where((student) =>
+                                                        student['keterangan'] ==
+                                                        'Izin')
+                                                    .toList();
+                                              });
+                                              Get.back();
+                                            },
+                                          ),
+                                          ListTile(
+                                            title: Text('Sakit',
+                                                style: GoogleFonts.poppins()),
+                                            onTap: () {
+                                              setState(() {
+                                                filteredStudents = students
+                                                    .where((student) =>
+                                                        student['keterangan'] ==
+                                                        'Sakit')
+                                                    .toList();
+                                              });
+                                              Get.back();
+                                            },
+                                          ),
+                                          ListTile(
+                                            title: Text('Semua',
+                                                style: GoogleFonts.poppins()),
+                                            onTap: () {
+                                              setState(() {
+                                                filteredStudents =
+                                                    List.from(students);
+                                              });
+                                              Get.back();
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
                     Expanded(
                       child: ListView.builder(
                         padding: const EdgeInsets.all(16),
-                        itemCount: students.length,
+                        itemCount: filteredStudents.length,
                         itemBuilder: (context, index) {
-                          final student = students[index];
+                          final student = filteredStudents[index];
                           return AbsenCard(
                             name: student['nama'] ?? 'Tidak diketahui',
                             number: 'No ${student['nomor_absen'] ?? '-'}',
@@ -286,6 +406,10 @@ class AbsenCard extends StatelessWidget {
                         'name': name,
                         'number': number,
                         'status': status,
+                        'keterangan': keterangan,
+                        'Jam Absen': jamAbsen,
+                        'Tanggal Absen': tanggalAbsen,
+                        'Catatan': catatan,
                       },
                     );
                   },

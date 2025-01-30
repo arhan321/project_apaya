@@ -5,6 +5,7 @@ import 'package:forum/view/page_siswa/profile.dart' as profile;
 import 'package:get/get.dart';
 import 'package:forum/view/page_admin/catatanadmin.dart';
 import 'package:forum/view/page_admin/detailabsenadmin.dart';
+import 'package:forum/view/page_guru/detailabsenguru.dart';
 import 'package:forum/view/page_admin/editabsenadmin.dart';
 import 'package:forum/view/page_admin/tambahakunguru.dart';
 import '../view/page_global/welcome.dart'; // Halaman Welcome
@@ -104,13 +105,13 @@ class AppRoutes {
   static const kelolaAbsensi = '/kelolaAbsensi';
   static const listAbsenAdmin = '/listAbsenAdmin';
   static const detailAbsenAdmin = '/detailAbsenAdmin';
+  static const detailAbsenGuru = '/detailAbsenGuru';
   static const editAbsenAdmin = '/editAbsenAdmin';
   static const catatanAdmin = '/catatanAdmin';
   static const profileAdmin = '/profileAdmin'; // Tambahkan rute konstan
   static const editProfileAdmin =
       '/editProfileAdmin'; // Rute konstan untuk Edit Profile Admin
   static const editProfileSiswa = '/editProfileSiswa';
-
   static const editProfileOrtu = '/editProfileOrtu';
   static const profilOrtu = '/profilOrtu';
   static const rekapAdmin = '/rekapAdmin';
@@ -293,6 +294,7 @@ class AppRoutes {
       name: listAbsenAdmin,
       page: () => ListAbsenAdminPage(),
     ),
+    GetPage(name: detailAbsenGuru, page: () => DetailAbsenGuruPage()),
     GetPage(name: detailAbsenAdmin, page: () => DetailAbsenAdminPage()),
     GetPage(name: editAbsenAdmin, page: () => EditAbsenAdminPage()),
     GetPage(name: catatanAdmin, page: () => CatatanAdminPage()),

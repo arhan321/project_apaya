@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../controller/guru_controller/listabsenguru_controller.dart';
 
 class ListAbsenSiswaPage extends StatelessWidget {
@@ -35,30 +35,32 @@ class ListAbsenSiswaPage extends StatelessWidget {
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return Center(child: CircularProgressIndicator());
-        }
+      body: Column(
+        children: [
+          _buildHeader(),
+          Obx(() {
+            if (controller.isLoading.value) {
+              return Expanded(
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
 
-        if (controller.siswaAbsen.isEmpty) {
-          return Center(
-            child: Text(
-              'Tidak ada data absensi.',
-              style: GoogleFonts.poppins(
-                  fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-          );
-        }
+            if (controller.siswaAbsen.isEmpty) {
+              return Expanded(
+                child: Center(
+                  child: Text(
+                    'Tidak ada data absensi.',
+                    style: GoogleFonts.poppins(
+                        fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
+                ),
+              );
+            }
 
-        return Column(
-          children: [
-            _buildHeader(),
-            Expanded(
+            return Expanded(
               child: ListView.builder(
                 padding: EdgeInsets.all(16),
                 itemCount: controller.siswaAbsen.length,
@@ -70,13 +72,16 @@ class ListAbsenSiswaPage extends StatelessWidget {
                     siswa['status'] ?? 'Tidak ada status',
                     siswa['color'] ?? Colors.grey,
                     siswa['time'] ?? 'Tidak ada waktu',
+                    siswa['id'], // ID siswa
+                    siswa['catatan'] ?? '-',
+                    siswa['tanggal_absen'] ?? '-',
                   );
                 },
               ),
-            ),
-          ],
-        );
-      }),
+            );
+          }),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Get.toNamed('/tambahAbsen');
@@ -137,24 +142,111 @@ class ListAbsenSiswaPage extends StatelessWidget {
               ),
             ],
           ),
+          SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  onChanged: (value) {
+                    // Placeholder pencarian (dummy logika pencarian)
+                    print("Pencarian: $value");
+                  },
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    hintText: 'Cari Nama Siswa',
+                    hintStyle: GoogleFonts.poppins(fontSize: 14),
+                    prefixIcon: Icon(Icons.search, color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 8),
+              IconButton(
+                onPressed: () {
+                  // Logika untuk membuka filter modal
+                  Get.bottomSheet(
+                    Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(16),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Filter Siswa',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          ListTile(
+                            title: Text('Hadir', style: GoogleFonts.poppins()),
+                            onTap: () {
+                              // Filter siswa yang hadir
+                              print('Filter: Hadir');
+                              Get.back();
+                            },
+                          ),
+                          ListTile(
+                            title: Text('Izin', style: GoogleFonts.poppins()),
+                            onTap: () {
+                              // Filter siswa yang izin
+                              print('Filter: Izin');
+                              Get.back();
+                            },
+                          ),
+                          ListTile(
+                            title: Text('Sakit', style: GoogleFonts.poppins()),
+                            onTap: () {
+                              // Filter siswa yang sakit
+                              print('Filter: Sakit');
+                              Get.back();
+                            },
+                          ),
+                          ListTile(
+                            title: Text('Semua', style: GoogleFonts.poppins()),
+                            onTap: () {
+                              // Reset filter
+                              print('Filter: Semua');
+                              Get.back();
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+                icon: Icon(Icons.filter_list, color: Colors.white),
+                tooltip: 'Filter',
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
   Widget _buildAbsenCard(String name, String number, String status,
-      Color statusColor, String time) {
+      Color statusColor, String time, int id, String catatan, String tanggal) {
     return Container(
       margin: EdgeInsets.only(bottom: 12),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.2),
-            blurRadius: 4,
-            offset: Offset(0, 2),
+            blurRadius: 6,
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -170,35 +262,109 @@ class ListAbsenSiswaPage extends StatelessWidget {
                   Text(
                     name,
                     style: GoogleFonts.poppins(
-                        fontSize: 16, fontWeight: FontWeight.w500),
+                        fontSize: 16, fontWeight: FontWeight.bold),
                   ),
+                  SizedBox(height: 4),
                   Text(
-                    'No Absen: $number',
+                    'No Absen $number',
                     style:
                         GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
                   ),
                 ],
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(10),
+                  color: statusColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   status,
                   style: GoogleFonts.poppins(
                       fontSize: 12,
                       color: statusColor,
-                      fontWeight: FontWeight.w500),
+                      fontWeight: FontWeight.bold),
                 ),
               ),
             ],
           ),
           SizedBox(height: 12),
-          Text(
-            'Jam Absen: $time',
-            style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.toNamed('/detailAbsenGuru', arguments: {
+                      'name': name,
+                      'number': number,
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    backgroundColor: Colors.blueAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: Text(
+                    'Lihat Detail',
+                    style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.toNamed('/editAbsen', arguments: {
+                      'id': id,
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    backgroundColor: Colors.orangeAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: Text(
+                    'Edit',
+                    style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.toNamed('/catatanGuru', arguments: {
+                      'id': id,
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    backgroundColor: Colors.green,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: Text(
+                    'Beri Catatan',
+                    style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

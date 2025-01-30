@@ -4,11 +4,14 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class ListAbsenGuruController extends GetxController {
-  var siswaAbsen = <Map<String, dynamic>>[].obs; // Data siswa
+  var siswaAbsen = <Map<String, dynamic>>[].obs; // Data siswa asli
+  var filteredSiswaAbsen =
+      <Map<String, dynamic>>[].obs; // Data siswa setelah filter/pencarian
   var isLoading = true.obs; // Indikator loading
   var namaKelas = 'Kelas'.obs; // Nama kelas
   var waliKelas = 'Wali Kelas'.obs; // Nama wali kelas
   int? selectedClassId; // ID kelas yang dipilih
+  var searchQuery = ''.obs; // Query pencarian
 
   @override
   void onInit() {
@@ -65,23 +68,72 @@ class ListAbsenGuruController extends GetxController {
                 'color': _getStatusColor(siswa['keterangan']),
               };
             }).toList();
+            // Set filtered data awal sama dengan data asli
+            filteredSiswaAbsen.value = siswaAbsen.value;
           } else {
             siswaAbsen.value = [];
+            filteredSiswaAbsen.value = [];
           }
 
           namaKelas.value = kelas['nama_kelas'] ?? 'Kelas';
           waliKelas.value = kelas['nama_user'] ?? 'Wali Kelas';
         } else {
           siswaAbsen.value = [];
+          filteredSiswaAbsen.value = [];
         }
       } else {
+        Get.snackbar(
+          'Error',
+          'Gagal mengambil data. Status: ${response.statusCode}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
         siswaAbsen.value = [];
+        filteredSiswaAbsen.value = [];
       }
     } catch (e) {
       print("Error fetching data: $e");
+      Get.snackbar(
+        'Error',
+        'Terjadi kesalahan saat mengambil data.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       siswaAbsen.value = [];
+      filteredSiswaAbsen.value = [];
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  /// Fungsi untuk pencarian siswa berdasarkan nama
+  void searchData(String query) {
+    searchQuery.value = query; // Simpan query pencarian
+    if (query.isEmpty) {
+      // Jika query kosong, tampilkan semua data
+      filteredSiswaAbsen.value = siswaAbsen.value;
+    } else {
+      // Filter data berdasarkan nama siswa yang mengandung query
+      filteredSiswaAbsen.value = siswaAbsen.where((siswa) {
+        final name = siswa['name']?.toString().toLowerCase() ?? '';
+        return name.contains(query.toLowerCase());
+      }).toList();
+    }
+  }
+
+  /// Fungsi untuk menyaring data berdasarkan status (filter)
+  void filterData(String status) {
+    if (status.isEmpty || status == 'Semua') {
+      // Jika tidak ada filter, tampilkan semua data
+      filteredSiswaAbsen.value = siswaAbsen.value;
+    } else {
+      // Filter data berdasarkan status tertentu
+      filteredSiswaAbsen.value = siswaAbsen.where((siswa) {
+        final siswaStatus = siswa['status']?.toString().toLowerCase() ?? '';
+        return siswaStatus == status.toLowerCase();
+      }).toList();
     }
   }
 
@@ -97,5 +149,20 @@ class ListAbsenGuruController extends GetxController {
       default:
         return Colors.red;
     }
+  }
+
+  /// Lihat detail absensi siswa
+  void viewDetail(Map<String, dynamic> siswa) {
+    Get.toNamed('/viewDetail', arguments: siswa);
+  }
+
+  /// Edit absensi siswa
+  void editAbsen(Map<String, dynamic> siswa) {
+    Get.toNamed('/editAbsen', arguments: siswa);
+  }
+
+  /// Tambahkan catatan untuk siswa
+  void addCatatan(Map<String, dynamic> siswa) {
+    Get.toNamed('/catatanGuru', arguments: siswa);
   }
 }
