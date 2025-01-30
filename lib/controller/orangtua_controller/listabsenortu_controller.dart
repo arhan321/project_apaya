@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ListAbsenOrtuController extends GetxController {
@@ -8,13 +9,13 @@ class ListAbsenOrtuController extends GetxController {
   var students = <Map<String, dynamic>>[].obs;
   var filteredStudents = <Map<String, dynamic>>[].obs;
 
-  Future<void> fetchClassData(int classId) async {
+  void fetchClassData(int classId) async {
     const String urlBase = 'https://absen.randijourney.my.id/api/v1/kelas/';
     final String url = '$urlBase$classId';
 
     try {
-      isLoading(true);
-      errorMessage('');
+      isLoading.value = true;
+      errorMessage.value = '';
 
       final response = await GetConnect().get(url);
 
@@ -22,10 +23,10 @@ class ListAbsenOrtuController extends GetxController {
         final data = response.body['data'];
 
         className.value = data['nama_kelas'] ?? 'Tidak diketahui';
-        students.assignAll((jsonDecode(data['siswa']) as List)
+        students.value = (jsonDecode(data['siswa']) as List)
             .map((e) => e as Map<String, dynamic>)
-            .toList());
-        filteredStudents.assignAll(students);
+            .toList();
+        filteredStudents.value = List.from(students);
       } else {
         errorMessage.value =
             'Gagal memuat data. Status Code: ${response.statusCode}';
@@ -33,25 +34,39 @@ class ListAbsenOrtuController extends GetxController {
     } catch (e) {
       errorMessage.value = 'Terjadi kesalahan saat memuat data.';
     } finally {
-      isLoading(false);
+      isLoading.value = false;
     }
   }
 
   void filterStudents(String query) {
-    filteredStudents.assignAll(students
+    filteredStudents.value = students
         .where((student) =>
             student['nama']?.toLowerCase()?.contains(query.toLowerCase()) ??
             false)
-        .toList());
+        .toList();
   }
 
-  void filterByStatus(String status) {
-    if (status == 'Semua') {
-      filteredStudents.assignAll(students);
+  void applyFilter(String status) {
+    if (status == "Semua") {
+      filteredStudents.value = List.from(students);
     } else {
-      filteredStudents.assignAll(students
-          .where((student) => student['keterangan'] == status)
-          .toList());
+      filteredStudents.value =
+          students.where((student) => student['keterangan'] == status).toList();
+    }
+  }
+
+  Color getStatusColor(String status) {
+    switch (status) {
+      case 'Hadir':
+        return Colors.green;
+      case 'Sakit':
+        return Colors.blue;
+      case 'Izin':
+        return Colors.orange;
+      case 'Tidak Hadir':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 }

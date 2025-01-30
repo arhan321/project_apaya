@@ -1,10 +1,10 @@
-import 'dart:convert'; // Untuk decoding JSON string siswa
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '/controller/orangtua_controller/listabsenortu_controller.dart';
 
 class ListAbsenOrtu extends StatefulWidget {
-  final int classId; // Parameter untuk ID kelas
+  final int classId;
 
   const ListAbsenOrtu({Key? key, required this.classId}) : super(key: key);
 
@@ -13,54 +13,12 @@ class ListAbsenOrtu extends StatefulWidget {
 }
 
 class _ListAbsenOrtuState extends State<ListAbsenOrtu> {
-  bool isLoading = true;
-  String errorMessage = '';
-  String className = '';
-  List<Map<String, dynamic>> students = [];
-  List<Map<String, dynamic>> filteredStudents = [];
+  final controller = Get.put(ListAbsenOrtuController());
 
   @override
   void initState() {
     super.initState();
-    fetchClassData(widget.classId);
-  }
-
-  Future<void> fetchClassData(int classId) async {
-    const String urlBase = 'https://absen.randijourney.my.id/api/v1/kelas/';
-    final String url = '$urlBase$classId';
-
-    try {
-      setState(() {
-        isLoading = true;
-        errorMessage = '';
-      });
-
-      final response = await GetConnect().get(url);
-
-      if (response.statusCode == 200) {
-        final data = response.body['data'];
-
-        setState(() {
-          className = data['nama_kelas'] ?? 'Tidak diketahui';
-          students = (jsonDecode(data['siswa']) as List)
-              .map((e) => e as Map<String, dynamic>)
-              .toList();
-          filteredStudents = List.from(students);
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          errorMessage =
-              'Gagal memuat data. Status Code: ${response.statusCode}';
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        errorMessage = 'Terjadi kesalahan saat memuat data.';
-        isLoading = false;
-      });
-    }
+    controller.fetchClassData(widget.classId);
   }
 
   @override
@@ -90,237 +48,123 @@ class _ListAbsenOrtuState extends State<ListAbsenOrtu> {
             ),
           ),
         ),
-        title: Text(
-          'Absen $className',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
+        title: Obx(() => Text(
+              'Absen ${controller.className.value}',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            )),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Get.back(),
         ),
         actions: [
           IconButton(
             icon: Icon(Icons.account_circle, color: Colors.white),
-            onPressed: () {
-              Get.toNamed('/profilOrtu');
-            },
+            onPressed: () => Get.toNamed('/profilOrtu'),
           ),
         ],
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : errorMessage.isNotEmpty
-              ? Center(
-                  child: Text(
-                    errorMessage,
-                    style: GoogleFonts.poppins(color: Colors.red),
-                  ),
-                )
-              : Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                      color: Colors.blue,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Selamat Datang Wali Murid',
-                            style: GoogleFonts.poppins(
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Udin Siregar',
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                formattedDate,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Text(
-                                dayOfWeek,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  onChanged: (value) {
-                                    setState(() {
-                                      filteredStudents = students
-                                          .where((student) =>
-                                              student['nama']
-                                                  ?.toLowerCase()
-                                                  ?.contains(
-                                                      value.toLowerCase()) ??
-                                              false)
-                                          .toList();
-                                    });
-                                  },
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    hintText: 'Cari Nama Siswa',
-                                    hintStyle:
-                                        GoogleFonts.poppins(fontSize: 14),
-                                    prefixIcon:
-                                        Icon(Icons.search, color: Colors.grey),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 8),
-                              IconButton(
-                                icon: Icon(Icons.filter_list,
-                                    color: Colors.white),
-                                onPressed: () {
-                                  // Filter modal
-                                  Get.bottomSheet(
-                                    Container(
-                                      padding: const EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.vertical(
-                                          top: Radius.circular(16),
-                                        ),
-                                      ),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            'Filter Siswa',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('Hadir',
-                                                style: GoogleFonts.poppins()),
-                                            onTap: () {
-                                              setState(() {
-                                                filteredStudents = students
-                                                    .where((student) =>
-                                                        student['keterangan'] ==
-                                                        'Hadir')
-                                                    .toList();
-                                              });
-                                              Get.back();
-                                            },
-                                          ),
-                                          ListTile(
-                                            title: Text('Izin',
-                                                style: GoogleFonts.poppins()),
-                                            onTap: () {
-                                              setState(() {
-                                                filteredStudents = students
-                                                    .where((student) =>
-                                                        student['keterangan'] ==
-                                                        'Izin')
-                                                    .toList();
-                                              });
-                                              Get.back();
-                                            },
-                                          ),
-                                          ListTile(
-                                            title: Text('Sakit',
-                                                style: GoogleFonts.poppins()),
-                                            onTap: () {
-                                              setState(() {
-                                                filteredStudents = students
-                                                    .where((student) =>
-                                                        student['keterangan'] ==
-                                                        'Sakit')
-                                                    .toList();
-                                              });
-                                              Get.back();
-                                            },
-                                          ),
-                                          ListTile(
-                                            title: Text('Semua',
-                                                style: GoogleFonts.poppins()),
-                                            onTap: () {
-                                              setState(() {
-                                                filteredStudents =
-                                                    List.from(students);
-                                              });
-                                              Get.back();
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: filteredStudents.length,
-                        itemBuilder: (context, index) {
-                          final student = filteredStudents[index];
-                          return AbsenCard(
-                            name: student['nama'] ?? 'Tidak diketahui',
-                            number: 'No ${student['nomor_absen'] ?? '-'}',
-                            status: student['keterangan'] ?? 'Tidak diketahui',
-                            statusColor: _getStatusColor(
-                                student['keterangan'] ?? 'Tidak diketahui'),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        if (controller.errorMessage.value.isNotEmpty) {
+          return Center(
+            child: Text(
+              controller.errorMessage.value,
+              style: GoogleFonts.poppins(color: Colors.red),
+            ),
+          );
+        }
+
+        return Column(
+          children: [
+            _buildHeader(formattedDate, dayOfWeek),
+            _buildSearchAndFilter(),
+            _buildStudentList(),
+          ],
+        );
+      }),
     );
   }
 
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'Hadir':
-        return Colors.green;
-      case 'Sakit':
-        return Colors.blue;
-      case 'Izin':
-        return Colors.orange;
-      case 'Tidak Hadir':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
+  Widget _buildHeader(String formattedDate, String dayOfWeek) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      color: Colors.blue,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Selamat Datang Wali Murid',
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            'Udin Siregar',
+            style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
+          ),
+          SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(formattedDate,
+                  style:
+                      GoogleFonts.poppins(fontSize: 14, color: Colors.white)),
+              Text(dayOfWeek,
+                  style:
+                      GoogleFonts.poppins(fontSize: 14, color: Colors.white)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchAndFilter() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: TextField(
+        onChanged: controller.filterStudents,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.white,
+          hintText: 'Cari Nama Siswa',
+          hintStyle: GoogleFonts.poppins(fontSize: 14),
+          prefixIcon: Icon(Icons.search, color: Colors.grey),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStudentList() {
+    return Expanded(
+      child: Obx(() => ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: controller.filteredStudents.length,
+            itemBuilder: (context, index) {
+              final student = controller.filteredStudents[index];
+              return AbsenCard(
+                name: student['nama'] ?? 'Tidak diketahui',
+                number: 'No ${student['nomor_absen'] ?? '-'}',
+                status: student['keterangan'] ?? 'Tidak diketahui',
+                statusColor: controller
+                    .getStatusColor(student['keterangan'] ?? 'Tidak diketahui'),
+              );
+            },
+          )),
+    );
   }
 }
 
@@ -400,21 +244,14 @@ class AbsenCard extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.toNamed(
-                      '/detailAbsenOrtu',
-                      arguments: {
-                        'name': name,
-                        'number': number,
-                        'status': status,
-                        'keterangan': keterangan,
-                        'Jam Absen': jamAbsen,
-                        'Tanggal Absen': tanggalAbsen,
-                        'Catatan': catatan,
-                      },
-                    );
+                    Get.toNamed('/detailAbsenOrtu', arguments: {
+                      'name': name,
+                      'number': number,
+                      'status': status,
+                    });
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.blue, // **Warna Biru**
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -432,15 +269,10 @@ class AbsenCard extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.toNamed(
-                      '/cekCatatan',
-                      arguments: {
-                        'name': name,
-                      },
-                    );
+                    Get.toNamed('/cekCatatan', arguments: {'name': name});
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: Colors.green, // **Warna Hijau**
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
