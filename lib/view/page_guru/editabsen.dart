@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dio/dio.dart';
+// Misalkan kita butuh controller:
+import '../../controller/guru_controller/listabsenguru_controller.dart';
 
 class EditAbsenPage extends StatelessWidget {
   final TextEditingController namaController = TextEditingController();
@@ -12,10 +14,9 @@ class EditAbsenPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Ambil data dari arguments
     final arguments = Get.arguments ?? {};
-    final int kelasId = arguments['kelasId'] ?? 0; // ID Kelas
-    final int siswaId = arguments['siswaId'] ?? 0; // ID Siswa, bukan guru!
+    final int kelasId = arguments['kelasId'] ?? 0;
+    final int siswaId = arguments['siswaId'] ?? 0;
 
     // Isi text controller dengan data lama (jika ada)
     namaController.text = arguments['name'] ?? '';
@@ -23,7 +24,6 @@ class EditAbsenPage extends StatelessWidget {
     jamAbsenController.text = arguments['jamAbsen'] ?? '';
     tanggalAbsenController.text = arguments['tanggalAbsen'] ?? '';
 
-    // Status awal
     String selectedStatus = arguments['keterangan'] ?? 'Hadir';
 
     return Scaffold(
@@ -55,19 +55,18 @@ class EditAbsenPage extends StatelessWidget {
               'Status Absensi',
               selectedStatus,
               statusList,
-              (value) {
-                selectedStatus = value!;
-              },
+              (value) => selectedStatus = value ?? 'Hadir',
             ),
             SizedBox(height: 12),
             _buildTextField('Jam Absen (HH:MM)', jamAbsenController),
             SizedBox(height: 12),
             _buildTextField(
-                'Tanggal Absen (YYYY-MM-DD)', tanggalAbsenController),
+              'Tanggal Absen (YYYY-MM-DD)',
+              tanggalAbsenController,
+            ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                // Panggil fungsi update
                 final response = await _updateAbsen(
                   kelasId: kelasId,
                   siswaId: siswaId,
@@ -79,14 +78,27 @@ class EditAbsenPage extends StatelessWidget {
                 );
 
                 if (response['success']) {
-                  Get.snackbar(
-                    'Berhasil',
-                    response['message'],
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: Colors.green,
-                    colorText: Colors.white,
+                  // Tampilkan dialog
+                  Get.defaultDialog(
+                    title: 'Berhasil',
+                    middleText: response['message'],
+                    textConfirm: 'OK',
+                    onConfirm: () {
+                      // Tutup dialog
+                      Get.back();
+
+                      // Lakukan refresh data di halaman sebelumnya
+                      // 1) Temukan controller list absensi guru
+                      final listAbsenGuruController =
+                          Get.find<ListAbsenGuruController>();
+
+                      // 2) Panggil metode fetchData (sesuaikan nama metodenya)
+                      listAbsenGuruController.fetchData();
+
+                      // 3) Kembali ke halaman list
+                      Get.back();
+                    },
                   );
-                  Get.back(); // Kembali ke halaman sebelumnya
                 } else {
                   Get.snackbar(
                     'Gagal',
@@ -131,7 +143,7 @@ class EditAbsenPage extends StatelessWidget {
     String label,
     String value,
     List<String> items,
-    void Function(String?) onChanged,
+    ValueChanged<String?> onChanged,
   ) {
     return DropdownButtonFormField<String>(
       value: value,
@@ -180,9 +192,6 @@ class EditAbsenPage extends StatelessWidget {
         ]
       }}');
 
-      // <-- Pastikan "siswa" sesuai kebutuhan endpoint.
-      // Jika API minta "nomor_induk" bukan "nomor_absen", sesuaikan di sini!
-
       final response = await dio.put(
         url,
         options: Options(headers: {'Content-Type': 'application/json'}),
@@ -191,7 +200,7 @@ class EditAbsenPage extends StatelessWidget {
             {
               'id': siswaId,
               'nama': nama,
-              'nomor_absen': nomor, // ganti key sesuai format API
+              'nomor_absen': nomor,
               'keterangan': status,
               'jam_absen': jamAbsen,
               'tanggal_absen': tanggalAbsen,

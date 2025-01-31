@@ -328,7 +328,12 @@ class AppRoutes {
     ),
     GetPage(
       name: tambahAbsen,
-      page: () => TambahAbsenPage(),
+      page: () {
+        // Ambil argument 'classId' dari Get.arguments
+        // Jika tidak ada, pakai 0 sebagai default
+        final int passedClassId = Get.arguments ?? 0;
+        return TambahAbsenPage(classId: passedClassId);
+      },
     ),
     GetPage(
       name: downloadPDF,

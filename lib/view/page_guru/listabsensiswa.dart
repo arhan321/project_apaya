@@ -234,8 +234,16 @@ class ListAbsenSiswaPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAbsenCard(String name, String number, String status,
-      Color statusColor, String time, int id, String catatan, String tanggal) {
+  Widget _buildAbsenCard(
+    String name,
+    String number,
+    String status,
+    Color statusColor,
+    String time,
+    int id,
+    String catatan,
+    String tanggal,
+  ) {
     return Container(
       margin: EdgeInsets.only(bottom: 12),
       padding: EdgeInsets.all(16),
@@ -253,25 +261,46 @@ class ListAbsenSiswaPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Bagian judul dan status di sisi kanan
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // Kolom untuk Nama Siswa + Info Absen
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Nama Siswa
                   Text(
                     name,
                     style: GoogleFonts.poppins(
-                        fontSize: 16, fontWeight: FontWeight.bold),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   SizedBox(height: 4),
+                  // Nomor Absen
                   Text(
                     'No Absen $number',
                     style:
                         GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
                   ),
+                  SizedBox(height: 4),
+                  // Tanggal Absen
+                  Text(
+                    'Tanggal: $tanggal',
+                    style:
+                        GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                  ),
+                  SizedBox(height: 4),
+                  // Jam Absen
+                  Text(
+                    'Jam: $time',
+                    style:
+                        GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                  ),
                 ],
               ),
+              // Status di sisi kanan
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
@@ -281,17 +310,20 @@ class ListAbsenSiswaPage extends StatelessWidget {
                 child: Text(
                   status,
                   style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: statusColor,
-                      fontWeight: FontWeight.bold),
+                    fontSize: 12,
+                    color: statusColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
           SizedBox(height: 12),
+          // Baris Tombol: Lihat Detail, Edit, Catatan
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // Tombol Lihat Detail
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
@@ -315,20 +347,21 @@ class ListAbsenSiswaPage extends StatelessWidget {
                   child: Text(
                     'Lihat Detail',
                     style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
+                      fontSize: 14,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
               SizedBox(width: 8),
+              // Tombol Edit
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
                     Get.toNamed('/editAbsen', arguments: {
-                      'kelasId': classId, // Pastikan ini benar
-                      'id': id,
-                      'guruId': id, // Pastikan ID ini sesuai dengan API
+                      'kelasId': classId, // Pastikan classId di-passing
+                      'siswaId': id,
                       'name': name,
                       'number': number,
                       'keterangan': status,
@@ -347,18 +380,22 @@ class ListAbsenSiswaPage extends StatelessWidget {
                   child: Text(
                     'Edit',
                     style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
+                      fontSize: 14,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
               SizedBox(width: 8),
+              // Tombol Beri Catatan
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
                     Get.toNamed('/catatanGuru', arguments: {
-                      'id': id,
+                      'kelasId': classId,
+                      'siswaId': id,
+                      'name': name,
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -371,9 +408,10 @@ class ListAbsenSiswaPage extends StatelessWidget {
                   child: Text(
                     'Beri Catatan',
                     style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
+                      fontSize: 14,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
