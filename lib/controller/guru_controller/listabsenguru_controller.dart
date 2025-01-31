@@ -108,6 +108,20 @@ class ListAbsenGuruController extends GetxController {
     }
   }
 
+  /// Fungsi untuk menyaring data berdasarkan status (filter)
+  void filterData(String status) {
+    if (status.isEmpty || status == 'Semua') {
+      // Jika tidak ada filter, tampilkan semua data
+      filteredSiswaAbsen.value = siswaAbsen.value;
+    } else {
+      // Filter data berdasarkan status tertentu
+      filteredSiswaAbsen.value = siswaAbsen.where((siswa) {
+        final siswaStatus = siswa['status']?.toString().toLowerCase() ?? '';
+        return siswaStatus == status.toLowerCase();
+      }).toList();
+    }
+  }
+
   /// Fungsi untuk pencarian siswa berdasarkan nama
   void searchData(String query) {
     searchQuery.value = query; // Simpan query pencarian
@@ -119,20 +133,6 @@ class ListAbsenGuruController extends GetxController {
       filteredSiswaAbsen.value = siswaAbsen.where((siswa) {
         final name = siswa['name']?.toString().toLowerCase() ?? '';
         return name.contains(query.toLowerCase());
-      }).toList();
-    }
-  }
-
-  /// Fungsi untuk menyaring data berdasarkan status (filter)
-  void filterData(String status) {
-    if (status.isEmpty || status == 'Semua') {
-      // Jika tidak ada filter, tampilkan semua data
-      filteredSiswaAbsen.value = siswaAbsen.value;
-    } else {
-      // Filter data berdasarkan status tertentu
-      filteredSiswaAbsen.value = siswaAbsen.where((siswa) {
-        final siswaStatus = siswa['status']?.toString().toLowerCase() ?? '';
-        return siswaStatus == status.toLowerCase();
       }).toList();
     }
   }

@@ -63,9 +63,9 @@ class ListAbsenSiswaPage extends StatelessWidget {
             return Expanded(
               child: ListView.builder(
                 padding: EdgeInsets.all(16),
-                itemCount: controller.siswaAbsen.length,
+                itemCount: controller.filteredSiswaAbsen.length,
                 itemBuilder: (context, index) {
-                  final siswa = controller.siswaAbsen[index];
+                  final siswa = controller.filteredSiswaAbsen[index];
                   return _buildAbsenCard(
                     siswa['name'] ?? 'Tidak ada nama',
                     siswa['nomor_absen'] ?? '-',
@@ -148,8 +148,8 @@ class ListAbsenSiswaPage extends StatelessWidget {
               Expanded(
                 child: TextField(
                   onChanged: (value) {
-                    // Placeholder pencarian (dummy logika pencarian)
-                    print("Pencarian: $value");
+                    controller.searchData(
+                        value); // Memanggil fungsi pencarian dari controller
                   },
                   decoration: InputDecoration(
                     filled: true,
@@ -298,6 +298,11 @@ class ListAbsenSiswaPage extends StatelessWidget {
                     Get.toNamed('/detailAbsenGuru', arguments: {
                       'name': name,
                       'number': number,
+                      'kelas': controller.namaKelas.value,
+                      'keterangan': status,
+                      'jamAbsen': time,
+                      'tanggalAbsen': tanggal,
+                      'catatan': catatan,
                     });
                   },
                   style: ElevatedButton.styleFrom(

@@ -107,10 +107,30 @@ class _ListAbsenOrtuState extends State<ListAbsenOrtu> {
             ),
           ),
           SizedBox(height: 4),
-          Text(
-            'Udin Siregar',
-            style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
-          ),
+
+          /// Menampilkan Nama Guru dengan Handling Loading & Error
+          Obx(() {
+            if (controller.isLoading.value) {
+              return Text(
+                "Guru: Loading...",
+                style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
+              );
+            }
+
+            if (controller.errorMessage.value.isNotEmpty) {
+              return Text(
+                "Guru: Data gagal dimuat",
+                style:
+                    GoogleFonts.poppins(fontSize: 16, color: Colors.redAccent),
+              );
+            }
+
+            return Text(
+              "Guru: ${controller.namaUser.value.isNotEmpty ? controller.namaUser.value : 'Tidak diketahui'}",
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
+            );
+          }),
+
           SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

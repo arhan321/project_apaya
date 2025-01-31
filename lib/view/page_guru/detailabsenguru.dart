@@ -8,15 +8,15 @@ class DetailAbsenGuruPage extends StatelessWidget {
     // Ambil data dari arguments
     final arguments = Get.arguments ?? {};
     print("Arguments: $arguments");
+
     final String name = arguments['name'] ?? 'Nama Siswa';
     final String number = arguments['number'] ?? '-';
     final String kelas = arguments['kelas'] ?? '-';
     final String keterangan = arguments['keterangan'] ?? '-';
     final String jamAbsen = arguments['jamAbsen'] ?? '-';
-    final String catatan =
-        arguments['catatan'] ?? 'Tidak ada catatan'; // Field catatan
-    final String tanggalAbsen =
-        arguments['tanggal_absen'] ?? '-'; // Field tanggal_absen
+    final String catatan = arguments['catatan'] ?? 'Tidak ada catatan';
+    final String tanggal = arguments['tanggalAbsen'] ??
+        '-'; // Diperbaiki agar sesuai dengan pengiriman data
 
     return Scaffold(
       appBar: AppBar(
@@ -24,7 +24,10 @@ class DetailAbsenGuruPage extends StatelessWidget {
         title: Text(
           'Detail Absen',
           style: GoogleFonts.poppins(
-              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         centerTitle: true,
         leading: IconButton(
@@ -34,7 +37,6 @@ class DetailAbsenGuruPage extends StatelessWidget {
       ),
       body: Center(
         child: SingleChildScrollView(
-          // Tambahkan scroll jika teks panjang
           child: Card(
             margin: EdgeInsets.all(16),
             elevation: 4,
@@ -46,13 +48,12 @@ class DetailAbsenGuruPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildRow('Nama', name),
-                  // _buildRow('Nomor Absen', number),
+                  _buildRow('Nomor Absen', number),
                   _buildRow('Kelas', kelas),
-                  // _buildRow('Status', keterangan),
-                  // _buildRow('Jam Absen', jamAbsen),
-                  // _buildRow('Tanggal Absen', tanggalAbsen),
-                  // _buildMultiLineRow(
-                  //     'Catatan', catatan), // Tampilan catatan diperbaiki
+                  _buildRow('Status', keterangan),
+                  _buildRow('Jam Absen', jamAbsen),
+                  _buildRow('Tanggal Absen', tanggal),
+                  _buildMultiLineRow('Catatan', catatan),
                 ],
               ),
             ),
@@ -66,21 +67,29 @@ class DetailAbsenGuruPage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment
+            .start, // Supaya teks panjang tidak naik ke tengah
         children: [
-          Text(
-            title,
-            style: GoogleFonts.poppins(
+          Expanded(
+            flex: 3,
+            child: Text(
+              title,
+              style: GoogleFonts.poppins(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87),
+                color: Colors.black87,
+              ),
+            ),
           ),
-          Flexible(
+          Expanded(
+            flex: 5,
             child: Text(
               value,
               style: GoogleFonts.poppins(fontSize: 16, color: Colors.black54),
               textAlign: TextAlign.right,
+              maxLines: 2, // Tambahan supaya tidak terpotong
               overflow: TextOverflow.ellipsis,
+              softWrap: true,
             ),
           ),
         ],
@@ -88,7 +97,6 @@ class DetailAbsenGuruPage extends StatelessWidget {
     );
   }
 
-  // Widget untuk menampilkan catatan dengan teks multiline
   Widget _buildMultiLineRow(String title, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -98,15 +106,17 @@ class DetailAbsenGuruPage extends StatelessWidget {
           Text(
             title,
             style: GoogleFonts.poppins(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87),
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
           ),
           SizedBox(height: 4),
           Text(
             value,
             style: GoogleFonts.poppins(fontSize: 16, color: Colors.black54),
-            textAlign: TextAlign.left, // Teks rata kiri
+            textAlign: TextAlign.left,
+            softWrap: true,
           ),
         ],
       ),
