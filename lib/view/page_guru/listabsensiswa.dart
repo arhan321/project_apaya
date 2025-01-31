@@ -7,6 +7,7 @@ class ListAbsenSiswaPage extends StatelessWidget {
   final int classId;
 
   ListAbsenSiswaPage({required this.classId}) {
+    // Setelah build, panggil setClassId() di controller
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final controller = Get.find<ListAbsenGuruController>();
       controller.setClassId(classId);
@@ -22,7 +23,9 @@ class ListAbsenSiswaPage extends StatelessWidget {
         title: Obx(() => Text(
               'Daftar Absensi ${controller.namaKelas.value}',
               style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.bold, color: Colors.white),
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             )),
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -54,7 +57,9 @@ class ListAbsenSiswaPage extends StatelessWidget {
                   child: Text(
                     'Tidak ada data absensi.',
                     style: GoogleFonts.poppins(
-                        fontSize: 16, fontWeight: FontWeight.w500),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               );
@@ -83,15 +88,24 @@ class ListAbsenSiswaPage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Get.toNamed('/tambahAbsen');
+        onPressed: () async {
+          final result = await Get.toNamed('/tambahAbsen', arguments: classId);
+          // Jika child page memanggil Get.back(result: true),
+          // maka result bernilai true
+          if (result == true) {
+            // Panggil fetchData() lagi untuk refresh
+            controller.fetchData();
+          }
         },
         backgroundColor: Colors.blue,
         icon: Icon(Icons.add, color: Colors.white),
         label: Text(
           'Tambah Absen Siswa',
           style: GoogleFonts.poppins(
-              fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
       ),
     );
@@ -121,12 +135,18 @@ class ListAbsenSiswaPage extends StatelessWidget {
           Text(
             'Selamat Datang',
             style: GoogleFonts.poppins(
-                fontSize: 18, color: Colors.white, fontWeight: FontWeight.w500),
+              fontSize: 18,
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           SizedBox(height: 4),
           Obx(() => Text(
                 controller.waliKelas.value,
-                style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
               )),
           SizedBox(height: 8),
           Row(
@@ -134,11 +154,17 @@ class ListAbsenSiswaPage extends StatelessWidget {
             children: [
               Text(
                 formattedDate,
-                style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
               ),
               Text(
                 dayName,
-                style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
               ),
             ],
           ),
@@ -148,8 +174,8 @@ class ListAbsenSiswaPage extends StatelessWidget {
               Expanded(
                 child: TextField(
                   onChanged: (value) {
-                    controller.searchData(
-                        value); // Memanggil fungsi pencarian dari controller
+                    // Panggil fungsi pencarian dari controller
+                    controller.searchData(value);
                   },
                   decoration: InputDecoration(
                     filled: true,
@@ -167,7 +193,7 @@ class ListAbsenSiswaPage extends StatelessWidget {
               SizedBox(width: 8),
               IconButton(
                 onPressed: () {
-                  // Logika untuk membuka filter modal
+                  // Membuka filter modal
                   Get.bottomSheet(
                     Container(
                       padding: EdgeInsets.all(16),
@@ -281,22 +307,28 @@ class ListAbsenSiswaPage extends StatelessWidget {
                   // Nomor Absen
                   Text(
                     'No Absen $number',
-                    style:
-                        GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
                   ),
                   SizedBox(height: 4),
                   // Tanggal Absen
                   Text(
                     'Tanggal: $tanggal',
-                    style:
-                        GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
                   ),
                   SizedBox(height: 4),
                   // Jam Absen
                   Text(
                     'Jam: $time',
-                    style:
-                        GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
                   ),
                 ],
               ),

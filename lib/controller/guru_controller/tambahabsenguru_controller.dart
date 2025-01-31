@@ -86,7 +86,6 @@ class TambahAbsenController extends GetxController {
     }
   }
 
-  // Submit data absensi (PUT /api/v1/kelas/update/{classId})
   Future<void> submitAbsen(int classId) async {
     // Validasi form
     if (idController.text.isEmpty ||
@@ -151,6 +150,9 @@ class TambahAbsenController extends GetxController {
           colorText: Colors.white,
         );
         clearFields();
+
+        // Mengirim hasil true ke halaman sebelumnya
+        Get.back(result: true); // Menambahkan Get.back(result: true)
       } else {
         throw Exception(response.data['message'] ?? 'Gagal menyimpan absen.');
       }

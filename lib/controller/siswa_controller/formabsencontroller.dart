@@ -12,10 +12,11 @@ class FormAbsenController extends GetxController {
   final catatanController = TextEditingController();
   final jamAbsenController = TextEditingController();
   final tanggalAbsenController = TextEditingController();
+
   var selectedKeterangan = 'Hadir'.obs; // Default value
   var selectedKelas = ''.obs; // Kelas yang dipilih
-  final Dio dio = Dio();
 
+  final Dio dio = Dio();
   var kelasOptions = <String>[].obs; // List untuk pilihan kelas
 
   final List<String> keteranganOptions = [
@@ -141,6 +142,9 @@ class FormAbsenController extends GetxController {
           colorText: Colors.white,
         );
         clearFields();
+
+        // Kembali ke halaman list absen sambil membawa result true
+        Get.back(result: true); // <-- Penambahan
       } else {
         throw Exception(response.data['message'] ?? 'Gagal menyimpan absen.');
       }

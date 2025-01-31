@@ -1,16 +1,17 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:math';
 import '/controller/siswa_controller/formabsencontroller.dart';
 
 class FormAbsenPage extends StatelessWidget {
   final int classId;
   final FormAbsenController controller = Get.put(FormAbsenController());
 
-  FormAbsenPage({required this.classId}) {
+  FormAbsenPage({Key? key, required this.classId}) : super(key: key) {
     // Generate random ID
     controller.idController.text = Random().nextInt(100000).toString();
+
     // Set current time and date
     final now = DateTime.now();
     controller.jamAbsenController.text =
@@ -28,7 +29,7 @@ class FormAbsenPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.blueAccent, Colors.lightBlueAccent],
               begin: Alignment.centerLeft,
@@ -46,71 +47,79 @@ class FormAbsenPage extends StatelessWidget {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              _buildTextField(
-                controller: controller.idController, // Auto-generated ID
-                hintText: 'ID Siswa (otomatis)',
-                label: 'ID Siswa',
-                keyboardType: TextInputType.number,
-                enabled: false, // Disable editing
-              ),
-              SizedBox(height: 15),
+              // Nama Siswa
               _buildTextField(
                 controller: controller.nameController,
                 hintText: 'Masukkan Nama',
                 label: 'Nama',
               ),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
+
+              // Nomor Absen
               _buildTextField(
                 controller: controller.noAbsenController,
                 hintText: 'Masukkan Nomor Absen',
                 label: 'Nomor Absen',
                 keyboardType: TextInputType.number,
               ),
-              SizedBox(height: 15),
-              Obx(() => _buildDropdownField(
-                    label: 'Kelas',
-                    options: controller.kelasOptions,
-                    value: controller.selectedKelas.value,
-                    onChanged: (value) {
-                      controller.selectedKelas.value = value!;
-                    },
-                  )),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
+
+              // Dropdown Kelas
+              Obx(
+                () => _buildDropdownField(
+                  label: 'Kelas',
+                  options: controller.kelasOptions,
+                  value: controller.selectedKelas.value,
+                  onChanged: (value) {
+                    controller.selectedKelas.value = value!;
+                  },
+                ),
+              ),
+              const SizedBox(height: 15),
+
+              // Jam Absen
               _buildTextField(
-                controller: controller.jamAbsenController, // Auto-filled time
+                controller: controller.jamAbsenController,
                 hintText: 'Waktu absen (otomatis)',
                 label: 'Jam Absen',
-                enabled: false, // Disable editing
+                enabled: false,
               ),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
+
+              // Tanggal Absen
               _buildTextField(
-                controller:
-                    controller.tanggalAbsenController, // Auto-filled date
+                controller: controller.tanggalAbsenController,
                 hintText: 'Tanggal absen (otomatis)',
                 label: 'Tanggal Absen',
-                enabled: false, // Disable editing
+                enabled: false,
               ),
-              SizedBox(height: 15),
-              Obx(() => _buildDropdownField(
-                    label: 'Keterangan Hadir',
-                    options: controller.keteranganOptions,
-                    value: controller.selectedKeterangan.value,
-                    onChanged: (value) {
-                      controller.selectedKeterangan.value = value!;
-                    },
-                  )),
-              SizedBox(height: 30),
+              const SizedBox(height: 15),
+
+              // Dropdown Keterangan
+              Obx(
+                () => _buildDropdownField(
+                  label: 'Keterangan Hadir',
+                  options: controller.keteranganOptions,
+                  value: controller.selectedKeterangan.value,
+                  onChanged: (value) {
+                    controller.selectedKeterangan.value = value!;
+                  },
+                ),
+              ),
+              const SizedBox(height: 30),
+
               ElevatedButton(
                 onPressed: () => controller.submitAbsen(classId),
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 40),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 40),
                   backgroundColor: Colors.blueAccent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -149,7 +158,7 @@ class FormAbsenPage extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
         TextField(
           controller: controller,
           keyboardType: keyboardType,
@@ -181,9 +190,9 @@ class FormAbsenPage extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
         DropdownButtonFormField<String>(
-          value: value,
+          value: value.isEmpty ? null : value,
           items: options
               .map((option) => DropdownMenuItem(
                     value: option,

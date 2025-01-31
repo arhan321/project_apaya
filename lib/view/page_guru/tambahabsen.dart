@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '/../';
+import '/../controller/guru_controller/tambahabsenguru_controller.dart'; // Import controller
 // ^^^ ganti 'your_app_name' sesuai package Anda
 
 class TambahAbsenPage extends StatelessWidget {
@@ -49,7 +49,7 @@ class TambahAbsenPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Tambah Absensi Baru (classId = $classId)',
+                        'Tambah Absensi Baru ',
                         style: GoogleFonts.poppins(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,

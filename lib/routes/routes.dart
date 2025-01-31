@@ -329,9 +329,8 @@ class AppRoutes {
     GetPage(
       name: tambahAbsen,
       page: () {
-        // Ambil argument 'classId' dari Get.arguments
-        // Jika tidak ada, pakai 0 sebagai default
-        final int passedClassId = Get.arguments ?? 0;
+        final args = Get.arguments as Map<String, dynamic>?;
+        final int passedClassId = args?['classId'] ?? 0;
         return TambahAbsenPage(classId: passedClassId);
       },
     ),
