@@ -308,6 +308,7 @@ class AbsenCard extends StatelessWidget {
                     Get.toNamed('/cekCatatan', arguments: {
                       'name': name,
                       'tanggal': tanggal,
+                      'time': time,
                       'catatan': catatan,
                     });
                   },

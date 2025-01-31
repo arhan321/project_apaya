@@ -326,7 +326,15 @@ class ListAbsenSiswaPage extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {
                     Get.toNamed('/editAbsen', arguments: {
+                      'kelasId': classId, // Pastikan ini benar
                       'id': id,
+                      'guruId': id, // Pastikan ID ini sesuai dengan API
+                      'name': name,
+                      'number': number,
+                      'keterangan': status,
+                      'jamAbsen': time,
+                      'tanggalAbsen': tanggal,
+                      'catatan': catatan,
                     });
                   },
                   style: ElevatedButton.styleFrom(

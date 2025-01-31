@@ -1,106 +1,227 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:get/get.dart'; // Import Get untuk mengambil data
+import 'package:dio/dio.dart';
 
 class EditAbsenPage extends StatelessWidget {
+  final TextEditingController namaController = TextEditingController();
+  final TextEditingController nomorController = TextEditingController();
+  final TextEditingController jamAbsenController = TextEditingController();
+  final TextEditingController tanggalAbsenController = TextEditingController();
+  final List<String> statusList = ['Hadir', 'Sakit', 'Izin', 'Tidak Hadir'];
+
   @override
   Widget build(BuildContext context) {
-    final arguments = Get.arguments;
-    final name = arguments['name'];
-    final number = arguments['number'];
-    final badge = arguments['badge'];
-    final jamAbsen = arguments['jamAbsen'];
+    // Ambil data dari arguments
+    final arguments = Get.arguments ?? {};
+    final int kelasId = arguments['kelasId'] ?? 0; // ID Kelas
+    final int siswaId = arguments['siswaId'] ?? 0; // ID Siswa, bukan guru!
+
+    // Isi text controller dengan data lama (jika ada)
+    namaController.text = arguments['name'] ?? '';
+    nomorController.text = arguments['number'] ?? '';
+    jamAbsenController.text = arguments['jamAbsen'] ?? '';
+    tanggalAbsenController.text = arguments['tanggalAbsen'] ?? '';
+
+    // Status awal
+    String selectedStatus = arguments['keterangan'] ?? 'Hadir';
 
     return Scaffold(
       appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.blueAccent, Colors.lightBlueAccent],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
+        backgroundColor: Colors.blueAccent,
         title: Text(
           'Edit Absen',
-          style: GoogleFonts.poppins(color: Colors.white),
+          style: GoogleFonts.poppins(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: IconThemeData(color: Colors.white),
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Get.back(),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Edit Absensi untuk $name',
-              style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),
+            _buildTextField('Nama Siswa', namaController),
+            SizedBox(height: 12),
+            _buildTextField('Nomor Absen / Nomor Induk', nomorController),
+            SizedBox(height: 12),
+            _buildDropdown(
+              'Status Absensi',
+              selectedStatus,
+              statusList,
+              (value) {
+                selectedStatus = value!;
+              },
             ),
+            SizedBox(height: 12),
+            _buildTextField('Jam Absen (HH:MM)', jamAbsenController),
+            SizedBox(height: 12),
+            _buildTextField(
+                'Tanggal Absen (YYYY-MM-DD)', tanggalAbsenController),
             SizedBox(height: 20),
-            _buildTextField('Nama Siswa', name),
-            SizedBox(height: 16),
-            _buildTextField('Nomor', number),
-            SizedBox(height: 16),
-            _buildDropdown('Status Absensi', badge),
-            SizedBox(height: 16),
-            _buildTextField('Jam Absen', jamAbsen),
-            SizedBox(height: 30),
-            _buildSaveButton(context),
+            ElevatedButton(
+              onPressed: () async {
+                // Panggil fungsi update
+                final response = await _updateAbsen(
+                  kelasId: kelasId,
+                  siswaId: siswaId,
+                  nama: namaController.text,
+                  nomor: nomorController.text,
+                  jamAbsen: jamAbsenController.text,
+                  status: selectedStatus,
+                  tanggalAbsen: tanggalAbsenController.text,
+                );
+
+                if (response['success']) {
+                  Get.snackbar(
+                    'Berhasil',
+                    response['message'],
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.green,
+                    colorText: Colors.white,
+                  );
+                  Get.back(); // Kembali ke halaman sebelumnya
+                } else {
+                  Get.snackbar(
+                    'Gagal',
+                    response['message'],
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.red,
+                    colorText: Colors.white,
+                  );
+                  debugPrint('Error detail: ${response['error']}');
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueAccent,
+                padding: EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                'Simpan Perubahan',
+                style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTextField(String label, String value) {
-    return TextFormField(
-      initialValue: value,
+  Widget _buildTextField(String label, TextEditingController controller) {
+    return TextField(
+      controller: controller,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.poppins(fontSize: 14),
-        border: OutlineInputBorder(),
-        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       ),
+      style: GoogleFonts.poppins(),
     );
   }
 
-  Widget _buildDropdown(String label, String selectedValue) {
+  Widget _buildDropdown(
+    String label,
+    String value,
+    List<String> items,
+    void Function(String?) onChanged,
+  ) {
     return DropdownButtonFormField<String>(
-      value: selectedValue,
+      value: value,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.poppins(fontSize: 14),
-        border: OutlineInputBorder(),
-      ),
-      items: ['Hadir', 'Izin', 'Sakit', 'Tidak Hadir'].map((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
-      onChanged: (String? newValue) {},
-    );
-  }
-
-  Widget _buildSaveButton(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
-        // Save logic here (e.g., update data)
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blueAccent,
-        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-        shape: RoundedRectangleBorder(
+        border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
         ),
       ),
-      child: Text(
-        'Simpan Perubahan',
-        style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
-      ),
+      items: items
+          .map((item) => DropdownMenuItem(
+                value: item,
+                child: Text(item, style: GoogleFonts.poppins()),
+              ))
+          .toList(),
+      onChanged: onChanged,
     );
+  }
+
+  Future<Map<String, dynamic>> _updateAbsen({
+    required int kelasId,
+    required int siswaId,
+    required String nama,
+    required String nomor,
+    required String jamAbsen,
+    required String status,
+    required String tanggalAbsen,
+  }) async {
+    final Dio dio = Dio();
+    final String url =
+        'https://absen.randijourney.my.id/api/v1/kelas/update/$kelasId';
+
+    try {
+      debugPrint('Sending data to API...');
+      debugPrint('URL: $url');
+      debugPrint('Payload: ${{
+        'siswa': [
+          {
+            'id': siswaId,
+            'nama': nama,
+            'nomor_absen': nomor,
+            'keterangan': status,
+            'jam_absen': jamAbsen,
+            'tanggal_absen': tanggalAbsen,
+          }
+        ]
+      }}');
+
+      // <-- Pastikan "siswa" sesuai kebutuhan endpoint.
+      // Jika API minta "nomor_induk" bukan "nomor_absen", sesuaikan di sini!
+
+      final response = await dio.put(
+        url,
+        options: Options(headers: {'Content-Type': 'application/json'}),
+        data: {
+          'siswa': [
+            {
+              'id': siswaId,
+              'nama': nama,
+              'nomor_absen': nomor, // ganti key sesuai format API
+              'keterangan': status,
+              'jam_absen': jamAbsen,
+              'tanggal_absen': tanggalAbsen,
+            }
+          ]
+        },
+      );
+
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response data: ${response.data}');
+
+      if (response.statusCode == 200) {
+        return {
+          'success': true,
+          'message': response.data['message'] ?? 'Data berhasil diperbarui',
+        };
+      } else {
+        return {
+          'success': false,
+          'message': response.data['message'] ?? 'Gagal memperbarui data',
+          'error': response.data,
+        };
+      }
+    } catch (e) {
+      debugPrint('Error during API call: $e');
+      return {
+        'success': false,
+        'message': 'Terjadi kesalahan saat menghubungi server.',
+        'error': e.toString(),
+      };
+    }
   }
 }
