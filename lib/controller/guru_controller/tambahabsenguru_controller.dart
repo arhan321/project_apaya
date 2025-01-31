@@ -63,6 +63,7 @@ class TambahAbsenController extends GetxController {
         final List<String> kelasList =
             data.map((item) => item['nama_kelas'] as String).toList();
 
+        // Masukkan ke kelasOptions
         kelasOptions.assignAll(kelasList);
 
         // Pilihan default jika tidak kosong
@@ -102,7 +103,7 @@ class TambahAbsenController extends GetxController {
       return;
     }
 
-    // Persiapan data siswa
+    // Data siswa yang akan ditambahkan
     final siswaData = {
       "id": int.tryParse(idController.text) ??
           DateTime.now().millisecondsSinceEpoch,
@@ -151,8 +152,8 @@ class TambahAbsenController extends GetxController {
         );
         clearFields();
 
-        // Mengirim hasil true ke halaman sebelumnya
-        Get.back(result: true); // Menambahkan Get.back(result: true)
+        // Kembali ke halaman list absen sambil membawa result true
+        Get.back(result: true);
       } else {
         throw Exception(response.data['message'] ?? 'Gagal menyimpan absen.');
       }
@@ -170,14 +171,14 @@ class TambahAbsenController extends GetxController {
     }
   }
 
-  // Membersihkan semua field
+  // Membersihkan field input
   void clearFields() {
     nameController.clear();
     noAbsenController.clear();
     catatanController.clear();
     selectedKeterangan.value = 'Hadir';
 
-    // Buat ID baru & waktu baru
+    // Generate ulang ID, jam, dan tanggal
     idController.text = Random().nextInt(100000).toString();
     final now = DateTime.now();
     jamAbsenController.text =

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '/../controller/guru_controller/tambahabsenguru_controller.dart'; // Import controller
-// ^^^ ganti 'your_app_name' sesuai package Anda
+import '/../controller/guru_controller/tambahabsenguru_controller.dart'; // Ganti sesuai path controller
 
 class TambahAbsenPage extends StatelessWidget {
   final int classId; // classId yang dikirim dari route
@@ -11,8 +10,7 @@ class TambahAbsenPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Memasukkan controller ke dalam GetX
-    // Anda bisa pakai Get.put jika ini pertama kali inject
+    // Inject controller
     final TambahAbsenController c = Get.put(TambahAbsenController());
 
     return Scaffold(
@@ -25,11 +23,11 @@ class TambahAbsenPage extends StatelessWidget {
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Get.back(),
         ),
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.blueAccent, Colors.lightBlueAccent],
               begin: Alignment.topLeft,
@@ -41,7 +39,7 @@ class TambahAbsenPage extends StatelessWidget {
       body: Obx(() {
         // Gunakan Obx untuk memantau isLoading di controller
         return c.isLoading.value
-            ? Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator())
             : Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: SingleChildScrollView(
@@ -49,23 +47,16 @@ class TambahAbsenPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Tambah Absensi Baru ',
+                        'Tambah Absensi Baru',
                         style: GoogleFonts.poppins(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.black87,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                      // ID Siswa
-                      _buildTextField(
-                        controller: c.idController,
-                        label: 'ID Siswa (Otomatis)',
-                        hint: '',
-                        enabled: false,
-                      ),
-                      SizedBox(height: 16),
+                      // *** ID Siswa TIDAK DITAMPILKAN DI UI ***
 
                       // Nama Siswa
                       _buildTextField(
@@ -73,7 +64,7 @@ class TambahAbsenPage extends StatelessWidget {
                         label: 'Nama Siswa',
                         hint: 'Masukkan nama siswa',
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Nomor Absen
                       _buildTextField(
@@ -82,7 +73,7 @@ class TambahAbsenPage extends StatelessWidget {
                         hint: 'Masukkan nomor absen',
                         keyboardType: TextInputType.number,
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Pilih Kelas
                       Text(
@@ -92,34 +83,36 @@ class TambahAbsenPage extends StatelessWidget {
                           color: Colors.black87,
                         ),
                       ),
-                      SizedBox(height: 8),
-                      Obx(() => DropdownButtonFormField<String>(
-                            value: c.kelasOptions.isNotEmpty
-                                ? c.selectedKelas.value
-                                : null,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
+                      const SizedBox(height: 8),
+                      Obx(
+                        () => DropdownButtonFormField<String>(
+                          value: c.kelasOptions.isNotEmpty
+                              ? c.selectedKelas.value
+                              : null,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            items: c.kelasOptions.map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(
-                                  value,
-                                  style: GoogleFonts.poppins(fontSize: 14),
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (newValue) {
-                              if (newValue != null) {
-                                c.selectedKelas.value = newValue;
-                              }
-                            },
-                          )),
-                      SizedBox(height: 16),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
+                          ),
+                          items: c.kelasOptions.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(
+                                value,
+                                style: GoogleFonts.poppins(fontSize: 14),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            if (newValue != null) {
+                              c.selectedKelas.value = newValue;
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
 
                       // Jam Absen
                       _buildTextField(
@@ -128,7 +121,7 @@ class TambahAbsenPage extends StatelessWidget {
                         hint: '',
                         enabled: false,
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Tanggal Absen
                       _buildTextField(
@@ -137,7 +130,7 @@ class TambahAbsenPage extends StatelessWidget {
                         hint: '',
                         enabled: false,
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Keterangan Absensi
                       Text(
@@ -147,32 +140,34 @@ class TambahAbsenPage extends StatelessWidget {
                           color: Colors.black87,
                         ),
                       ),
-                      SizedBox(height: 8),
-                      Obx(() => DropdownButtonFormField<String>(
-                            value: c.selectedKeterangan.value,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
+                      const SizedBox(height: 8),
+                      Obx(
+                        () => DropdownButtonFormField<String>(
+                          value: c.selectedKeterangan.value,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            items: c.keteranganOptions.map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(
-                                  value,
-                                  style: GoogleFonts.poppins(fontSize: 14),
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (newValue) {
-                              if (newValue != null) {
-                                c.selectedKeterangan.value = newValue;
-                              }
-                            },
-                          )),
-                      SizedBox(height: 16),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
+                          ),
+                          items: c.keteranganOptions.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(
+                                value,
+                                style: GoogleFonts.poppins(fontSize: 14),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            if (newValue != null) {
+                              c.selectedKeterangan.value = newValue;
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
 
                       // Catatan (Opsional)
                       _buildTextField(
@@ -182,7 +177,7 @@ class TambahAbsenPage extends StatelessWidget {
                         maxLines: 3,
                         enabled: true,
                       ),
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
                       // Tombol Simpan
                       Center(
@@ -190,7 +185,7 @@ class TambahAbsenPage extends StatelessWidget {
                           onPressed: () => c.submitAbsen(classId),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 32, vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -234,7 +229,7 @@ class TambahAbsenPage extends StatelessWidget {
             fontWeight: FontWeight.w500,
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         TextField(
           controller: controller,
           maxLines: maxLines,
@@ -246,7 +241,8 @@ class TambahAbsenPage extends StatelessWidget {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
             ),
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
         ),
       ],

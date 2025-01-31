@@ -40,7 +40,7 @@ class _ListAbsenOrtuState extends State<ListAbsenOrtu> {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.blueAccent, Colors.lightBlueAccent],
               begin: Alignment.topLeft,
@@ -56,19 +56,19 @@ class _ListAbsenOrtuState extends State<ListAbsenOrtu> {
               ),
             )),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Get.back(),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.account_circle, color: Colors.white),
+            icon: const Icon(Icons.account_circle, color: Colors.white),
             onPressed: () => Get.toNamed('/profilOrtu'),
           ),
         ],
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (controller.errorMessage.value.isNotEmpty) {
@@ -83,14 +83,16 @@ class _ListAbsenOrtuState extends State<ListAbsenOrtu> {
         return Column(
           children: [
             _buildHeader(formattedDate, dayOfWeek),
-            _buildSearchAndFilter(),
-            _buildStudentList(),
+            // Tidak perlu _buildSearchAndFilter() terpisah lagi
+            Expanded(child: _buildStudentList()),
           ],
         );
       }),
     );
   }
 
+  /// Bagian Header: menampilkan info guru, tanggal, hari,
+  /// serta menampilkan Search Bar + Icon Filter
   Widget _buildHeader(String formattedDate, String dayOfWeek) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -106,9 +108,9 @@ class _ListAbsenOrtuState extends State<ListAbsenOrtu> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
 
-          /// Menampilkan Nama Guru dengan Handling Loading & Error
+          /// Menampilkan Nama Guru
           Obx(() {
             if (controller.isLoading.value) {
               return Text(
@@ -130,17 +132,48 @@ class _ListAbsenOrtuState extends State<ListAbsenOrtu> {
               style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
             );
           }),
-
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
+          // Baris Tanggal dan Hari
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(formattedDate,
-                  style:
-                      GoogleFonts.poppins(fontSize: 14, color: Colors.white)),
-              Text(dayOfWeek,
-                  style:
-                      GoogleFonts.poppins(fontSize: 14, color: Colors.white)),
+              Text(
+                formattedDate,
+                style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+              ),
+              Text(
+                dayOfWeek,
+                style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Baris Search Bar + Icon Filter
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  onChanged: controller.filterStudents,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    hintText: 'Cari Nama Siswa',
+                    hintStyle: GoogleFonts.poppins(fontSize: 14),
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.filter_list, color: Colors.white),
+                onPressed: () {
+                  _showFilterBottomSheet();
+                },
+              ),
             ],
           ),
         ],
@@ -148,46 +181,95 @@ class _ListAbsenOrtuState extends State<ListAbsenOrtu> {
     );
   }
 
-  Widget _buildSearchAndFilter() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: TextField(
-        onChanged: controller.filterStudents,
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: Colors.white,
-          hintText: 'Cari Nama Siswa',
-          hintStyle: GoogleFonts.poppins(fontSize: 14),
-          prefixIcon: Icon(Icons.search, color: Colors.grey),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide.none,
+  /// Bottom Sheet Filter
+  void _showFilterBottomSheet() {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(16),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(16),
           ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Filter Absensi',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ListTile(
+              leading: const Icon(Icons.select_all),
+              title: Text('Semua', style: GoogleFonts.poppins()),
+              onTap: () {
+                controller.applyFilter('Semua');
+                Get.back();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.check_circle_outline),
+              title: Text('Hadir', style: GoogleFonts.poppins()),
+              onTap: () {
+                controller.applyFilter('Hadir');
+                Get.back();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.error_outline),
+              title: Text('Izin', style: GoogleFonts.poppins()),
+              onTap: () {
+                controller.applyFilter('Izin');
+                Get.back();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.local_hospital),
+              title: Text('Sakit', style: GoogleFonts.poppins()),
+              onTap: () {
+                controller.applyFilter('Sakit');
+                Get.back();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.cancel_outlined),
+              title: Text('Tidak Hadir', style: GoogleFonts.poppins()),
+              onTap: () {
+                controller.applyFilter('Tidak Hadir');
+                Get.back();
+              },
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildStudentList() {
-    return Expanded(
-      child: Obx(() => ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: controller.filteredStudents.length,
-            itemBuilder: (context, index) {
-              final student = controller.filteredStudents[index];
-              return AbsenCard(
-                name: student['nama'] ?? 'Tidak diketahui',
-                number: 'No ${student['nomor_absen'] ?? '-'}',
-                status: student['keterangan'] ?? 'Tidak diketahui',
-                statusColor: controller
-                    .getStatusColor(student['keterangan'] ?? 'Tidak diketahui'),
-                kelasid: student['kelas'] ?? 'Tidak diketahui',
-                time: student['jam_absen'] ?? 'Tidak diketahui',
-                tanggal: student['tanggal_absen'] ?? 'Tidak diketahui',
-                catatan: student['catatan'] ?? 'Tidak ada catatan',
-              );
-            },
-          )),
+    return Obx(
+      () => ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: controller.filteredStudents.length,
+        itemBuilder: (context, index) {
+          final student = controller.filteredStudents[index];
+          return AbsenCard(
+            name: student['nama'] ?? 'Tidak diketahui',
+            number: 'No ${student['nomor_absen'] ?? '-'}',
+            status: student['keterangan'] ?? 'Tidak diketahui',
+            statusColor: controller.getStatusColor(
+              student['keterangan'] ?? 'Tidak diketahui',
+            ),
+            kelasid: student['kelas'] ?? 'Tidak diketahui',
+            time: student['jam_absen'] ?? 'Tidak diketahui',
+            tanggal: student['tanggal_absen'] ?? 'Tidak diketahui',
+            catatan: student['catatan'] ?? 'Tidak ada catatan',
+          );
+        },
+      ),
     );
   }
 }
@@ -203,6 +285,7 @@ class AbsenCard extends StatelessWidget {
   final String catatan;
 
   const AbsenCard({
+    Key? key,
     required this.name,
     required this.status,
     required this.statusColor,
@@ -211,7 +294,7 @@ class AbsenCard extends StatelessWidget {
     required this.time,
     required this.tanggal,
     required this.catatan,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -225,16 +308,18 @@ class AbsenCard extends StatelessWidget {
           BoxShadow(
             color: Colors.grey.withOpacity(0.2),
             blurRadius: 4,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Baris Atas: Nama, No Absen, Status
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // Kolom Kiri: Nama & Nomor Absen
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -245,14 +330,30 @@ class AbsenCard extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     number,
                     style:
                         GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
                   ),
+                  const SizedBox(height: 4),
+                  // Tampilkan Tanggal
+                  Text(
+                    'Tanggal: $tanggal',
+                    style:
+                        GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 4),
+                  // Tampilkan Jam
+                  Text(
+                    'Jam: $time',
+                    style:
+                        GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                  ),
                 ],
               ),
+
+              // Status di sisi kanan
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
@@ -270,7 +371,9 @@ class AbsenCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
+
+          // Tombol Aksi
           Row(
             children: [
               Expanded(
@@ -301,7 +404,7 @@ class AbsenCard extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
