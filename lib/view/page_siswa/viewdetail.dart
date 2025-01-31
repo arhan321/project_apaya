@@ -13,6 +13,7 @@ class ViewDetailPage extends StatelessWidget {
     final String kelas = args['kelas'] ?? 'Tidak diketahui';
     final String keterangan = args['keterangan'] ?? 'Tidak diketahui';
     final String jamAbsen = args['jamAbsen'] ?? '-';
+    final String tanggalAbsen = args['tanggalAbsen'] ?? '-';
 
     return Scaffold(
       appBar: AppBar(
@@ -60,6 +61,8 @@ class ViewDetailPage extends StatelessWidget {
                 _buildDetailRow(label: 'Keterangan', value: keterangan),
                 SizedBox(height: 15),
                 _buildDetailRow(label: 'Jam Absen', value: jamAbsen),
+                SizedBox(height: 15),
+                _buildDetailRow(label: 'Tanggal Absen', value: tanggalAbsen),
               ],
             ),
           ),

@@ -66,6 +66,7 @@ class ListAbsenPage extends StatelessWidget {
                       number: 'No ${student['nomor_absen'] ?? '-'}',
                       badge: student['keterangan'] ?? 'Tidak diketahui',
                       jamAbsen: student['jam_absen'] ?? '-',
+                      tanggalAbsen: student['tanggal_absen'] ?? '-',
                     );
                   },
                 ),
@@ -105,10 +106,10 @@ class ListAbsenPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            "2025-09-12", // Contoh tanggal statis
-            style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
-          ),
+          // Text(
+          // "2025-09-12", // Contoh tanggal statis
+          // style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+          // ),
           const SizedBox(height: 10),
 
           // Row untuk search + ikon filter
@@ -217,6 +218,7 @@ class ListAbsenPage extends StatelessWidget {
     required String number,
     required String badge,
     required String jamAbsen,
+    required String tanggalAbsen,
   }) {
     Color badgeColor;
     switch (badge) {
@@ -272,6 +274,22 @@ class ListAbsenPage extends StatelessWidget {
                       color: Colors.grey,
                     ),
                   ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Tanggal: $tanggalAbsen',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Jam: $jamAbsen',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
                 ],
               ),
               // Badge status
@@ -303,6 +321,7 @@ class ListAbsenPage extends StatelessWidget {
                 'kelas': controller.className.value,
                 'keterangan': badge,
                 'jamAbsen': jamAbsen,
+                'tanggalAbsen': tanggalAbsen,
               },
             ),
             style: ElevatedButton.styleFrom(
