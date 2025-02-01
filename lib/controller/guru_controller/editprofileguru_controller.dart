@@ -44,8 +44,10 @@ class EditProfileGuruController extends GetxController {
 
       if (response.statusCode == 200) {
         final waliKelasData = response.data['data'] as List<dynamic>;
-        waliKelasList =
-            waliKelasData.map((k) => k['nama_kelas'] as String).toList();
+        waliKelasList = waliKelasData
+            .map((k) => k['nama_kelas'] as String)
+            .toSet()
+            .toList();
 
         // Jika waliKelasList kosong, gunakan default value dari controller
         if (waliKelasList.isEmpty) {

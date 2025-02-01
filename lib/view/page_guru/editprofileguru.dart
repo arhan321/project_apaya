@@ -168,8 +168,13 @@ class EditProfileGuruPage extends StatelessWidget {
 
   Widget _buildDropdownField(String label, List<String> items, String? value,
       ValueChanged<String?> onChanged) {
+    // Memastikan bahwa nilai yang dipilih ada dalam daftar items
+    if (value != null && !items.contains(value)) {
+      value = null; // Set value ke null jika tidak ada dalam daftar
+    }
+
     return DropdownButtonFormField<String>(
-      value: (value != null && value.isNotEmpty) ? value : null,
+      value: value,
       decoration: InputDecoration(
         labelText: label,
         filled: true,
