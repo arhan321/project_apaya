@@ -236,6 +236,14 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
                       color: Colors.white70,
                     ),
                   ),
+                  SizedBox(height: 8),
+                  Text(
+                    "ID Kelas: $id", // Menambahkan informasi ID kelas
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.white70,
+                    ),
+                  ),
                 ],
               ),
             ),
