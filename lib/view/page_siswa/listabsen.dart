@@ -5,12 +5,15 @@ import '../../controller/siswa_controller/listabsensiswacontroller.dart';
 
 class ListAbsenPage extends StatelessWidget {
   final int classId;
+
+  // Controller initialization inside constructor
   ListAbsenPage({Key? key, required this.classId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Inisialisasi controller dengan classId
-    final controller = Get.put(ListAbsenController(classId: classId));
+    // Initialize controller and pass the classId
+    final ListAbsenController controller =
+        Get.put(ListAbsenController(classId: classId));
 
     return Scaffold(
       appBar: AppBar(
@@ -49,7 +52,7 @@ class ListAbsenPage extends StatelessWidget {
           );
         }
 
-        // Jika tidak ada error dan tidak loading, tampilkan isi
+        // If no error and not loading, show content
         return Column(
           children: [
             _buildHeader(controller),
@@ -79,7 +82,7 @@ class ListAbsenPage extends StatelessWidget {
     );
   }
 
-  // Bagian header yang memuat nama kelas, tanggal, dan search bar + icon filter
+  // Header section with search bar and filter icon
   Widget _buildHeader(ListAbsenController controller) {
     return Container(
       width: double.infinity,
@@ -106,13 +109,9 @@ class ListAbsenPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          // Text(
-          // "2025-09-12", // Contoh tanggal statis
-          // style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
-          // ),
           const SizedBox(height: 10),
 
-          // Row untuk search + ikon filter
+          // Row for search bar and filter icon
           Row(
             children: [
               Expanded(
@@ -132,76 +131,12 @@ class ListAbsenPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              // Ikon filter
+              // Filter icon
               IconButton(
                 icon: const Icon(Icons.filter_list, color: Colors.white),
                 onPressed: () {
-                  // Tampilkan bottom sheet filter
-                  Get.bottomSheet(
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(16),
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Filter Absensi',
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          ListTile(
-                            leading: const Icon(Icons.select_all),
-                            title: Text('Semua', style: GoogleFonts.poppins()),
-                            onTap: () {
-                              controller.applyFilter('Semua');
-                              Get.back();
-                            },
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.check_circle_outline),
-                            title: Text('Hadir', style: GoogleFonts.poppins()),
-                            onTap: () {
-                              controller.applyFilter('Hadir');
-                              Get.back();
-                            },
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.error_outline),
-                            title: Text('Izin', style: GoogleFonts.poppins()),
-                            onTap: () {
-                              controller.applyFilter('Izin');
-                              Get.back();
-                            },
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.local_hospital),
-                            title: Text('Sakit', style: GoogleFonts.poppins()),
-                            onTap: () {
-                              controller.applyFilter('Sakit');
-                              Get.back();
-                            },
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.cancel_outlined),
-                            title: Text('Tidak Hadir',
-                                style: GoogleFonts.poppins()),
-                            onTap: () {
-                              controller.applyFilter('Tidak Hadir');
-                              Get.back();
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
+                  // Show filter bottom sheet
+                  _showFilterBottomSheet(controller);
                 },
               ),
             ],
@@ -211,7 +146,75 @@ class ListAbsenPage extends StatelessWidget {
     );
   }
 
-  // Kartu Absensi
+  // Bottom Sheet Filter
+  void _showFilterBottomSheet(ListAbsenController controller) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(16),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(16),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Filter Absensi',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ListTile(
+              leading: const Icon(Icons.select_all),
+              title: Text('Semua', style: GoogleFonts.poppins()),
+              onTap: () {
+                controller.applyFilter('Semua');
+                Get.back();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.check_circle_outline),
+              title: Text('Hadir', style: GoogleFonts.poppins()),
+              onTap: () {
+                controller.applyFilter('Hadir');
+                Get.back();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.error_outline),
+              title: Text('Izin', style: GoogleFonts.poppins()),
+              onTap: () {
+                controller.applyFilter('Izin');
+                Get.back();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.local_hospital),
+              title: Text('Sakit', style: GoogleFonts.poppins()),
+              onTap: () {
+                controller.applyFilter('Sakit');
+                Get.back();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.cancel_outlined),
+              title: Text('Tidak Hadir', style: GoogleFonts.poppins()),
+              onTap: () {
+                controller.applyFilter('Tidak Hadir');
+                Get.back();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Absen Card for each student
   Widget _buildAbsenCard({
     required ListAbsenController controller,
     required String name,
@@ -251,11 +254,11 @@ class ListAbsenPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Baris: Nama + Badge
+          // Row: Name + Badge
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Kolom nama + nomor
+              // Column: Name + Number
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -311,7 +314,7 @@ class ListAbsenPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          // Tombol Lihat Detail
+          // Lihat Detail Button
           ElevatedButton(
             onPressed: () => Get.toNamed(
               '/viewDetail',
@@ -325,7 +328,7 @@ class ListAbsenPage extends StatelessWidget {
               },
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blueAccent, // Warna konsisten
+              backgroundColor: Colors.blueAccent,
             ),
             child: Text(
               'Lihat Detail',
@@ -347,9 +350,8 @@ class ListAbsenPage extends StatelessWidget {
           final result = await Get.toNamed('/formAbsen', arguments: {
             'classId': classId,
           });
-          // Jika form absen memanggil Get.back(result: true), maka result = true
+          // If result is true, refresh the data
           if (result == true) {
-            // Gunakan fetchClassData() karena itu nama metodenya di controller
             controller.fetchClassData();
           }
         },

@@ -12,6 +12,7 @@ class ListAbsenGuruController extends GetxController {
   var waliKelas = 'Wali Kelas'.obs; // Nama wali kelas
   int? selectedClassId; // ID kelas yang dipilih
   var searchQuery = ''.obs; // Query pencarian
+  var selectedStatus = ''.obs; // Selected status for filter
 
   @override
   void onInit() {
@@ -110,6 +111,7 @@ class ListAbsenGuruController extends GetxController {
 
   /// Fungsi untuk menyaring data berdasarkan status (filter)
   void filterData(String status) {
+    selectedStatus.value = status;
     if (status.isEmpty || status == 'Semua') {
       // Jika tidak ada filter, tampilkan semua data
       filteredSiswaAbsen.value = siswaAbsen.value;

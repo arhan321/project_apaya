@@ -83,7 +83,6 @@ class _ListAbsenOrtuState extends State<ListAbsenOrtu> {
         return Column(
           children: [
             _buildHeader(formattedDate, dayOfWeek),
-            // Tidak perlu _buildSearchAndFilter() terpisah lagi
             Expanded(child: _buildStudentList()),
           ],
         );
@@ -109,8 +108,6 @@ class _ListAbsenOrtuState extends State<ListAbsenOrtu> {
             ),
           ),
           const SizedBox(height: 4),
-
-          /// Menampilkan Nama Guru
           Obx(() {
             if (controller.isLoading.value) {
               return Text(

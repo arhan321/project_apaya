@@ -90,10 +90,8 @@ class ListAbsenSiswaPage extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final result = await Get.toNamed('/tambahAbsen', arguments: classId);
-          // Jika child page memanggil Get.back(result: true),
-          // maka result bernilai true
           if (result == true) {
-            // Panggil fetchData() lagi untuk refresh
+            // Refresh data after adding attendance
             controller.fetchData();
           }
         },
@@ -214,34 +212,70 @@ class ListAbsenSiswaPage extends StatelessWidget {
                             ),
                           ),
                           ListTile(
-                            title: Text('Hadir', style: GoogleFonts.poppins()),
+                            title: Row(
+                              children: [
+                                Icon(Icons.check_circle, color: Colors.green),
+                                SizedBox(width: 8),
+                                Text('Hadir', style: GoogleFonts.poppins())
+                              ],
+                            ),
                             onTap: () {
-                              // Filter siswa yang hadir
-                              print('Filter: Hadir');
+                              controller.filterData('Hadir');
                               Get.back();
                             },
                           ),
                           ListTile(
-                            title: Text('Izin', style: GoogleFonts.poppins()),
+                            title: Row(
+                              children: [
+                                Icon(Icons.check_circle_outline,
+                                    color: Colors.orange),
+                                SizedBox(width: 8),
+                                Text('Izin', style: GoogleFonts.poppins())
+                              ],
+                            ),
                             onTap: () {
-                              // Filter siswa yang izin
-                              print('Filter: Izin');
+                              controller.filterData('Izin');
                               Get.back();
                             },
                           ),
                           ListTile(
-                            title: Text('Sakit', style: GoogleFonts.poppins()),
+                            title: Row(
+                              children: [
+                                Icon(Icons.access_alarm, color: Colors.blue),
+                                SizedBox(width: 8),
+                                Text('Sakit', style: GoogleFonts.poppins())
+                              ],
+                            ),
                             onTap: () {
-                              // Filter siswa yang sakit
-                              print('Filter: Sakit');
+                              controller.filterData('Sakit');
                               Get.back();
                             },
                           ),
                           ListTile(
-                            title: Text('Semua', style: GoogleFonts.poppins()),
+                            title: Row(
+                              children: [
+                                Icon(Icons.remove_circle_outline,
+                                    color: Colors.red),
+                                SizedBox(width: 8),
+                                Text('Tidak Hadir',
+                                    style: GoogleFonts.poppins())
+                              ],
+                            ),
                             onTap: () {
-                              // Reset filter
-                              print('Filter: Semua');
+                              controller.filterData('Tidak Hadir');
+                              Get.back();
+                            },
+                          ),
+                          ListTile(
+                            title: Row(
+                              children: [
+                                Icon(Icons.all_inclusive, color: Colors.black),
+                                SizedBox(width: 8),
+                                Text('Semua', style: GoogleFonts.poppins())
+                              ],
+                            ),
+                            onTap: () {
+                              controller.filterData('Semua');
                               Get.back();
                             },
                           ),
