@@ -1,0 +1,228 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import '/controller/siswa_controller/editprofilesiswacontroller.dart';
+
+class EditProfileSiswaPage extends StatelessWidget {
+  final controller = Get.put(EditProfileSiswaController());
+
+  final List<String> agamaList = [
+    'islam',
+    'kristen',
+    'katolik',
+    'hindu',
+    'budha',
+    'konghucu',
+  ]; // Daftar nilai enum untuk dropdown
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blueAccent, Colors.lightBlueAccent],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        title: Text(
+          'Edit Profile Siswa',
+          style: GoogleFonts.poppins(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Get.back(
+              result: true, // Mengembalikan nilai true ke halaman sebelumnya
+            );
+          },
+        ),
+      ),
+      body: GetBuilder<EditProfileSiswaController>(
+        initState: (_) async {
+          // Fetch kelas data saat halaman dimulai
+          await controller.fetchKelasData();
+        },
+        builder: (_) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              children: [
+                SizedBox(height: 20),
+                Center(
+                  child: Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundImage: _.imageFile != null
+                            ? FileImage(_.imageFile!)
+                            : (_.imageUrl != null
+                                ? NetworkImage(_.imageUrl!)
+                                : null),
+                        child: _.imageFile == null && _.imageUrl == null
+                            ? Text(
+                                'Foto Kosong',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 16),
+                              )
+                            : null,
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: _.pickImage,
+                          child: CircleAvatar(
+                            backgroundColor: Colors.blueAccent,
+                            radius: 20,
+                            child: Icon(Icons.camera_alt, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 30),
+                _buildInputField('Nama Siswa', _.nameController),
+                SizedBox(height: 20),
+                _buildDropdownField(
+                  'Kelas',
+                  _.kelasList,
+                  (_.kelasList.contains(_.classController.text))
+                      ? _.classController.text
+                      : null,
+                  (value) {
+                    _.classController.text = value!;
+                  },
+                ),
+                SizedBox(height: 20),
+                _buildInputField('Nomor Absen', _.numberController),
+                SizedBox(height: 20),
+                _buildDropdownField(
+                  'Agama',
+                  agamaList,
+                  (_.agamaController.text.isNotEmpty &&
+                          agamaList.contains(_.agamaController.text))
+                      ? _.agamaController.text
+                      : null,
+                  (value) {
+                    _.agamaController.text = value!;
+                  },
+                ),
+                SizedBox(height: 20),
+                _buildInputField('NISN', _.nisnController),
+                SizedBox(height: 20),
+                _buildInputField('Umur', _.umurController),
+                SizedBox(height: 20),
+                _buildDateField(
+                    context, 'Tanggal Lahir', _.birthDateController),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _.updateProfile,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+                  ),
+                  child: Text("Simpan Perubahan",
+                      style: GoogleFonts.poppins(color: Colors.white)),
+                ),
+                SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: _.uploadPhoto,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+                  ),
+                  child: Text("Upload Foto",
+                      style: GoogleFonts.poppins(color: Colors.white)),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildInputField(String label, TextEditingController controller,
+      {bool isEnabled = true}) {
+    return TextField(
+      controller: controller,
+      enabled: isEnabled,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDropdownField(String label, List<String> items, String? value,
+      ValueChanged<String?> onChanged) {
+    final validValue = (value != null && items.contains(value)) ? value : null;
+
+    return DropdownButtonFormField<String>(
+      value: validValue, // Validasi nilai
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      items: items
+          .toSet() // Hapus elemen duplikat
+          .map((item) => DropdownMenuItem<String>(
+                value: item,
+                child: Text(item, style: GoogleFonts.poppins()),
+              ))
+          .toList(),
+      onChanged: onChanged,
+    );
+  }
+
+  Widget _buildDateField(
+      BuildContext context, String label, TextEditingController controller) {
+    return GestureDetector(
+      onTap: () async {
+        DateTime? pickedDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime.now(),
+        );
+
+        if (pickedDate != null) {
+          String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+          controller.text = formattedDate;
+        }
+      },
+      child: AbsorbPointer(
+        child: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: label,
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

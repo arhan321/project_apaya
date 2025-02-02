@@ -1,62 +1,64 @@
-import 'package:forum/page_admin/rekapadmin.dart';
+import 'package:forum/view/page_admin/editprofileadmin.dart';
+import 'package:forum/view/page_admin/rekapadmin.dart';
+// import 'package:forum/view/page_siswa/editprofilesiswa.dart' as editProfile;
+import 'package:forum/view/page_siswa/profile.dart' as profile;
 import 'package:get/get.dart';
-import 'package:forum/page_admin/catatanadmin.dart';
-import 'package:forum/page_admin/detailabsenadmin.dart';
-import 'package:forum/page_admin/editabsenadmin.dart';
-import 'package:forum/page_admin/tambahakunguru.dart';
-import '../page_global/welcome.dart'; // Halaman Welcome
-import '../page_global/login.dart'; // Halaman Login
-import '../page_global/register.dart'; // Halaman Register
-import '../page_global/forgetpassword.dart'; // Halaman Lupa Password
-import '../page_global/newpassword.dart'; // Halaman Reset Password
-import '../page_siswa/mainpage.dart'; // Halaman Utama Siswa
-import '../page_siswa/kalkulator.dart'; // Halaman Kalkulator
-import '../page_siswa/profile.dart'; // Halaman Profil Siswa
-import '../page_siswa/listabsen.dart'; // Halaman Daftar Absen
-import '../page_siswa/formabsen.dart'; // Halaman Form Absen
-import '../page_siswa/viewdetail.dart'; // Halaman Detail Absen
-import '../page_guru/profileguru.dart'; // Halaman Profil Guru
-import '../page_guru/listabsensiswa.dart'; // Halaman Daftar Absen Siswa
-import '../page_guru/editabsen.dart'; // Halaman Edit Absen
-import '../page_guru/mainpage_guru.dart'; // Halaman Utama Guru
-import '../page_guru/editprofileguru.dart';
-import '../page_guru/rekapabsen.dart'; // Halaman Rekap Absen
-import '../page_orangtua/mainpageortu.dart'; // Halaman Utama Orang Tua
-import '../page_orangtua/listabsenortu.dart'; // Halaman Daftar Absen Orang Tua
-import '../page_orangtua/detailabsenortu.dart'; // Halaman Detail Absen Orang Tua
-import '../page_orangtua/cekcatatan.dart';
-import '../page_guru/catatanguru.dart'; // Halaman Catatan Guru
-import '../page_admin/dashboard.dart'; // Halaman Dashboard Admin
-import '../page_admin/listaccount.dart'; // Impor halaman List Account
-import '../page_admin/listakunguru.dart'; // Impor halaman ListAkunGuru
-import '../page_admin/editakunguru.dart'; // Impor halaman EditAkunGuru
-import '../page_admin/listakunsiswa.dart';
-import '../page_admin/listakunadmin.dart';
-import '../page_admin/editakunsiswa.dart';
-import '../page_admin/tambahakunsiswa.dart';
-import '../page_admin/listakunortu.dart'; // Halaman List Akun Orang Tua
-import '../page_admin/tambahakunortu.dart'; // Halaman Tambah Akun Orang Tua
-import '../page_admin/editakunortu.dart';
-import '../page_admin/editakunadmin.dart'; // Import halaman edit akun admin
-import '../page_admin/tambahakunadmin.dart'; // Import halaman tambah akun admin
-import '../page_admin/daftarkelas.dart'; // Import halaman Daftar Kelas
-import '../page_admin/tambahkelas.dart';
-import '../page_admin/editkelas.dart';
-import '../page_admin/kelolaabsensi.dart';
-import '../page_admin/listabsenadmin.dart';
-import '../page_admin/profileadmin.dart'; // Import halaman Profile Admin
-import '../page_admin/editprofileadmin.dart'; // Import halaman Edit Profile Admin
-import '../page_siswa/editprofilesiswa.dart';
-import '../page_orangtua/profilortu.dart';
-import '../page_admin/laporan.dart';
+import 'package:forum/view/page_admin/catatanadmin.dart';
+import 'package:forum/view/page_admin/detailabsenadmin.dart';
+import 'package:forum/view/page_guru/detailabsenguru.dart';
+import 'package:forum/view/page_admin/editabsenadmin.dart';
+import 'package:forum/view/page_admin/tambahakunguru.dart';
+import '../view/page_global/welcome.dart'; // Halaman Welcome
+import '../view/page_global/login.dart'; // Halaman Login
+import '../view/page_global/register.dart'; // Halaman Register
+import '../view/page_global/forgetpassword.dart'; // Halaman Lupa Password
+import '../view/page_global/newpassword.dart'; // Halaman Reset Password
+import '../view/page_siswa/mainpage.dart'; // Halaman Utama Siswa
+// import '../../view/page_siswa/kalkulator.dart'; // Halaman Kalkulator
+import '../view/page_siswa/profile.dart'; // Halaman Profil Siswa
+import '../view/page_siswa/listabsen.dart'; // Halaman Daftar Absen
+import '../view/page_siswa/formabsen.dart'; // Halaman Form Absen
+import '../view/page_siswa/viewdetail.dart'; // Halaman Detail Absen
+import '../view/page_guru/profileguru.dart'; // Halaman Profil Guru
+import '../view/page_guru/listabsensiswa.dart'; // Halaman Daftar Absen Siswa
+import '../view/page_guru/editabsen.dart'; // Halaman Edit Absen
+import '../view/page_guru/mainpage_guru.dart'; // Halaman Utama Guru
+import '../view/page_guru/editprofileguru.dart';
+import '../view/page_guru/rekapabsen.dart'; // Halaman Rekap Absen
+import '../view/page_orangtua/mainpageortu.dart'; // Halaman Utama Orang Tua
+import '../view/page_orangtua/listabsenortu.dart'; // Halaman Daftar Absen Orang Tua
+import '../view/page_orangtua/detailabsenortu.dart'; // Halaman Detail Absen Orang Tua
+import '../view/page_orangtua/cekcatatan.dart';
+import '../view/page_guru/catatanguru.dart'; // Halaman Catatan Guru
+import '../view/page_admin/mainpage.dart'; // Halaman Dashboard Admin
+import '../view/page_admin/listaccount.dart'; // Impor halaman List Account
+import '../view/page_admin/listakunguru.dart'; // Impor halaman ListAkunGuru
+import '../view/page_admin/editakunguru.dart'; // Impor halaman EditAkunGuru
+import '../view/page_admin/listakunsiswa.dart';
+import '../view/page_admin/listakunadmin.dart';
+import '../view/page_admin/editakunsiswa.dart';
+import '../view/page_admin/tambahakunsiswa.dart';
+import '../view/page_admin/listakunortu.dart'; // Halaman List Akun Orang Tua
+import '../view/page_admin/tambahakunortu.dart'; // Halaman Tambah Akun Orang Tua
+import '../view/page_admin/editakunortu.dart';
+import '../view/page_admin/editakunadmin.dart'; // Import halaman edit akun admin
+import '../view/page_admin/tambahakunadmin.dart'; // Import halaman tambah akun admin
+import '../view/page_admin/daftarkelas.dart'; // Import halaman Daftar Kelas
+import '../view/page_admin/tambahkelas.dart';
+import '../view/page_admin/editkelas.dart';
+import '../view/page_admin/kelolaabsensi.dart';
+import '../view/page_admin/listabsenadmin.dart';
+import '../view/page_admin/profileadmin.dart'; // Import halaman Profile Admin
+import '../view/page_admin/editprofileadmin.dart'
+    as editProfileAdmin; // Import halaman Edit Profile Admin
+import '../view/page_siswa/editprofilesiswa.dart';
+import '../view/page_orangtua/profilortu.dart';
+import '../view/page_admin/laporan.dart';
 // Import halaman RekapAdminPage
-import '../page_admin/downloadpdf.dart'; // Import halaman DownloadPDFPage
-import '../page_guru/tambahabsen.dart'; // Import halaman TambahAbsenPage
-import '../page_orangtua/editprofileortu.dart';
-// import '../page_admin/tambahakunsiswa.dart';
-// import '../page_admin/manage_users.dart'; // Halaman Kelola Pengguna (Admin)
-// import '../page_admin/manage_absences.dart'; // Halaman Kelola Absensi (Admin)
-// import '../page_admin/reports.dart'; // Halaman Laporan (Admin)
+import '../view/page_admin/downloadpdf.dart'; // Import halaman DownloadPDFPage
+
+import '../view/page_orangtua/editprofileortu.dart';
+import '../view/page_guru/tambahabsen.dart'; // Import halaman TambahAbsenPage
 
 class AppRoutes {
   // Daftar Konstanta Rute
@@ -78,7 +80,8 @@ class AppRoutes {
   static const editAbsen = '/editAbsen'; // Rute Edit Absen
   static const rekapAbsen = '/rekapAbsen'; // Rute Rekap Absen
   static const listAbsenOrtu = '/listAbsenOrtu'; // Rute Daftar Absen Orang Tua
-  static const detailAbsenOrtu = '/detailAbsenOrtu'; // Rute Detail Absen Orang Tua
+  static const detailAbsenOrtu =
+      '/detailAbsenOrtu'; // Rute Detail Absen Orang Tua
   static const catatanGuru = '/catatanGuru'; // Rute Catatan Guru
   static const cekCatatan = '/cekCatatan'; // Rute Catatan Harian Orang Tua
   static const adminDashboard = '/adminDashboard'; // Rute Dashboard Admin
@@ -96,24 +99,25 @@ class AppRoutes {
   static const editAkunAdmin = '/editAkunAdmin';
   static const tambahAkunAdmin = '/tambahAkunAdmin';
   static const listAkunAdmin = '/listAkunadmin'; // Rute Halaman List Akun Admin
-  static const daftarKelas = '/daftarKelas'; 
+  static const daftarKelas = '/daftarKelas';
   static const tambahKelas = '/tambahKelas';
   static const editKelas = '/editKelas';
-static const kelolaAbsensi = '/kelolaAbsensi';
-static const listAbsenAdmin = '/listAbsenAdmin';
-static const detailAbsenAdmin = '/detailAbsenAdmin';
-static const editAbsenAdmin = '/editAbsenAdmin';
-static const catatanAdmin = '/catatanAdmin';
- static const profileAdmin = '/profileAdmin'; // Tambahkan rute konstan
-  static const editProfileAdmin = '/editProfileAdmin'; // Rute konstan untuk Edit Profile Admin
-static const editProfileSiswa = '/editProfileSiswa';
- 
+  static const kelolaAbsensi = '/kelolaAbsensi';
+  static const listAbsenAdmin = '/listAbsenAdmin';
+  static const detailAbsenAdmin = '/detailAbsenAdmin';
+  static const detailAbsenGuru = '/detailAbsenGuru';
+  static const editAbsenAdmin = '/editAbsenAdmin';
+  static const catatanAdmin = '/catatanAdmin';
+  static const profileAdmin = '/profileAdmin'; // Tambahkan rute konstan
+  static const editProfileAdmin =
+      '/editProfileAdmin'; // Rute konstan untuk Edit Profile Admin
+  static const editProfileSiswa = '/editProfileSiswa';
   static const editProfileOrtu = '/editProfileOrtu';
-static const profilOrtu = '/profilOrtu';
-static const rekapAdmin = '/rekapAdmin';
- static const laporan = '/laporan';
-static const downloadPDF = '/downloadPDF'; // Route untuk Download PDF
- static const tambahAbsen = '/tambahAbsen'; // Rute Tambah Absen
+  static const profilOrtu = '/profilOrtu';
+  static const rekapAdmin = '/rekapAdmin';
+  static const laporan = '/laporan';
+  static const downloadPDF = '/downloadPDF'; // Route untuk Download PDF
+  static const tambahAbsen = '/tambahAbsen';
 
   static List<GetPage> routes = [
     GetPage(
@@ -138,7 +142,7 @@ static const downloadPDF = '/downloadPDF'; // Route untuk Download PDF
     ),
     GetPage(
       name: mainPage,
-      page: () => MainPage(userName: ''), // Halaman Utama Siswa
+      page: () => MainPage(), // Halaman Utama Siswa
     ),
     GetPage(
       name: mainPageGuru,
@@ -146,27 +150,30 @@ static const downloadPDF = '/downloadPDF'; // Route untuk Download PDF
     ),
     GetPage(
       name: mainPageOrtu,
-      page: () => MainPageOrtu(userName: 'Orang Tua'), // Halaman Utama Orang Tua
+      page: () => MainPageOrtu(), // Halaman Utama Orang Tua
     ),
     GetPage(
-      name: kalkulator,
-      page: () => KalkulatorPage(userName: 'Guest'), // Kalkulator
-    ),
-    GetPage(
-      name: profile,
-      page: () => ProfilePage(), // Profil Siswa
+      name: profile, // Nama rute
+      page: () =>
+          const ProfilePage(), // Langsung arahkan ke halaman ProfilePage
     ),
     GetPage(
       name: listAbsen,
-      page: () => ListAbsenPage(className: 'Default Class'), // Daftar Absen
+      page: () {
+        final int classId =
+            Get.arguments['classId'] ?? 0; // Ambil classId dari arguments
+        return ListAbsenPage(classId: classId);
+      },
     ),
     GetPage(
       name: formAbsen,
-      page: () => FormAbsenPage(), // Form Absen
+      page: () => FormAbsenPage(
+        classId: Get.arguments['classId'], // Ambil classId dari arguments
+      ),
     ),
     GetPage(
       name: profileGuru,
-      page: () => ProfileGuruPage(kelas: '',), // Profil Guru
+      page: () => ProfileGuruPage(), // Profil Guru
     ),
     GetPage(
       name: viewDetail,
@@ -174,7 +181,10 @@ static const downloadPDF = '/downloadPDF'; // Route untuk Download PDF
     ),
     GetPage(
       name: listAbsenSiswa,
-      page: () => ListAbsenSiswaPage(className: 'Kelas 6A'), // Daftar Absen Siswa
+      page: () {
+        final int classId = Get.arguments['classId'] ?? 0;
+        return ListAbsenSiswaPage(classId: classId);
+      },
     ),
     GetPage(
       name: editAbsen,
@@ -184,10 +194,18 @@ static const downloadPDF = '/downloadPDF'; // Route untuk Download PDF
       name: rekapAbsen,
       page: () => RekapAbsenPage(), // Rekap Absen
     ),
+    // GetPage(
+    //   name: listAbsenOrtu,
+    //   page: () => ListAbsenOrtu(), // Daftar Absen Orang Tua
+    // ),
     GetPage(
       name: listAbsenOrtu,
-      page: () => ListAbsenOrtu(), // Daftar Absen Orang Tua
+      page: () {
+        final int classId = Get.arguments?['classId'] ?? 0; // Default ke 0
+        return ListAbsenOrtu(classId: classId);
+      },
     ),
+
     GetPage(
       name: detailAbsenOrtu,
       page: () => DetailAbsenOrtu(), // Detail Absen Orang Tua
@@ -244,13 +262,13 @@ static const downloadPDF = '/downloadPDF'; // Route untuk Download PDF
       name: editAkunOrtu,
       page: () => EditAkunOrtu(),
     ),
-   GetPage(
-  name: listAkunAdmin,
-  page: () => ListAkunAdminPage(), // Halaman List Akun Admin
-),
+    GetPage(
+      name: listAkunAdmin,
+      page: () => ListAkunAdminPage(), // Halaman List Akun Admin
+    ),
     GetPage(
       name: editAkunAdmin,
-      page: () => EditAkunAdmin(),
+      page: () => EditAkunAdminPage(),
     ),
     GetPage(
       name: tambahAkunAdmin,
@@ -276,27 +294,27 @@ static const downloadPDF = '/downloadPDF'; // Route untuk Download PDF
       name: listAbsenAdmin,
       page: () => ListAbsenAdminPage(),
     ),
+    GetPage(name: detailAbsenGuru, page: () => DetailAbsenGuruPage()),
     GetPage(name: detailAbsenAdmin, page: () => DetailAbsenAdminPage()),
     GetPage(name: editAbsenAdmin, page: () => EditAbsenAdminPage()),
     GetPage(name: catatanAdmin, page: () => CatatanAdminPage()),
-   GetPage(
+    GetPage(
       name: profileAdmin,
       page: () => ProfileAdminPage(),
     ),
-      GetPage(
+    GetPage(
       name: editProfileAdmin,
       page: () => EditProfileAdminPage(),
-      
     ),
-     GetPage(
+    GetPage(
       name: editProfileGuru,
       page: () => EditProfileGuruPage(),
     ),
-        GetPage(
+    GetPage(
       name: editProfileSiswa,
       page: () => EditProfileSiswaPage(),
     ),
-     GetPage(
+    GetPage(
       name: editProfileOrtu,
       page: () => EditProfileOrtuPage(),
     ),
@@ -308,38 +326,22 @@ static const downloadPDF = '/downloadPDF'; // Route untuk Download PDF
       name: rekapAdmin,
       page: () => RekapAdminPage(),
     ),
-     GetPage(
+    GetPage(
+      name: tambahAbsen,
+      page: () {
+        // Since 'classId' is passed directly, we can just use it without casting
+        final int passedClassId =
+            Get.arguments ?? 0; // Default to 0 if it's null
+        return TambahAbsenPage(classId: passedClassId);
+      },
+    ),
+    GetPage(
       name: downloadPDF,
       page: () => DownloadPDFPage(
-        semester: '1', 
-        className: 'Kelas 6A', 
+        semester: '1',
+        className: 'Kelas 6A',
         waliKelas: 'Tatang Sutarman',
       ),
-     ),
-     GetPage(
-      name: tambahAbsen,
-      page: () => TambahAbsenPage(),
     ),
-  
-
   ];
 }
-
-    //   GetPage(
-    //   name: tambahAkunSiswa,
-    //   page: () => TambahAkunSiswa(), // Halaman Tambah Akun Guru
-    // )
-    // GetPage(
-    //   name: manageUsers,
-    //   page: () => ManageUsersPage(), // Kelola Pengguna
-    // ),
-    // GetPage(
-    //   name: manageAbsences,
-    //   page: () => ManageAbsencesPage(), // Kelola Absensi
-    // ),
-    // GetPage(
-    //   name: reports,
-    //   page: () => ReportsPage(), // Laporan
-    // ),
-  
-
