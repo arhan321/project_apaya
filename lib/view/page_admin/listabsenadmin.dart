@@ -133,8 +133,8 @@ class ListAbsenAdminPage extends StatelessWidget {
     String kelas,
     int siswaId,
     String keterangan,
-    String catatan, // Tetap diterima sebagai parameter untuk dikirim ke detail
-    String tanggalAbsen, // Tambahkan tanggal_absen untuk dikirim ke detail
+    String catatan, // Parameter untuk dikirim ke detail
+    String tanggalAbsen, // Tanggal absen
   ) {
     return Container(
       margin: EdgeInsets.only(bottom: 12),
@@ -155,18 +155,38 @@ class ListAbsenAdminPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // Kolom informasi siswa
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name,
-                      style: GoogleFonts.poppins(
-                          fontSize: 16, fontWeight: FontWeight.w500)),
+                  Text(
+                    name,
+                    style: GoogleFonts.poppins(
+                        fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
                   SizedBox(height: 4),
-                  Text('No Absen $number',
-                      style: GoogleFonts.poppins(
-                          fontSize: 12, color: Colors.grey)),
+                  Text(
+                    'No Absen $number',
+                    style:
+                        GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                  ),
+                  SizedBox(height: 4),
+                  // Baris untuk menampilkan tanggal absen
+                  Text(
+                    'Tanggal: $tanggalAbsen',
+                    style:
+                        GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                  ),
+                  SizedBox(height: 4),
+                  // Baris untuk menampilkan jam absen
+                  Text(
+                    'Jam: $jamAbsen',
+                    style:
+                        GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                  ),
                 ],
               ),
+              // Tampilan status absensi
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
@@ -184,6 +204,7 @@ class ListAbsenAdminPage extends StatelessWidget {
             ],
           ),
           SizedBox(height: 8),
+          // Baris tombol aksi
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -227,7 +248,7 @@ class ListAbsenAdminPage extends StatelessWidget {
                       'tanggalAbsen': tanggalAbsen, // Tambahkan tanggal_absen
                       'catatan': catatan, // Kirim catatan ke halaman edit
                     })?.then((value) {
-                      controller.fetchData(); // Refresh data after edit
+                      controller.fetchData(); // Refresh data setelah edit
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -254,7 +275,6 @@ class ListAbsenAdminPage extends StatelessWidget {
                   'siswaId': siswaId,
                   'name': name,
                 });
-
                 if (result == true) {
                   // Refresh data setelah catatan berhasil dikirim
                   controller.fetchData();
