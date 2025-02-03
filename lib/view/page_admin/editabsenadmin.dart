@@ -69,15 +69,19 @@ class EditAbsenAdminPage extends StatelessWidget {
                 );
 
                 if (response['success']) {
+                  // Notifikasi bahwa perubahan berhasil
                   Get.snackbar(
                     'Berhasil',
-                    response['message'],
+                    'Data absensi berhasil diperbarui',
                     snackPosition: SnackPosition.BOTTOM,
                     backgroundColor: Colors.green,
                     colorText: Colors.white,
                   );
+                  // Menambahkan delay agar notifikasi sempat muncul
+                  await Future.delayed(Duration(seconds: 1));
                   Get.back(); // Kembali ke halaman sebelumnya
                 } else {
+                  // Menampilkan error jika gagal
                   Get.snackbar(
                     'Gagal',
                     response['message'],

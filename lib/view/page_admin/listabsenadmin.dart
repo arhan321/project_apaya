@@ -9,6 +9,9 @@ class ListAbsenAdminPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Call fetchData initially when the page is loaded
+    controller.fetchData();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -64,7 +67,7 @@ class ListAbsenAdminPage extends StatelessWidget {
                       siswa['kelas'] ?? '-', // Kelas
                       siswa['id'], // ID Siswa
                       siswa['status'] ?? 'Tidak ada keterangan', // Keterangan
-                      siswa['catatan'], // Tetap kirim catatan ke detail
+                      siswa['catatan'] ?? '', // Catatan siswa
                       siswa['tanggal_absen'] ?? '-', // Tambahkan tanggal_absen
                     );
                   },
@@ -222,6 +225,9 @@ class ListAbsenAdminPage extends StatelessWidget {
                       'status': status,
                       'jamAbsen': jamAbsen,
                       'tanggalAbsen': tanggalAbsen, // Tambahkan tanggal_absen
+                      'catatan': catatan, // Kirim catatan ke halaman edit
+                    })?.then((value) {
+                      controller.fetchData(); // Refresh data after edit
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -239,14 +245,20 @@ class ListAbsenAdminPage extends StatelessWidget {
             ],
           ),
           SizedBox(height: 8),
+          // Tombol Beri Catatan
           Center(
             child: ElevatedButton(
-              onPressed: () {
-                Get.toNamed('/catatanAdmin', arguments: {
+              onPressed: () async {
+                final result = await Get.toNamed('/catatanAdmin', arguments: {
                   'kelasId': controller.selectedClassId,
                   'siswaId': siswaId,
                   'name': name,
                 });
+
+                if (result == true) {
+                  // Refresh data setelah catatan berhasil dikirim
+                  controller.fetchData();
+                }
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
               child: Text('Beri Catatan',
