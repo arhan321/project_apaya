@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'downloadpdf.dart'; // Pastikan file downloadpdf.dart sudah ada dan telah diupdate
+import 'downloadpdf.dart'; // Pastikan file downloadpdf.dart sudah ada dan terupdate
+import 'downloadexcel.dart'; // Pastikan file downloadexcel.dart sudah ada
 
 class RekapAdminPage extends StatefulWidget {
   @override
@@ -174,8 +175,8 @@ class _RekapAdminPageState extends State<RekapAdminPage> {
             onPressed: () {
               // Ekstrak semester dari judul, misalnya "Rekap Semester 1" menghasilkan "1"
               final parts = title.split(' ');
-              String semester = parts.length > 1 ? parts.last : "";
-              _showFormatDialog(semester, kelas, waliKelas, siswaData);
+              String sem = parts.length > 1 ? parts.last : "";
+              _showFormatDialog(sem, kelas, waliKelas, siswaData);
             },
             icon: Icon(Icons.download, color: Colors.white),
             label: Text(
@@ -196,9 +197,9 @@ class _RekapAdminPageState extends State<RekapAdminPage> {
   }
 
   /// Menampilkan dialog untuk memilih format file download (PDF/Excel)
-  /// Parameter [rekapData] berisi data siswa yang sudah didecode
+  /// Parameter [siswaData] berisi data siswa yang sudah didecode
   void _showFormatDialog(String semester, String kelas, String waliKelas,
-      List<Map<String, dynamic>> rekapData) {
+      List<Map<String, dynamic>> siswaData) {
     Get.dialog(
       Dialog(
         shape: RoundedRectangleBorder(
@@ -221,7 +222,10 @@ class _RekapAdminPageState extends State<RekapAdminPage> {
               SizedBox(height: 10),
               Text(
                 'Pilih format file untuk rekap absen semester $semester.',
-                style: GoogleFonts.poppins(fontSize: 14, color: Colors.black54),
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 20),
@@ -236,7 +240,7 @@ class _RekapAdminPageState extends State<RekapAdminPage> {
                             semester: semester,
                             className: kelas,
                             waliKelas: waliKelas,
-                            rekapData: rekapData,
+                            rekapData: siswaData,
                           ));
                     },
                     child: Text(
@@ -251,13 +255,13 @@ class _RekapAdminPageState extends State<RekapAdminPage> {
                   TextButton(
                     onPressed: () {
                       Get.back(); // Tutup dialog
-                      Get.snackbar(
-                        'Rekap Absen Semester $semester',
-                        'File Excel untuk rekap absen semester $semester diunduh.',
-                        snackPosition: SnackPosition.BOTTOM,
-                        backgroundColor: Colors.blueAccent,
-                        colorText: Colors.white,
-                      );
+                      // Navigasi ke halaman DownloadExcelPage dengan parameter lengkap
+                      Get.to(() => DownloadExcelPage(
+                            semester: semester,
+                            className: kelas,
+                            waliKelas: waliKelas,
+                            rekapData: siswaData,
+                          ));
                     },
                     child: Text(
                       'Excel',

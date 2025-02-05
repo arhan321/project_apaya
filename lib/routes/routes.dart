@@ -1,3 +1,4 @@
+import 'package:forum/view/page_admin/downloadexcel.dart';
 import 'package:forum/view/page_admin/editprofileadmin.dart';
 import 'package:forum/view/page_admin/rekapadmin.dart';
 // import 'package:forum/view/page_siswa/editprofilesiswa.dart' as editProfile;
@@ -59,6 +60,7 @@ import '../view/page_admin/downloadpdf.dart'; // Import halaman DownloadPDFPage
 
 import '../view/page_orangtua/editprofileortu.dart';
 import '../view/page_guru/tambahabsen.dart'; // Import halaman TambahAbsenPage
+import '../view/page_admin/downloadexcel.dart';
 
 class AppRoutes {
   // Daftar Konstanta Rute
@@ -118,6 +120,8 @@ class AppRoutes {
   static const laporan = '/laporan';
   static const downloadPDF = '/downloadPDF'; // Route untuk Download PDF
   static const tambahAbsen = '/tambahAbsen';
+
+  static const downloadexcel = '/downloadexcel';
 
   static List<GetPage> routes = [
     GetPage(
@@ -341,6 +345,18 @@ class AppRoutes {
         // Ambil arguments yang dikirim saat navigasi ke halaman DownloadPDFPage
         final args = Get.arguments as Map<String, dynamic>? ?? {};
         return DownloadPDFPage(
+          semester: args['semester'] ?? '',
+          className: args['className'] ?? '',
+          waliKelas: args['waliKelas'] ?? '',
+          rekapData: args['rekapData'] ?? [],
+        );
+      },
+    ),
+    GetPage(
+      name: downloadexcel,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>? ?? {};
+        return DownloadExcelPage(
           semester: args['semester'] ?? '',
           className: args['className'] ?? '',
           waliKelas: args['waliKelas'] ?? '',
