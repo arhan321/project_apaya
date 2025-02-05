@@ -1,9 +1,58 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'downloadrekappage.dart'; // Import halaman DownloadRekapPage
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'downloadrekappage.dart'; // Pastikan file downloadpdf.dart sudah ada dan terupdate
+import 'downloadexcelpage.dart'; // Pastikan file downloadexcel.dart sudah ada
 
-class RekapAbsenPage extends StatelessWidget {
-  const RekapAbsenPage({Key? key}) : super(key: key);
+class RekapGuruPage extends StatefulWidget {
+  @override
+  _RekapGuruPageState createState() => _RekapGuruPageState();
+}
+
+class _RekapGuruPageState extends State<RekapGuruPage> {
+  List<dynamic> kelasData = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchRekapData();
+  }
+
+  /// Mengambil data rekap absen dari API.
+  /// Anda dapat menyesuaikan URL dan parameter API jika diperlukan (misalnya hanya kelas yang diampu guru).
+  Future<void> fetchRekapData() async {
+    final String url = "https://absen.randijourney.my.id/api/v1/kelas";
+    try {
+      print("Fetching rekap data from $url...");
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          // Ambil data kelas dari key 'data'
+          kelasData = data['data'] ?? [];
+          isLoading = false;
+        });
+      } else {
+        throw Exception("Failed to load rekap data");
+      }
+    } catch (e) {
+      print("Error fetching rekap data: $e");
+      setState(() {
+        isLoading = false;
+      });
+      Get.snackbar(
+        'Error',
+        'Gagal mengambil data rekap absen',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,178 +62,225 @@ class RekapAbsenPage extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.blueAccent, Colors.lightBlueAccent],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
           ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Get.back(),
         ),
         title: Text(
           'Rekap Absen',
           style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w700,
             fontSize: 20,
+            fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: IconThemeData(color: Colors.white),
+        centerTitle: true,
       ),
       body: Container(
-        padding: EdgeInsets.all(16),
+        width: double.infinity,
+        height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Colors.blueAccent, Colors.lightBlueAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
-        child: ListView(
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : kelasData.isEmpty
+                ? Center(
+                    child: Text(
+                      "Belum ada data rekap absen.",
+                      style: GoogleFonts.poppins(
+                          fontSize: 16, color: Colors.white),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: EdgeInsets.all(16),
+                    itemCount: kelasData.length,
+                    itemBuilder: (context, index) {
+                      final item = kelasData[index];
+                      final className =
+                          item["nama_kelas"] ?? "Kelas tidak tersedia";
+                      final waliKelas =
+                          item["nama_user"] ?? "Wali tidak tersedia";
+
+                      // Field 'siswa' biasanya disimpan sebagai string JSON, jadi perlu didecode.
+                      final String rawSiswa = item["siswa"] ?? "[]";
+                      List<Map<String, dynamic>> siswaData = [];
+                      try {
+                        final decoded = json.decode(rawSiswa);
+                        if (decoded is List) {
+                          siswaData = List<Map<String, dynamic>>.from(decoded);
+                        }
+                      } catch (e) {
+                        print("Error decoding siswa data: $e");
+                      }
+                      return _buildRekapCard(className, waliKelas, siswaData);
+                    },
+                  ),
+      ),
+    );
+  }
+
+  /// Membuat kartu rekap absen untuk masing-masing kelas
+  Widget _buildRekapCard(
+      String kelas, String waliKelas, List<Map<String, dynamic>> siswaData) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      margin: EdgeInsets.only(bottom: 16),
+      elevation: 5,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildCard(
-              className: "Kelas 6A",
-              waliKelas: "Tatang Sutarman",
-              context: context, // Pass context
+            Text(
+              kelas,
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.blueAccent,
+              ),
             ),
-            SizedBox(height: 16),
-            _buildCard(
-              className: "Kelas 5B",
-              waliKelas: "Siti Fatimah",
-              context: context, // Pass context
+            SizedBox(height: 5),
+            Text(
+              'Wali Kelas: $waliKelas',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
             ),
-            SizedBox(height: 16),
-            _buildCard(
-              className: "Kelas 4C",
-              waliKelas: "Ahmad Fauzan",
-              context: context, // Pass context
-            ),
+            SizedBox(height: 15),
+            _buildButton('Rekap Semester 1', kelas, waliKelas, siswaData),
+            SizedBox(height: 10),
+            _buildButton('Rekap Semester 2', kelas, waliKelas, siswaData),
           ],
         ),
       ),
     );
   }
 
-  // Function to build the card for each class
-  Widget _buildCard({required String className, required String waliKelas, required BuildContext context}) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 5,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            className,
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.blueAccent,
+  /// Membuat tombol download untuk masing-masing semester.
+  /// Saat tombol ditekan, akan memanggil dialog pemilihan format download (PDF/Excel).
+  Widget _buildButton(String title, String kelas, String waliKelas,
+      List<Map<String, dynamic>> siswaData) {
+    return Row(
+      children: [
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: () {
+              // Ekstrak semester dari judul, misalnya "Rekap Semester 1" menghasilkan "1"
+              final parts = title.split(' ');
+              String sem = parts.length > 1 ? parts.last : "";
+              _showFormatDialog(sem, kelas, waliKelas, siswaData);
+            },
+            icon: Icon(Icons.download, color: Colors.white),
+            label: Text(
+              title,
+              style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent,
+              padding: EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
           ),
-          SizedBox(height: 8),
-          Text(
-            "Wali Kelas: $waliKelas",
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: Colors.grey[700],
-            ),
-          ),
-          SizedBox(height: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildDownloadButton("Rekap Semester 1", context, className, waliKelas, "1"),
-              SizedBox(height: 8),
-              _buildDownloadButton("Rekap Semester 2", context, className, waliKelas, "2"),
-            ],
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  // Function to create download button
-  Widget _buildDownloadButton(String label, BuildContext context, String className, String waliKelas, String semester) {
-    return ElevatedButton.icon(
-      onPressed: () {
-        // Show alert dialog with PDF or Excel option
-        _showDownloadDialog(context, className, waliKelas, semester);
-      },
-      style: ElevatedButton.styleFrom(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        backgroundColor: Colors.blueAccent,
+  /// Menampilkan dialog untuk memilih format file download (PDF/Excel).
+  /// Parameter [siswaData] berisi data siswa yang telah didecode.
+  void _showFormatDialog(String semester, String kelas, String waliKelas,
+      List<Map<String, dynamic>> siswaData) {
+    Get.dialog(
+      Dialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(20),
         ),
-      ),
-      icon: Icon(Icons.download, color: Colors.white),
-      label: Text(
-        label,
-        style: GoogleFonts.poppins(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-
-  // Show alert dialog with options for PDF or Excel download
-  void _showDownloadDialog(BuildContext context, String className, String waliKelas, String semester) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(
-            'Pilih Format Pengunduhan',
-            style: GoogleFonts.poppins(),
-          ),
-          content: Text(
-            'Pilih format file untuk rekap absen semester $semester.',
-            style: GoogleFonts.poppins(),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                // Navigate to the DownloadRekapPage when PDF is selected
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DownloadRekapPage(
-                      className: className,
-                      waliKelas: waliKelas,
-                      semester: semester,  // Mengirimkan semester yang dipilih
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Pilih Format Pengunduhan',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Pilih format file untuk rekap absen semester $semester.',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Get.back(); // Tutup dialog
+                      // Navigasi ke halaman DownloadPDFPage dengan parameter lengkap
+                      Get.to(() => DownloadRekapPage(
+                            semester: semester,
+                            className: kelas,
+                            waliKelas: waliKelas,
+                            rekapData: siswaData,
+                          ));
+                    },
+                    child: Text(
+                      'PDF',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.blueAccent,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                );
-              },
-              child: Text(
-                'PDF',
-                style: GoogleFonts.poppins(color: Colors.blueAccent),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                // Just close the dialog when Excel is selected (no navigation)
-                Navigator.pop(context);
-              },
-              child: Text(
-                'Excel',
-                style: GoogleFonts.poppins(color: Colors.blueAccent),
-              ),
-            ),
-          ],
-        );
-      },
+                  TextButton(
+                    onPressed: () {
+                      Get.back(); // Tutup dialog
+                      // Navigasi ke halaman DownloadExcelPage dengan parameter lengkap
+                      // Get.to(() => DownloadExcelPage(
+                      //       semester: semester,
+                      //       className: kelas,
+                      //       waliKelas: waliKelas,
+                      //       rekapData: siswaData,
+                      //     ));
+                    },
+                    child: Text(
+                      'Excel',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.blueAccent,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

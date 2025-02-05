@@ -66,7 +66,7 @@ class ListAbsenPage extends StatelessWidget {
                     return _buildAbsenCard(
                       controller: controller,
                       name: student['nama'] ?? 'Tidak diketahui',
-                      number: 'No ${student['nomor_absen'] ?? '-'}',
+                      number: 'No Absen ${student['nomor_absen'] ?? '-'}',
                       badge: student['keterangan'] ?? 'Tidak diketahui',
                       jamAbsen: student['jam_absen'] ?? '-',
                       tanggalAbsen: student['tanggal_absen'] ?? '-',

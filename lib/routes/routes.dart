@@ -196,12 +196,8 @@ class AppRoutes {
     ),
     GetPage(
       name: rekapAbsen,
-      page: () => RekapAbsenPage(), // Rekap Absen
+      page: () => RekapGuruPage(), // Rekap Absen
     ),
-    // GetPage(
-    //   name: listAbsenOrtu,
-    //   page: () => ListAbsenOrtu(), // Daftar Absen Orang Tua
-    // ),
     GetPage(
       name: listAbsenOrtu,
       page: () {
@@ -209,7 +205,6 @@ class AppRoutes {
         return ListAbsenOrtu(classId: classId);
       },
     ),
-
     GetPage(
       name: detailAbsenOrtu,
       page: () => DetailAbsenOrtu(), // Detail Absen Orang Tua

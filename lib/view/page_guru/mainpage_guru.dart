@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../controller/guru_controller/mainpageguru_controller.dart';
 import 'listabsensiswa.dart';
 import 'profileguru.dart';
+import 'rekapabsen.dart';
 
 class MainPageGuru extends StatefulWidget {
   @override
@@ -153,6 +154,18 @@ class _MainPageGuruState extends State<MainPageGuru>
                   backgroundColor: Colors.greenAccent,
                   colorText: Colors.white,
                 );
+              },
+            ),
+            // Tambahkan menu Rekap Absen di sini
+            ListTile(
+              leading: Icon(Icons.list_alt, color: Colors.blueAccent),
+              title: Text(
+                'Rekap Absen',
+                style: GoogleFonts.poppins(),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                Get.toNamed('/rekapAbsen');
               },
             ),
             ListTile(
