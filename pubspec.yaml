@@ -51,8 +51,9 @@ dependencies:
   permission_handler: ^10.2.0
   html: ^0.15.5
   path_provider: ^2.0.11
-  printing: ^5.9.0
+  printing: ^5.14.0
   excel: ^2.0.16
+  flutter_launcher_icons: ^0.14.3
 
 dev_dependencies:
   flutter_test:
@@ -87,6 +88,12 @@ flutter:
           weight: 700
         - asset: assets/fonts/Poppins-ExtraBold.ttf
           weight: 800
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path_android: "assets/icon/images.png"
+  image_path_ios: "assets/icon/images.png"
 
   # To add assets to your application, add an assets section, like this:
   assets:

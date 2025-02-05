@@ -29,10 +29,6 @@ class DownloadExcelPage extends StatelessWidget {
     }
   }
 
-  /// Fungsi untuk meng-aggregate data per siswa.
-  /// Hanya record dengan tanggal valid dan yang masuk ke dalam rentang semester yang dipilih
-  /// yang dihitung. Hasilnya adalah map dengan key: nama siswa, value: map dengan total
-  /// kategori absen ("Hadir", "Tidak Hadir", "Izin", "Sakit").
   Map<String, Map<String, int>> _aggregateData() {
     final Map<String, Map<String, int>> aggregated = {};
 
