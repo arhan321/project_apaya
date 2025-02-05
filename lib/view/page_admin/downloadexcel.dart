@@ -45,7 +45,7 @@ class DownloadExcelPage extends StatelessWidget {
       try {
         tanggal = DateTime.parse(tanggalStr);
       } catch (e) {
-        continue; // Jika gagal parsing tanggal, lewati record ini
+        continue; // Jika gagal parsing tanggal, lewati record ini.
       }
 
       // Cek apakah tanggal masuk ke dalam rentang semester yang dipilih
@@ -99,18 +99,64 @@ class DownloadExcelPage extends StatelessWidget {
       var excel = Excel.createExcel();
       Sheet sheetObject = excel['Sheet1'];
 
-      // Tulis header kolom
-      sheetObject.appendRow(["Nama", "Hadir", "Tidak Hadir", "Izin", "Sakit"]);
+      // Baris header informasi (baris 0-2)
+      sheetObject.appendRow([
+        "Rekap Absen $schoolName",
+      ]);
+      sheetObject.appendRow([
+        "Kelas: $className - Semester: $semester",
+      ]);
+      sheetObject.appendRow([
+        "Wali Kelas: $waliKelas",
+      ]);
+      // Tambahkan baris kosong sebagai pemisah
+      sheetObject.appendRow([]);
 
-      // Tulis data aggregated ke dalam sheet
+      // Definisikan style header untuk tabel menggunakan CellStyle
+      var headerStyle = CellStyle(
+        bold: true,
+        backgroundColorHex: "#EEEEEE",
+        horizontalAlign: HorizontalAlign.Center,
+      );
+
+      // Header kolom untuk tabel rekap data
+      List<String> headers = ["Nama", "Hadir", "Tidak Hadir", "Izin", "Sakit"];
+
+      // Tulis header tabel di baris berikutnya (misal baris index 4)
+      int headerRowIndex = sheetObject.maxRows;
+      int colIndex = 0;
+      for (var header in headers) {
+        var cell = sheetObject.cell(CellIndex.indexByColumnRow(
+            columnIndex: colIndex, rowIndex: headerRowIndex));
+        cell.value = header;
+        cell.cellStyle = headerStyle;
+        colIndex++;
+      }
+
+      // Tulis data aggregated ke dalam sheet, mulai dari baris setelah header tabel
+      int rowIndex = headerRowIndex + 1;
       aggregated.forEach((student, counts) {
-        sheetObject.appendRow([
-          student,
-          counts['Hadir'].toString(),
-          counts['Tidak Hadir'].toString(),
-          counts['Izin'].toString(),
-          counts['Sakit'].toString(),
-        ]);
+        int colIndex = 0;
+        sheetObject.cell(CellIndex.indexByColumnRow(
+            columnIndex: colIndex, rowIndex: rowIndex))
+          ..value = student;
+        colIndex++;
+        sheetObject.cell(CellIndex.indexByColumnRow(
+            columnIndex: colIndex, rowIndex: rowIndex))
+          ..value = counts['Hadir'].toString();
+        colIndex++;
+        sheetObject.cell(CellIndex.indexByColumnRow(
+            columnIndex: colIndex, rowIndex: rowIndex))
+          ..value = counts['Tidak Hadir'].toString();
+        colIndex++;
+        sheetObject.cell(CellIndex.indexByColumnRow(
+            columnIndex: colIndex, rowIndex: rowIndex))
+          ..value = counts['Izin'].toString();
+        colIndex++;
+        sheetObject.cell(CellIndex.indexByColumnRow(
+            columnIndex: colIndex, rowIndex: rowIndex))
+          ..value = counts['Sakit'].toString();
+        rowIndex++;
       });
 
       // Encode workbook menjadi list of bytes
