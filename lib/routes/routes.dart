@@ -337,11 +337,16 @@ class AppRoutes {
     ),
     GetPage(
       name: downloadPDF,
-      page: () => DownloadPDFPage(
-        semester: '1',
-        className: 'Kelas 6A',
-        waliKelas: 'Tatang Sutarman',
-      ),
+      page: () {
+        // Ambil arguments yang dikirim saat navigasi ke halaman DownloadPDFPage
+        final args = Get.arguments as Map<String, dynamic>? ?? {};
+        return DownloadPDFPage(
+          semester: args['semester'] ?? '',
+          className: args['className'] ?? '',
+          waliKelas: args['waliKelas'] ?? '',
+          rekapData: args['rekapData'] ?? [],
+        );
+      },
     ),
   ];
 }

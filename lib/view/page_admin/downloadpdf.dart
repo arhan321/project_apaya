@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:typed_data'; // Import this to use Uint8List
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -13,7 +13,8 @@ import 'package:permission_handler/permission_handler.dart';
 class DownloadPDFPage extends StatelessWidget {
   final String className;
   final String waliKelas;
-  final String semester;
+  final String semester; // "1" untuk semester 1, "2" untuk semester 2
+  final List<Map<String, dynamic>> rekapData;
   final String schoolName = "SDN Rancagong 1";
 
   const DownloadPDFPage({
@@ -21,106 +22,183 @@ class DownloadPDFPage extends StatelessWidget {
     required this.className,
     required this.waliKelas,
     required this.semester,
+    required this.rekapData,
   }) : super(key: key);
 
+  // Fungsi untuk memuat font dari assets
   Future<pw.Font> _loadFont() async {
-    final fontData = await rootBundle.load('assets/fonts/Poppins-Light.ttf');
-    return pw.Font.ttf(fontData);
-  }
-
-  Future<void> _requestPermission() async {
-    final status = await Permission.storage.request();
-    if (!status.isGranted) {
-      throw 'Permission denied';
+    try {
+      final fontData = await rootBundle.load('assets/fonts/Poppins-Light.ttf');
+      return pw.Font.ttf(fontData);
+    } catch (e) {
+      throw 'Gagal memuat font: $e';
     }
   }
 
-  // Fungsi untuk membuat dan mengunduh PDF
+  // Fungsi untuk meminta izin akses penyimpanan
+  Future<void> _requestPermission() async {
+    final status = await Permission.storage.request();
+    if (!status.isGranted) {
+      throw 'Permission denied. Pastikan Anda telah mengizinkan akses penyimpanan melalui pengaturan.';
+    }
+  }
+
+  /// Fungsi untuk meng-agregasi data per siswa.
+  /// Hanya record dengan tanggal valid dan dalam rentang semester yang dipilih yang dihitung.
+  /// Mengembalikan Map dengan key: nama siswa, value: Map kategori absen.
+  Map<String, Map<String, int>> _aggregateData() {
+    final Map<String, Map<String, int>> aggregated = {};
+
+    for (var item in rekapData) {
+      // Ambil tanggal absen; jika tidak ada, lewati
+      final String? tanggalStr = item['tanggal_absen'];
+      if (tanggalStr == null || tanggalStr.isEmpty) continue;
+
+      DateTime tanggal;
+      try {
+        tanggal = DateTime.parse(tanggalStr);
+      } catch (e) {
+        continue; // Jika gagal parsing tanggal, lewati record ini.
+      }
+
+      // Cek apakah tanggal masuk ke dalam rentang semester
+      final int month = tanggal.month;
+      bool inSemester = false;
+      if (semester == "1" && month >= 1 && month <= 6) {
+        inSemester = true;
+      } else if (semester == "2" && month >= 7 && month <= 12) {
+        inSemester = true;
+      }
+      if (!inSemester) continue;
+
+      // Ambil nama siswa; gunakan sebagai key pengelompokan
+      final String studentName = item['nama'] ?? '-';
+
+      // Jika belum ada, inisialisasi struktur data
+      if (!aggregated.containsKey(studentName)) {
+        aggregated[studentName] = {
+          'Hadir': 0,
+          'Tidak Hadir': 0,
+          'Izin': 0,
+          'Sakit': 0,
+        };
+      }
+
+      final String status = (item['keterangan'] ?? '').toString().toLowerCase();
+      if (status == 'hadir') {
+        aggregated[studentName]!['Hadir'] =
+            aggregated[studentName]!['Hadir']! + 1;
+      } else if (status == 'tidak hadir') {
+        aggregated[studentName]!['Tidak Hadir'] =
+            aggregated[studentName]!['Tidak Hadir']! + 1;
+      } else if (status == 'izin') {
+        aggregated[studentName]!['Izin'] =
+            aggregated[studentName]!['Izin']! + 1;
+      } else if (status == 'sakit') {
+        aggregated[studentName]!['Sakit'] =
+            aggregated[studentName]!['Sakit']! + 1;
+      }
+    }
+    return aggregated;
+  }
+
+  // Fungsi untuk membuat dan mengunduh file PDF dengan penanganan error yang terperinci
   Future<void> _downloadPDF(BuildContext context) async {
-    final pdf = pw.Document();
-    final font = await _loadFont();
-
-    pdf.addPage(
-      pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(32),
-        build: (pw.Context context) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Text('Rekap Absen $schoolName',
-                  style: pw.TextStyle(
-                      fontSize: 24,
-                      fontWeight: pw.FontWeight.bold,
-                      font: font)),
-              pw.SizedBox(height: 8),
-              pw.Text('$className - Semester $semester',
-                  style: pw.TextStyle(fontSize: 18, font: font)),
-              pw.Text('Wali Kelas: $waliKelas',
-                  style: pw.TextStyle(fontSize: 16, font: font)),
-              pw.Divider(height: 20, thickness: 2),
-              pw.SizedBox(height: 10),
-              pw.Table.fromTextArray(
-                headerStyle: pw.TextStyle(
-                    fontSize: 14, fontWeight: pw.FontWeight.bold, font: font),
-                cellStyle: pw.TextStyle(fontSize: 12, font: font),
-                headers: ['Nama', 'Hadir', 'Tidak Hadir', 'Izin', 'Sakit'],
-                data: [
-                  ['Randi Praditiya', '20', '2', '1', '1'],
-                  ['Putra Dewantara', '22', '0', '1', '0'],
-                  ['Adi Santoso', '18', '3', '2', '1'],
-                  ['Wahyu Kurniawan', '25', '0', '0', '0'],
-                ],
-                border: pw.TableBorder.all(color: PdfColor.fromInt(0xffCCCCCC)),
-                cellAlignment: pw.Alignment.centerLeft,
-                headerDecoration:
-                    pw.BoxDecoration(color: PdfColor.fromInt(0xffEEEEEE)),
-                cellPadding: const pw.EdgeInsets.all(8),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-
     try {
-      // Meminta izin menulis ke penyimpanan
+      final pdf = pw.Document();
+      final font = await _loadFont();
+
+      // Agregasi data per siswa
+      final aggregated = _aggregateData();
+      final List<List<String>> tableData = [];
+      aggregated.forEach((student, counts) {
+        tableData.add([
+          student,
+          counts['Hadir'].toString(),
+          counts['Tidak Hadir'].toString(),
+          counts['Izin'].toString(),
+          counts['Sakit'].toString(),
+        ]);
+      });
+
+      // Buat halaman PDF dengan header, info kelas, dan tabel rekap (aggregated summary per siswa)
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          margin: const pw.EdgeInsets.all(32),
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text('Rekap Absen $schoolName',
+                    style: pw.TextStyle(
+                        fontSize: 24,
+                        fontWeight: pw.FontWeight.bold,
+                        font: font)),
+                pw.SizedBox(height: 8),
+                pw.Text('$className - Semester $semester',
+                    style: pw.TextStyle(fontSize: 18, font: font)),
+                pw.Text('Wali Kelas: $waliKelas',
+                    style: pw.TextStyle(fontSize: 16, font: font)),
+                pw.Divider(height: 20, thickness: 2),
+                pw.SizedBox(height: 10),
+                pw.Table.fromTextArray(
+                  headerStyle: pw.TextStyle(
+                      fontSize: 14, fontWeight: pw.FontWeight.bold, font: font),
+                  cellStyle: pw.TextStyle(fontSize: 12, font: font),
+                  headers: ['Nama', 'Hadir', 'Tidak Hadir', 'Izin', 'Sakit'],
+                  data: tableData,
+                  border:
+                      pw.TableBorder.all(color: PdfColor.fromInt(0xffCCCCCC)),
+                  cellAlignment: pw.Alignment.centerLeft,
+                  headerDecoration:
+                      pw.BoxDecoration(color: PdfColor.fromInt(0xffEEEEEE)),
+                  cellPadding: const pw.EdgeInsets.all(8),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+
+      // Meminta izin untuk menulis ke penyimpanan
       await _requestPermission();
 
-      final bytes = await pdf.save();
+      final bytes = await pdf.save().catchError((error) {
+        throw 'Gagal menyimpan PDF: $error';
+      });
 
-      // Jika platform adalah Web, fitur sharePdf tidak tersedia.
       if (kIsWeb) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text("Fitur download PDF tidak tersedia di web")),
         );
       } else {
-        // Mendapatkan direktori Download pada perangkat Android
+        // Mendapatkan direktori penyimpanan eksternal (misal folder Download)
         final directory = await getExternalStorageDirectory();
-
         if (directory == null) {
-          throw 'Directory path not found';
+          throw 'Directory path not found. Pastikan perangkat memiliki akses ke penyimpanan eksternal.';
         }
 
-        // Mengarahkan file untuk disimpan di folder Download
         final downloadDirectory = Directory('${directory.path}/Download');
         if (!await downloadDirectory.exists()) {
-          // Membuat folder Download jika tidak ada
-          await downloadDirectory.create();
+          try {
+            await downloadDirectory.create();
+          } catch (e) {
+            throw 'Gagal membuat folder Download: $e';
+          }
         }
 
-        // Membuat path file untuk disimpan di folder Download
         final filePath =
             '${downloadDirectory.path}/rekap_absen_${className}_semester_$semester.pdf';
-
-        // Menyimpan file PDF ke folder Download
         final file = File(filePath);
-        await file.writeAsBytes(bytes);
+        try {
+          await file.writeAsBytes(bytes);
+        } catch (e) {
+          throw 'Gagal menulis file PDF ke direktori: $e';
+        }
 
-        // Log untuk melihat path file yang disimpan
         debugPrint("File disimpan di: $filePath");
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("PDF berhasil diunduh ke: $filePath")),
         );
@@ -136,6 +214,18 @@ class DownloadPDFPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Gunakan hasil agregasi untuk preview agar tiap siswa muncul satu kali
+    final aggregated = _aggregateData();
+    final List<Map<String, dynamic>> previewData = aggregated.entries
+        .map((entry) => {
+              'nama': entry.key,
+              'Hadir': entry.value['Hadir'],
+              'Tidak Hadir': entry.value['Tidak Hadir'],
+              'Izin': entry.value['Izin'],
+              'Sakit': entry.value['Sakit'],
+            })
+        .toList();
+
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
@@ -174,37 +264,18 @@ class DownloadPDFPage extends StatelessWidget {
             _buildHeader(),
             const SizedBox(height: 16),
             Expanded(
-              child: ListView(
-                children: [
-                  _buildRekapItem(
-                    name: 'Randi Praditiya',
-                    hadir: 20,
-                    tidakHadir: 2,
-                    izin: 1,
-                    sakit: 1,
-                  ),
-                  _buildRekapItem(
-                    name: 'Putra Dewantara',
-                    hadir: 22,
-                    tidakHadir: 0,
-                    izin: 1,
-                    sakit: 0,
-                  ),
-                  _buildRekapItem(
-                    name: 'Adi Santoso',
-                    hadir: 18,
-                    tidakHadir: 3,
-                    izin: 2,
-                    sakit: 1,
-                  ),
-                  _buildRekapItem(
-                    name: 'Wahyu Kurniawan',
-                    hadir: 25,
-                    tidakHadir: 0,
-                    izin: 0,
-                    sakit: 0,
-                  ),
-                ],
+              child: ListView.builder(
+                itemCount: previewData.length,
+                itemBuilder: (context, index) {
+                  final item = previewData[index];
+                  return _buildPreviewItem(
+                    name: item['nama'] ?? '-',
+                    hadir: item['Hadir']?.toString() ?? '0',
+                    tidakHadir: item['Tidak Hadir']?.toString() ?? '0',
+                    izin: item['Izin']?.toString() ?? '0',
+                    sakit: item['Sakit']?.toString() ?? '0',
+                  );
+                },
               ),
             ),
           ],
@@ -232,12 +303,13 @@ class DownloadPDFPage extends StatelessWidget {
     );
   }
 
-  Widget _buildRekapItem({
+  // Untuk preview data aggregated per siswa
+  Widget _buildPreviewItem({
     required String name,
-    required int hadir,
-    required int tidakHadir,
-    required int izin,
-    required int sakit,
+    required String hadir,
+    required String tidakHadir,
+    required String izin,
+    required String sakit,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -268,22 +340,18 @@ class DownloadPDFPage extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                'Hadir: $hadir',
-                style: GoogleFonts.poppins(fontSize: 14, color: Colors.black),
-              ),
-              Text(
-                'Tidak Hadir: $tidakHadir',
-                style: GoogleFonts.poppins(fontSize: 14, color: Colors.black),
-              ),
-              Text(
-                'Izin: $izin',
-                style: GoogleFonts.poppins(fontSize: 14, color: Colors.black),
-              ),
-              Text(
-                'Sakit: $sakit',
-                style: GoogleFonts.poppins(fontSize: 14, color: Colors.black),
-              ),
+              Text('Hadir: $hadir',
+                  style:
+                      GoogleFonts.poppins(fontSize: 14, color: Colors.black)),
+              Text('Tidak Hadir: $tidakHadir',
+                  style:
+                      GoogleFonts.poppins(fontSize: 14, color: Colors.black)),
+              Text('Izin: $izin',
+                  style:
+                      GoogleFonts.poppins(fontSize: 14, color: Colors.black)),
+              Text('Sakit: $sakit',
+                  style:
+                      GoogleFonts.poppins(fontSize: 14, color: Colors.black)),
             ],
           ),
         ],

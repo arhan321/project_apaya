@@ -1,9 +1,57 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
-import 'downloadpdf.dart'; // Import file downloadpdf.dart
+import 'package:http/http.dart' as http;
+import 'downloadpdf.dart'; // Pastikan file downloadpdf.dart sudah ada dan telah diupdate
 
-class RekapAdminPage extends StatelessWidget {
+class RekapAdminPage extends StatefulWidget {
+  @override
+  _RekapAdminPageState createState() => _RekapAdminPageState();
+}
+
+class _RekapAdminPageState extends State<RekapAdminPage> {
+  List<dynamic> kelasData = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchRekapData();
+  }
+
+  /// Mengambil data rekap absen dari API
+  Future<void> fetchRekapData() async {
+    final String url = "https://absen.randijourney.my.id/api/v1/kelas";
+    try {
+      print("Fetching rekap data from $url...");
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          // Ambil data kelas dari key 'data'
+          kelasData = data['data'] ?? [];
+          isLoading = false;
+        });
+      } else {
+        throw Exception("Failed to load rekap data");
+      }
+    } catch (e) {
+      print("Error fetching rekap data: $e");
+      setState(() {
+        isLoading = false;
+      });
+      Get.snackbar(
+        'Error',
+        'Gagal mengambil data rekap absen',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,19 +89,46 @@ class RekapAdminPage extends StatelessWidget {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: ListView(
-          padding: EdgeInsets.all(16),
-          children: [
-            _buildRekapCard('Kelas 6A', 'Tatang Sutarman'),
-            _buildRekapCard('Kelas 5B', 'Siti Fatimah'),
-            _buildRekapCard('Kelas 4C', 'Ahmad Fauzan'),
-          ],
-        ),
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : kelasData.isEmpty
+                ? Center(
+                    child: Text(
+                      "Belum ada data rekap absen.",
+                      style: GoogleFonts.poppins(
+                          fontSize: 16, color: Colors.white),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: EdgeInsets.all(16),
+                    itemCount: kelasData.length,
+                    itemBuilder: (context, index) {
+                      final item = kelasData[index];
+                      final className =
+                          item["nama_kelas"] ?? "Kelas tidak tersedia";
+                      final waliKelas =
+                          item["nama_user"] ?? "Wali tidak tersedia";
+                      // Decode field 'siswa' yang berupa encoded string JSON
+                      final String rawSiswa = item["siswa"] ?? "[]";
+                      List<Map<String, dynamic>> siswaData = [];
+                      try {
+                        final decoded = json.decode(rawSiswa);
+                        if (decoded is List) {
+                          siswaData = List<Map<String, dynamic>>.from(decoded);
+                        }
+                      } catch (e) {
+                        print("Error decoding siswa data: $e");
+                      }
+                      return _buildRekapCard(className, waliKelas, siswaData);
+                    },
+                  ),
       ),
     );
   }
 
-  Widget _buildRekapCard(String kelas, String waliKelas) {
+  /// Membuat kartu rekap absen untuk masing-masing kelas
+  Widget _buildRekapCard(
+      String kelas, String waliKelas, List<Map<String, dynamic>> siswaData) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       margin: EdgeInsets.only(bottom: 16),
@@ -80,22 +155,27 @@ class RekapAdminPage extends StatelessWidget {
               ),
             ),
             SizedBox(height: 15),
-            _buildButton('Rekap Semester 1', kelas, waliKelas),
+            _buildButton('Rekap Semester 1', kelas, waliKelas, siswaData),
             SizedBox(height: 10),
-            _buildButton('Rekap Semester 2', kelas, waliKelas),
+            _buildButton('Rekap Semester 2', kelas, waliKelas, siswaData),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildButton(String title, String kelas, String waliKelas) {
+  /// Membuat tombol untuk memilih format download dengan parameter tambahan [siswaData]
+  Widget _buildButton(String title, String kelas, String waliKelas,
+      List<Map<String, dynamic>> siswaData) {
     return Row(
       children: [
         Expanded(
           child: ElevatedButton.icon(
             onPressed: () {
-              _showFormatDialog(title.split(' ').last, kelas, waliKelas);
+              // Ekstrak semester dari judul, misalnya "Rekap Semester 1" menghasilkan "1"
+              final parts = title.split(' ');
+              String semester = parts.length > 1 ? parts.last : "";
+              _showFormatDialog(semester, kelas, waliKelas, siswaData);
             },
             icon: Icon(Icons.download, color: Colors.white),
             label: Text(
@@ -115,7 +195,10 @@ class RekapAdminPage extends StatelessWidget {
     );
   }
 
-  void _showFormatDialog(String semester, String kelas, String waliKelas) {
+  /// Menampilkan dialog untuk memilih format file download (PDF/Excel)
+  /// Parameter [rekapData] berisi data siswa yang sudah didecode
+  void _showFormatDialog(String semester, String kelas, String waliKelas,
+      List<Map<String, dynamic>> rekapData) {
     Get.dialog(
       Dialog(
         shape: RoundedRectangleBorder(
@@ -137,7 +220,7 @@ class RekapAdminPage extends StatelessWidget {
               ),
               SizedBox(height: 10),
               Text(
-                'Pilih format file untuk rekap absen $semester.',
+                'Pilih format file untuk rekap absen semester $semester.',
                 style: GoogleFonts.poppins(fontSize: 14, color: Colors.black54),
                 textAlign: TextAlign.center,
               ),
@@ -147,12 +230,13 @@ class RekapAdminPage extends StatelessWidget {
                 children: [
                   TextButton(
                     onPressed: () {
-                      Get.back(); // Menutup dialog
-                      // Navigasi ke halaman DownloadPDFPage
+                      Get.back(); // Tutup dialog
+                      // Navigasi ke halaman DownloadPDFPage dengan parameter lengkap
                       Get.to(() => DownloadPDFPage(
                             semester: semester,
                             className: kelas,
                             waliKelas: waliKelas,
+                            rekapData: rekapData,
                           ));
                     },
                     child: Text(
@@ -166,10 +250,10 @@ class RekapAdminPage extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      Get.back(); // Menutup dialog
+                      Get.back(); // Tutup dialog
                       Get.snackbar(
-                        'Rekap Absen $semester',
-                        'File Excel untuk rekap absen $semester diunduh.',
+                        'Rekap Absen Semester $semester',
+                        'File Excel untuk rekap absen semester $semester diunduh.',
                         snackPosition: SnackPosition.BOTTOM,
                         backgroundColor: Colors.blueAccent,
                         colorText: Colors.white,
