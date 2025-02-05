@@ -5,10 +5,12 @@ import 'package:http/http.dart' as http;
 
 class ListAbsenAdminController extends GetxController {
   var siswaAbsen = <Map<String, dynamic>>[].obs;
+  var filteredSiswaAbsen = <Map<String, dynamic>>[].obs; // Filtered data
   var isLoading = true.obs;
   int? selectedClassId;
   String namaKelas = 'Kelas';
   String waliKelas = 'Wali Kelas';
+  var selectedFilter = 'All'.obs; // Filter selection
 
   @override
   void onInit() {
@@ -33,6 +35,7 @@ class ListAbsenAdminController extends GetxController {
     fetchData();
   }
 
+  // Fetch data from the API
   Future<void> fetchData() async {
     if (selectedClassId == null) return;
 
@@ -57,6 +60,7 @@ class ListAbsenAdminController extends GetxController {
           final siswaRawJson = kelas['siswa'] as String?;
           if (siswaRawJson == null || siswaRawJson.isEmpty) {
             siswaAbsen.value = [];
+            filteredSiswaAbsen.value = []; // Clear filtered list as well
             return;
           }
 
@@ -66,16 +70,17 @@ class ListAbsenAdminController extends GetxController {
               'id': siswa['id'],
               'name': siswa['nama'],
               'nomor_absen': siswa['nomor_absen'],
-              'kelas':
-                  siswa['kelas'] ?? kelas['nama_kelas'], // Nama kelas siswa
-              'status': siswa['keterangan'], // Status Kehadiran
-              'time': siswa['jam_absen'], // Jam Absen
-              'catatan': siswa['catatan'] ?? '-', // Catatan siswa
-              'tanggal_absen':
-                  siswa['tanggal_absen'] ?? '-', // Tambahkan tanggal_absen
-              'color': _getStatusColor(siswa['keterangan']), // Warna Status
+              'kelas': siswa['kelas'] ?? kelas['nama_kelas'],
+              'status': siswa['keterangan'],
+              'time': siswa['jam_absen'],
+              'catatan': siswa['catatan'] ?? '-',
+              'tanggal_absen': siswa['tanggal_absen'] ?? '-',
+              'color': _getStatusColor(siswa['keterangan']),
             };
           }).toList();
+
+          // Apply the default filter status
+          filterData(selectedFilter.value);
         } else {
           Get.snackbar(
             'Error',
@@ -108,6 +113,37 @@ class ListAbsenAdminController extends GetxController {
     }
   }
 
+  // Filter the data based on selected status
+  void filterData(String filter) {
+    selectedFilter.value = filter; // Update selected filter
+    if (filter == 'All') {
+      filteredSiswaAbsen.value = List.from(siswaAbsen);
+    } else {
+      filteredSiswaAbsen.value =
+          siswaAbsen.where((siswa) => siswa['status'] == filter).toList();
+    }
+    update(); // Refresh view if necessary
+  }
+
+  // Filter data siswa berdasarkan nama (pencarian)
+  void searchStudents(String query) {
+    // Jika query kosong, kembalikan data sesuai filter status terakhir
+    if (query.isEmpty) {
+      filterData(selectedFilter.value);
+      return;
+    }
+
+    filteredSiswaAbsen.assignAll(
+      siswaAbsen.where((siswa) {
+        final name = siswa['name']?.toLowerCase() ?? '';
+        return name.contains(query.toLowerCase());
+      }).toList(),
+    );
+
+    update(); // Opsional, jika diperlukan untuk refresh view
+  }
+
+  // Get color based on status
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'hadir':
