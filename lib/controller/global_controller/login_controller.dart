@@ -62,6 +62,10 @@ class LoginController extends GetxController {
           _showSnackbar(
               'Error', 'Token atau role tidak ditemukan dalam respons.');
         }
+      } else if (response.statusCode == 404) {
+        // Menangani jika email tidak ditemukan di server
+        _showSnackbar(
+            'Error', 'Kredensial tidak ditemukan. Periksa email Anda.');
       } else {
         _showSnackbar('Error', response.data['message'] ?? 'Login gagal!');
       }
