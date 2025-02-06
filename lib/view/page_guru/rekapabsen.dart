@@ -22,7 +22,6 @@ class _RekapGuruPageState extends State<RekapGuruPage> {
   }
 
   /// Mengambil data rekap absen dari API.
-  /// Anda dapat menyesuaikan URL dan parameter API jika diperlukan (misalnya hanya kelas yang diampu guru).
   Future<void> fetchRekapData() async {
     final String url = "https://absen.randijourney.my.id/api/v1/kelas";
     try {
@@ -32,7 +31,6 @@ class _RekapGuruPageState extends State<RekapGuruPage> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          // Ambil data kelas dari key 'data'
           kelasData = data['data'] ?? [];
           isLoading = false;
         });
@@ -200,7 +198,6 @@ class _RekapGuruPageState extends State<RekapGuruPage> {
   }
 
   /// Menampilkan dialog untuk memilih format file download (PDF/Excel).
-  /// Parameter [siswaData] berisi data siswa yang telah didecode.
   void _showFormatDialog(String semester, String kelas, String waliKelas,
       List<Map<String, dynamic>> siswaData) {
     Get.dialog(
@@ -259,12 +256,12 @@ class _RekapGuruPageState extends State<RekapGuruPage> {
                     onPressed: () {
                       Get.back(); // Tutup dialog
                       // Navigasi ke halaman DownloadExcelPage dengan parameter lengkap
-                      // Get.to(() => DownloadExcelPage(
-                      //       semester: semester,
-                      //       className: kelas,
-                      //       waliKelas: waliKelas,
-                      //       rekapData: siswaData,
-                      //     ));
+                      Get.to(() => downloadexcelguru(
+                            semester: semester,
+                            className: kelas,
+                            waliKelas: waliKelas,
+                            rekapData: siswaData,
+                          ));
                     },
                     child: Text(
                       'Excel',

@@ -61,6 +61,7 @@ import '../view/page_admin/downloadpdf.dart'; // Import halaman DownloadPDFPage
 import '../view/page_orangtua/editprofileortu.dart';
 import '../view/page_guru/tambahabsen.dart'; // Import halaman TambahAbsenPage
 import '../view/page_admin/downloadexcel.dart';
+import '../view/page_guru/downloadexcelpage.dart';
 
 class AppRoutes {
   // Daftar Konstanta Rute
@@ -122,6 +123,7 @@ class AppRoutes {
   static const tambahAbsen = '/tambahAbsen';
 
   static const downloadexcel = '/downloadexcel';
+  static const donwloadexcelpage = '/downloadexcelpage';
 
   static List<GetPage> routes = [
     GetPage(
@@ -352,6 +354,18 @@ class AppRoutes {
       page: () {
         final args = Get.arguments as Map<String, dynamic>? ?? {};
         return DownloadExcelPage(
+          semester: args['semester'] ?? '',
+          className: args['className'] ?? '',
+          waliKelas: args['waliKelas'] ?? '',
+          rekapData: args['rekapData'] ?? [],
+        );
+      },
+    ),
+    GetPage(
+      name: donwloadexcelpage,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>? ?? {};
+        return downloadexcelguru(
           semester: args['semester'] ?? '',
           className: args['className'] ?? '',
           waliKelas: args['waliKelas'] ?? '',
