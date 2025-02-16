@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:excel/excel.dart';
+import 'package:file_picker/file_picker.dart'; // <--- Perlu untuk Android 13+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:excel/excel.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -22,14 +24,7 @@ class downloadexcelguru extends StatelessWidget {
     required this.rekapData,
   }) : super(key: key);
 
-  /// Fungsi untuk meminta izin akses penyimpanan
-  Future<void> _requestPermission() async {
-    final status = await Permission.storage.request();
-    if (!status.isGranted) {
-      throw 'Permission denied. Pastikan Anda telah mengizinkan akses penyimpanan melalui pengaturan.';
-    }
-  }
-
+  /// Fungsi untuk meng-agregasi data per siswa
   Map<String, Map<String, int>> _aggregateData() {
     final Map<String, Map<String, int>> aggregated = {};
 
@@ -82,39 +77,31 @@ class downloadexcelguru extends StatelessWidget {
     return aggregated;
   }
 
-  /// Fungsi untuk membuat dan mengunduh file Excel (.xlsx)
+  /// Fungsi utama untuk membuat dan mengunduh file Excel (.xlsx)
   Future<void> _downloadExcel(BuildContext context) async {
     try {
       final aggregated = _aggregateData();
 
-      // Buat workbook Excel dan sheet default
+      // 1) Buat workbook Excel dan sheet default
       var excel = Excel.createExcel();
       Sheet sheetObject = excel['Sheet1'];
 
-      // Baris header informasi (baris 0-2)
-      sheetObject.appendRow([
-        "Rekap Absen $schoolName",
-      ]);
-      sheetObject.appendRow([
-        "Kelas: $className - Semester: $semester",
-      ]);
-      sheetObject.appendRow([
-        "Wali Kelas: $waliKelas",
-      ]);
-      // Tambahkan baris kosong sebagai pemisah
+      // 2) Baris-baris header informasi
+      sheetObject.appendRow(["Rekap Absen $schoolName"]);
+      sheetObject.appendRow(["Kelas: $className - Semester: $semester"]);
+      sheetObject.appendRow(["Wali Kelas: $waliKelas"]);
+      // Baris kosong pemisah
       sheetObject.appendRow([]);
 
-      // Definisikan style header untuk tabel menggunakan CellStyle
+      // 3) Definisikan style header untuk tabel
       var headerStyle = CellStyle(
         bold: true,
         backgroundColorHex: "#EEEEEE",
         horizontalAlign: HorizontalAlign.Center,
       );
 
-      // Header kolom untuk tabel rekap data
+      // 4) Buat header kolom rekap data
       List<String> headers = ["Nama", "Hadir", "Tidak Hadir", "Izin", "Sakit"];
-
-      // Tulis header tabel di baris berikutnya (misal baris index 4)
       int headerRowIndex = sheetObject.maxRows;
       int colIndex = 0;
       for (var header in headers) {
@@ -125,65 +112,88 @@ class downloadexcelguru extends StatelessWidget {
         colIndex++;
       }
 
-      // Tulis data aggregated ke dalam sheet, mulai dari baris setelah header tabel
+      // 5) Tulis data rekap ke Excel
       int rowIndex = headerRowIndex + 1;
       aggregated.forEach((student, counts) {
         int colIndex = 0;
-        sheetObject.cell(CellIndex.indexByColumnRow(
-            columnIndex: colIndex, rowIndex: rowIndex))
-          ..value = student;
+        sheetObject
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: colIndex, rowIndex: rowIndex))
+            .value = student;
         colIndex++;
-        sheetObject.cell(CellIndex.indexByColumnRow(
-            columnIndex: colIndex, rowIndex: rowIndex))
-          ..value = counts['Hadir'].toString();
+        sheetObject
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: colIndex, rowIndex: rowIndex))
+            .value = counts['Hadir'].toString();
         colIndex++;
-        sheetObject.cell(CellIndex.indexByColumnRow(
-            columnIndex: colIndex, rowIndex: rowIndex))
-          ..value = counts['Tidak Hadir'].toString();
+        sheetObject
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: colIndex, rowIndex: rowIndex))
+            .value = counts['Tidak Hadir'].toString();
         colIndex++;
-        sheetObject.cell(CellIndex.indexByColumnRow(
-            columnIndex: colIndex, rowIndex: rowIndex))
-          ..value = counts['Izin'].toString();
+        sheetObject
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: colIndex, rowIndex: rowIndex))
+            .value = counts['Izin'].toString();
         colIndex++;
-        sheetObject.cell(CellIndex.indexByColumnRow(
-            columnIndex: colIndex, rowIndex: rowIndex))
-          ..value = counts['Sakit'].toString();
+        sheetObject
+            .cell(CellIndex.indexByColumnRow(
+                columnIndex: colIndex, rowIndex: rowIndex))
+            .value = counts['Sakit'].toString();
         rowIndex++;
       });
 
-      // Encode workbook menjadi list of bytes
-      List<int>? fileBytes = excel.encode();
-      if (fileBytes == null) {
+      // 6) Encode workbook menjadi List<int>, lalu ubah ke Uint8List
+      List<int>? rawBytes = excel.encode();
+      if (rawBytes == null) {
         throw 'Gagal meng-encode file Excel.';
       }
+      Uint8List fileBytes = Uint8List.fromList(rawBytes);
 
-      // Meminta izin untuk akses penyimpanan
-      await _requestPermission();
-
+      // 7) Cek apakah Web atau Mobile
       if (kIsWeb) {
+        // Tidak didukung di web
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text("Fitur download Excel tidak tersedia di web")),
+            content: Text("Fitur download Excel tidak tersedia di web"),
+          ),
         );
+        return;
+      }
+
+      // 8) Jika Android, cek versi
+      if (Platform.isAndroid) {
+        final androidInfo = await DeviceInfoPlugin().androidInfo;
+        final sdkInt = androidInfo.version.sdkInt ?? 0;
+        debugPrint("=== SDK Version: $sdkInt ===");
+
+        if (sdkInt < 33) {
+          // Android < 13 => butuh permission WRITE_EXTERNAL_STORAGE
+          final status = await Permission.storage.request();
+          if (!status.isGranted) {
+            debugPrint("Storage permission denied.");
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Storage Permission Denied!")),
+            );
+            return;
+          }
+
+          // Simpan langsung ke folder Download
+          await _saveExcelToDownloadFolder(fileBytes, context);
+        } else {
+          // Android 13+ => Pakai file picker
+          await _saveExcelWithFilePicker(fileBytes, context);
+        }
       } else {
-        final directory = await getExternalStorageDirectory();
-        if (directory == null) {
-          throw 'Directory path not found.';
-        }
-
-        final downloadDirectory = Directory('${directory.path}/Download');
-        if (!await downloadDirectory.exists()) {
-          await downloadDirectory.create();
-        }
-
-        final filePath =
-            '${downloadDirectory.path}/rekap_absen_${className}_semester_$semester.xlsx';
+        // 9) iOS atau platform lain => Simpan ke Documents directory
+        final directory = await getApplicationDocumentsDirectory();
+        final filePath = '${directory.path}/rekap_absen_$className.xlsx';
         final file = File(filePath);
-        await file.writeAsBytes(fileBytes);
 
-        debugPrint("File Excel disimpan di: $filePath");
+        await file.writeAsBytes(fileBytes);
+        debugPrint("Excel berhasil disimpan di iOS path: $filePath");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Excel berhasil diunduh ke: $filePath")),
+          SnackBar(content: Text("Excel berhasil disimpan di $filePath (iOS)")),
         );
       }
     } catch (e, stackTrace) {
@@ -195,18 +205,95 @@ class downloadexcelguru extends StatelessWidget {
     }
   }
 
+  /// (Android < 13) Simpan file .xlsx ke folder Download di dalam getExternalStorageDirectory()
+  Future<void> _saveExcelToDownloadFolder(
+    Uint8List fileBytes,
+    BuildContext context,
+  ) async {
+    try {
+      final directory = await getExternalStorageDirectory();
+      if (directory == null) {
+        throw 'Directory path not found.';
+      }
+
+      final downloadDirectory = Directory('${directory.path}/Download');
+      if (!await downloadDirectory.exists()) {
+        await downloadDirectory.create();
+      }
+
+      final filePath =
+          '${downloadDirectory.path}/rekap_absen_${className}_semester_$semester.xlsx';
+      final file = File(filePath);
+      await file.writeAsBytes(fileBytes);
+
+      debugPrint("File Excel disimpan di: $filePath");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Excel berhasil diunduh ke: $filePath")),
+      );
+    } catch (e, stackTrace) {
+      debugPrint('=== ERROR Menyimpan file Excel ke DownloadFolder ===');
+      debugPrint('Pesan Error: $e');
+      debugPrintStack(stackTrace: stackTrace);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal menulis file Excel: $e")),
+      );
+    }
+  }
+
+  /// (Android 13+ dan platform lain) Simpan file .xlsx dengan file_picker
+  Future<void> _saveExcelWithFilePicker(
+    Uint8List fileBytes,
+    BuildContext context,
+  ) async {
+    try {
+      // Gunakan file_picker agar user bisa memilih lokasi & nama file
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'Pilih lokasi untuk menyimpan Excel',
+        fileName: 'rekap_absen_${className}_semester_$semester.xlsx',
+        bytes: fileBytes, // WAJIB: agar plugin menulis file di Android/iOS
+      );
+
+      if (result == null) {
+        // User membatalkan
+        debugPrint("User membatalkan pemilihan file.");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Penyimpanan dibatalkan")),
+        );
+        return;
+      }
+
+      // Di Android/iOS, plugin sudah menulis file.
+      // Tampilkan info ke user
+      debugPrint("Excel berhasil disimpan di $result");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Excel berhasil disimpan di $result")),
+      );
+    } catch (e, stackTrace) {
+      debugPrint('=== ERROR Menyimpan file Excel dengan FilePicker ===');
+      debugPrint('Pesan Error: $e');
+      debugPrintStack(stackTrace: stackTrace);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal menyimpan Excel: $e")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Gunakan hasil agregasi untuk preview agar tiap siswa muncul satu kali
+    // Preview data yang sudah diaggregasi
     final aggregated = _aggregateData();
     final List<Map<String, dynamic>> previewData = aggregated.entries
-        .map((entry) => {
-              'nama': entry.key,
-              'Hadir': entry.value['Hadir'],
-              'Tidak Hadir': entry.value['Tidak Hadir'],
-              'Izin': entry.value['Izin'],
-              'Sakit': entry.value['Sakit'],
-            })
+        .map(
+          (entry) => {
+            'nama': entry.key,
+            'Hadir': entry.value['Hadir'],
+            'Tidak Hadir': entry.value['Tidak Hadir'],
+            'Izin': entry.value['Izin'],
+            'Sakit': entry.value['Sakit'],
+          },
+        )
         .toList();
 
     return Scaffold(
@@ -214,7 +301,10 @@ class downloadexcelguru extends StatelessWidget {
         title: Text(
           'Rekap Absen Excel',
           style: GoogleFonts.poppins(
-              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         backgroundColor: Colors.blueAccent,
       ),
@@ -233,9 +323,10 @@ class downloadexcelguru extends StatelessWidget {
             Text(
               'Rekap Absen $schoolName\n$className - Semester $semester\nWali Kelas: $waliKelas',
               style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blueAccent),
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.blueAccent,
+              ),
             ),
             const SizedBox(height: 16),
             Expanded(
@@ -264,25 +355,42 @@ class downloadexcelguru extends StatelessWidget {
                         Text(
                           item['nama'] ?? '-',
                           style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text('Hadir: ${item['Hadir']}',
-                                style: GoogleFonts.poppins(
-                                    fontSize: 14, color: Colors.black)),
-                            Text('Tidak Hadir: ${item['Tidak Hadir']}',
-                                style: GoogleFonts.poppins(
-                                    fontSize: 14, color: Colors.black)),
-                            Text('Izin: ${item['Izin']}',
-                                style: GoogleFonts.poppins(
-                                    fontSize: 14, color: Colors.black)),
-                            Text('Sakit: ${item['Sakit']}',
-                                style: GoogleFonts.poppins(
-                                    fontSize: 14, color: Colors.black)),
+                            Text(
+                              'Hadir: ${item['Hadir']}',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Colors.black,
+                              ),
+                            ),
+                            Text(
+                              'Tidak Hadir: ${item['Tidak Hadir']}',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Colors.black,
+                              ),
+                            ),
+                            Text(
+                              'Izin: ${item['Izin']}',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Colors.black,
+                              ),
+                            ),
+                            Text(
+                              'Sakit: ${item['Sakit']}',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Colors.black,
+                              ),
+                            ),
                           ],
                         ),
                       ],

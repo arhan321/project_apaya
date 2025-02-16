@@ -1,12 +1,14 @@
 import 'dart:io';
-import 'dart:typed_data';
+import 'dart:typed_data'; // <-- Pastikan import untuk Uint8List
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:file_picker/file_picker.dart'; // <-- Untuk FilePicker Android 13+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
+// 'printing' tidak dipakai di implementasi ini, boleh dihapus jika tak diperlukan
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -14,8 +16,7 @@ class DownloadRekapPage extends StatelessWidget {
   final String className;
   final String waliKelas;
   final String semester; // "1" atau "2"
-  final List<Map<String, dynamic>>
-      rekapData; // Data rekap absen per siswa (mentah)
+  final List<Map<String, dynamic>> rekapData;
   final String schoolName = "SDN Rancagong 1"; // Nama sekolah
 
   const DownloadRekapPage({
@@ -36,23 +37,12 @@ class DownloadRekapPage extends StatelessWidget {
     }
   }
 
-  /// Fungsi untuk meminta izin akses penyimpanan
-  Future<void> _requestPermission() async {
-    final status = await Permission.storage.request();
-    if (!status.isGranted) {
-      throw 'Permission denied. Pastikan Anda telah mengizinkan akses penyimpanan melalui pengaturan.';
-    }
-  }
-
   /// Fungsi untuk meng-agregasi data per siswa dari [rekapData] mentah.
   /// Mengembalikan Map dengan key: nama siswa, value: Map kategori absen.
   Map<String, Map<String, int>> _aggregateData() {
     final Map<String, Map<String, int>> aggregated = {};
 
-    // Asumsikan [rekapData] berisi record-record dengan field:
-    // 'tanggal_absen', 'nama', dan 'keterangan'
     for (var item in rekapData) {
-      // Ambil tanggal absen; jika tidak ada, lewati
       final String? tanggalStr = item['tanggal_absen'];
       if (tanggalStr == null || tanggalStr.isEmpty) continue;
 
@@ -63,7 +53,7 @@ class DownloadRekapPage extends StatelessWidget {
         continue; // Lewati record jika parsing gagal
       }
 
-      // Cek apakah tanggal masuk ke dalam rentang semester yang dipilih
+      // Cek rentang semester
       final int month = tanggal.month;
       bool inSemester = false;
       if (semester == "1" && month >= 1 && month <= 6) {
@@ -73,10 +63,8 @@ class DownloadRekapPage extends StatelessWidget {
       }
       if (!inSemester) continue;
 
-      // Ambil nama siswa; gunakan sebagai key pengelompokan
       final String studentName = item['nama'] ?? '-';
 
-      // Inisialisasi struktur data jika belum ada
       if (!aggregated.containsKey(studentName)) {
         aggregated[studentName] = {
           'Hadir': 0,
@@ -104,7 +92,7 @@ class DownloadRekapPage extends StatelessWidget {
     return aggregated;
   }
 
-  /// Fungsi untuk membuat dan mengunduh file PDF.
+  /// Fungsi utama untuk membuat dan mengunduh file PDF.
   Future<void> _downloadPDF(BuildContext context) async {
     try {
       final pdf = pw.Document();
@@ -112,6 +100,8 @@ class DownloadRekapPage extends StatelessWidget {
 
       // Agregasi data per siswa
       final aggregated = _aggregateData();
+
+      // Siapkan data tabel
       final List<List<String>> tableData = [];
       aggregated.forEach((student, counts) {
         tableData.add([
@@ -123,7 +113,7 @@ class DownloadRekapPage extends StatelessWidget {
         ]);
       });
 
-      // Buat halaman PDF dengan header dan tabel rekap
+      // Buat halaman PDF (header + tabel rekap)
       pdf.addPage(
         pw.Page(
           pageFormat: PdfPageFormat.a4,
@@ -132,21 +122,31 @@ class DownloadRekapPage extends StatelessWidget {
             return pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text('Rekap Absen $schoolName',
-                    style: pw.TextStyle(
-                        fontSize: 24,
-                        fontWeight: pw.FontWeight.bold,
-                        font: font)),
+                pw.Text(
+                  'Rekap Absen $schoolName',
+                  style: pw.TextStyle(
+                    fontSize: 24,
+                    fontWeight: pw.FontWeight.bold,
+                    font: font,
+                  ),
+                ),
                 pw.SizedBox(height: 8),
-                pw.Text('$className - Semester $semester',
-                    style: pw.TextStyle(fontSize: 18, font: font)),
-                pw.Text('Wali Kelas: $waliKelas',
-                    style: pw.TextStyle(fontSize: 16, font: font)),
+                pw.Text(
+                  '$className - Semester $semester',
+                  style: pw.TextStyle(fontSize: 18, font: font),
+                ),
+                pw.Text(
+                  'Wali Kelas: $waliKelas',
+                  style: pw.TextStyle(fontSize: 16, font: font),
+                ),
                 pw.Divider(height: 20, thickness: 2),
                 pw.SizedBox(height: 10),
                 pw.Table.fromTextArray(
                   headerStyle: pw.TextStyle(
-                      fontSize: 14, fontWeight: pw.FontWeight.bold, font: font),
+                    fontSize: 14,
+                    fontWeight: pw.FontWeight.bold,
+                    font: font,
+                  ),
                   cellStyle: pw.TextStyle(fontSize: 12, font: font),
                   headers: ['Nama', 'Hadir', 'Tidak Hadir', 'Izin', 'Sakit'],
                   data: tableData,
@@ -163,46 +163,55 @@ class DownloadRekapPage extends StatelessWidget {
         ),
       );
 
-      // Meminta izin untuk akses penyimpanan
-      await _requestPermission();
+      // Simpan PDF ke dalam byte array (Uint8List)
+      final bytes = await pdf.save();
 
-      final bytes = await pdf.save().catchError((error) {
-        throw 'Gagal menyimpan PDF: $error';
-      });
-
+      // Cek platform: Web atau Mobile
       if (kIsWeb) {
+        // Web belum didukung
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text("Fitur download PDF tidak tersedia di web")),
+            content: Text("Fitur download PDF tidak tersedia di web"),
+          ),
         );
-      } else {
-        // Dapatkan direktori penyimpanan eksternal (misal folder Download)
-        final directory = await getExternalStorageDirectory();
-        if (directory == null) {
-          throw 'Directory path not found. Pastikan perangkat memiliki akses ke penyimpanan eksternal.';
-        }
+        return;
+      }
 
-        final downloadDirectory = Directory('${directory.path}/Download');
-        if (!await downloadDirectory.exists()) {
-          try {
-            await downloadDirectory.create();
-          } catch (e) {
-            throw 'Gagal membuat folder Download: $e';
+      // Jika Android/iOS
+      if (Platform.isAndroid) {
+        // Cek versi Android
+        final androidInfo = await DeviceInfoPlugin().androidInfo;
+        final sdkInt = androidInfo.version.sdkInt ?? 0;
+        debugPrint("=== SDK Version: $sdkInt ===");
+
+        if (sdkInt < 33) {
+          // Android < 13 => perlu permission WRITE_EXTERNAL_STORAGE
+          final status = await Permission.storage.request();
+          if (!status.isGranted) {
+            debugPrint("Storage permission denied.");
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Storage Permission Denied!")),
+            );
+            return;
           }
-        }
 
+          // Simpan manual ke folder Download
+          await _savePDFToDownloadFolder(bytes, context);
+        } else {
+          // Android 13+ => gunakan FilePicker untuk simpan
+          await _savePdfWithFilePicker(bytes, context);
+        }
+      } else {
+        // iOS atau platform lain
+        final directory = await getApplicationDocumentsDirectory();
         final filePath =
-            '${downloadDirectory.path}/rekap_absen_${className}_semester_$semester.pdf';
+            '${directory.path}/rekap_absen_${className}_semester_$semester.pdf';
         final file = File(filePath);
-        try {
-          await file.writeAsBytes(bytes);
-        } catch (e) {
-          throw 'Gagal menulis file PDF ke direktori: $e';
-        }
 
-        debugPrint("File disimpan di: $filePath");
+        await file.writeAsBytes(bytes);
+        debugPrint("File PDF berhasil disimpan: $filePath");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("PDF berhasil diunduh ke: $filePath")),
+          SnackBar(content: Text("PDF berhasil disimpan di: $filePath")),
         );
       }
     } catch (e, stackTrace) {
@@ -210,6 +219,81 @@ class DownloadRekapPage extends StatelessWidget {
       debugPrint('StackTrace: $stackTrace');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Gagal mengunduh PDF: $e")),
+      );
+    }
+  }
+
+  /// (Android < 13) Simpan PDF ke folder Download
+  Future<void> _savePDFToDownloadFolder(
+    Uint8List bytes,
+    BuildContext context,
+  ) async {
+    try {
+      final directory = await getExternalStorageDirectory();
+      if (directory == null) {
+        throw 'Directory path not found.';
+      }
+
+      final downloadDirectory = Directory('${directory.path}/Download');
+      if (!await downloadDirectory.exists()) {
+        await downloadDirectory.create();
+        debugPrint("Folder Download dibuat: ${downloadDirectory.path}");
+      }
+
+      final filePath =
+          '${downloadDirectory.path}/rekap_absen_${className}_semester_$semester.pdf';
+      final file = File(filePath);
+
+      await file.writeAsBytes(bytes);
+      debugPrint("File PDF disimpan di: $filePath");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("PDF berhasil diunduh ke: $filePath")),
+      );
+    } catch (e, stackTrace) {
+      debugPrint('=== ERROR Menyimpan file PDF ke DownloadFolder ===');
+      debugPrint('Pesan Error: $e');
+      debugPrintStack(stackTrace: stackTrace);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal menulis file PDF: $e")),
+      );
+    }
+  }
+
+  /// (Android 13+ dan platform lain) Simpan PDF dengan FilePicker
+  Future<void> _savePdfWithFilePicker(
+    Uint8List bytes,
+    BuildContext context,
+  ) async {
+    try {
+      // Minta user pilih lokasi & nama file
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'Pilih lokasi untuk menyimpan PDF',
+        fileName: 'rekap_absen_${className}_semester_$semester.pdf',
+        bytes: bytes, // WAJIB: Agar file_picker menulis file di Android/iOS
+      );
+
+      if (result == null) {
+        // User membatalkan
+        debugPrint("User membatalkan pemilihan file.");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Penyimpanan dibatalkan")),
+        );
+        return;
+      }
+
+      // Plugin file_picker sudah menuliskan file di Android/iOS
+      debugPrint("PDF berhasil disimpan di $result");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("PDF berhasil disimpan di $result")),
+      );
+    } catch (e, stackTrace) {
+      debugPrint('=== ERROR Menyimpan file PDF dengan FilePicker ===');
+      debugPrint('Pesan Error: $e');
+      debugPrintStack(stackTrace: stackTrace);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal menyimpan PDF: $e")),
       );
     }
   }
@@ -306,7 +390,7 @@ class DownloadRekapPage extends StatelessWidget {
     );
   }
 
-  // Untuk preview data aggregated per siswa
+  // Preview data aggregated per siswa
   Widget _buildPreviewItem({
     required String name,
     required String hadir,
