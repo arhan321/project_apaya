@@ -1,106 +1,20 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
+import '../../controller/admin_controller/kelolakelasadmin_controller/daftarkelas_controller.dart'; // Import Controller
+// Jika file controller beda folder, sesuaikan path import.
 
-class DaftarKelasPage extends StatefulWidget {
-  @override
-  _DaftarKelasPageState createState() => _DaftarKelasPageState();
-}
+class DaftarKelasPage extends StatelessWidget {
+  DaftarKelasPage({Key? key}) : super(key: key);
 
-class _DaftarKelasPageState extends State<DaftarKelasPage> {
-  List<dynamic> kelasData = [];
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    fetchData(); // Fetch data saat pertama kali halaman dimuat
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (ModalRoute.of(context)?.isCurrent == true) {
-      fetchData(); // Refresh data ketika kembali dari halaman lain
-    }
-  }
-
-  // Fetch data dari API
-  Future<void> fetchData() async {
-    final url = Uri.parse("https://absen.randijourney.my.id/api/v1/kelas");
-
-    try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-
-        setState(() {
-          kelasData = data['data'] ?? [];
-          isLoading = false;
-        });
-      } else {
-        throw Exception("Gagal memuat data kelas.");
-      }
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      Get.snackbar(
-        'Kesalahan',
-        'Gagal mengambil data kelas: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    }
-  }
-
-  // Hapus kelas dari API
-  Future<void> deleteKelas(int id) async {
-    final url = Uri.parse("https://absen.randijourney.my.id/api/v1/kelas/$id");
-
-    try {
-      final response = await http.delete(url);
-      if (response.statusCode == 200 || response.statusCode == 204) {
-        setState(() {
-          kelasData.removeWhere((kelas) => kelas['id'] == id);
-        });
-        Get.snackbar(
-          'Berhasil',
-          'Kelas berhasil dihapus!',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
-      } else {
-        throw Exception("Gagal menghapus kelas.");
-      }
-    } catch (e) {
-      Get.snackbar(
-        'Kesalahan',
-        'Terjadi kesalahan saat menghapus kelas.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    }
-  }
+  /// Kita daftarkan Controller ke GetX.
+  /// - 'put()' akan membuat instance Controller jika belum ada.
+  final DaftarKelasController controller = Get.put(DaftarKelasController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.blueAccent, Colors.lightBlueAccent],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-          ),
-        ),
         title: Text(
           'Daftar Kelas',
           style: GoogleFonts.poppins(
@@ -111,52 +25,69 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Get.back();
-          },
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Get.back(),
+        ),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blueAccent, Colors.lightBlueAccent],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+          ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Stack(
         children: [
+          /// Latar belakang gradient
           Container(
             width: double.infinity,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [Colors.blueAccent, Colors.lightBlueAccent],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
             ),
-            child: isLoading
-                ? Center(child: CircularProgressIndicator())
-                : kelasData.isEmpty
-                    ? Center(
-                        child: Text(
-                          'Tidak ada data kelas.',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      )
-                    : ListView.builder(
-                        padding: EdgeInsets.all(16.0),
-                        itemCount: kelasData.length,
-                        itemBuilder: (context, index) {
-                          final kelas = kelasData[index];
-                          return _buildKelasCard(
-                            id: kelas['id'],
-                            namaKelas: kelas['nama_kelas'] ?? "Tidak Ada Nama",
-                            userId: kelas['user_id'],
-                            namaUser: kelas['nama_user'] ?? "Tidak Ada Wali",
-                          );
-                        },
-                      ),
+            child: Obx(() {
+              /// Gunakan Obx agar builder dipanggil ulang saat data berubah
+              if (controller.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (controller.kelasData.isEmpty) {
+                return Center(
+                  child: Text(
+                    'Tidak ada data kelas.',
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                );
+              }
+
+              // Jika ada data, tampilkan ListView
+              return ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: controller.kelasData.length,
+                itemBuilder: (context, index) {
+                  final kelas = controller.kelasData[index];
+                  return _buildKelasCard(
+                    id: kelas['id'],
+                    namaKelas: kelas['nama_kelas'] ?? "Tidak Ada Nama",
+                    userId: kelas['user_id'],
+                    namaUser: kelas['nama_user'] ?? "Tidak Ada Wali",
+                  );
+                },
+              );
+            }),
           ),
-          // Tombol Tambah Kelas
+
+          /// Tombol Tambah Kelas
           Positioned(
             bottom: 20,
             right: 20,
@@ -164,11 +95,12 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
               onPressed: () async {
                 final result = await Get.toNamed('/tambahKelas');
                 if (result == true) {
-                  fetchData(); // Refresh data jika berhasil tambah kelas
+                  /// Memanggil fetchData() ulang jika berhasil tambah
+                  controller.fetchData();
                 }
               },
               backgroundColor: Colors.blueAccent,
-              icon: Icon(Icons.add, color: Colors.white),
+              icon: const Icon(Icons.add, color: Colors.white),
               label: Text(
                 'Tambah Kelas',
                 style: GoogleFonts.poppins(
@@ -196,11 +128,11 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-      margin: EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 16),
       child: Container(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             colors: [Colors.purpleAccent, Colors.lightBlue],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -209,6 +141,7 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
         ),
         child: Row(
           children: [
+            /// Info kelas
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,7 +154,7 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     "Wali Kelas: $namaUser",
                     style: GoogleFonts.poppins(
@@ -236,9 +169,9 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
                       color: Colors.white70,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    "ID Kelas: $id", // Menambahkan informasi ID kelas
+                    "ID Kelas: $id",
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       color: Colors.white70,
@@ -247,8 +180,10 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
                 ],
               ),
             ),
+
+            /// Tombol Edit
             IconButton(
-              icon: Icon(Icons.edit, color: Colors.white),
+              icon: const Icon(Icons.edit, color: Colors.white),
               onPressed: () {
                 Get.toNamed(
                   '/editKelas',
@@ -259,16 +194,18 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
                   },
                 )?.then((value) {
                   if (value == true) {
-                    fetchData(); // Refresh data jika kelas diubah
+                    controller.fetchData(); // Refresh data jika kelas diubah
                   }
                 });
               },
             ),
+
+            /// Tombol Hapus
             IconButton(
-              icon: Icon(Icons.delete, color: Colors.redAccent),
+              icon: const Icon(Icons.delete, color: Colors.redAccent),
               onPressed: () {
                 showDialog(
-                  context: context,
+                  context: Get.context!,
                   builder: (context) => AlertDialog(
                     title: Text(
                       'Hapus Kelas',
@@ -289,7 +226,7 @@ class _DaftarKelasPageState extends State<DaftarKelasPage> {
                       TextButton(
                         onPressed: () {
                           Navigator.pop(context);
-                          deleteKelas(id);
+                          controller.deleteKelas(id);
                         },
                         child: Text(
                           'Hapus',

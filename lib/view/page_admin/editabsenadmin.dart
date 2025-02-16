@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:dio/dio.dart';
+import '../../controller/admin_controller/kelolakelasadmin_controller/editabsenadmin_controller.dart';
 
 class EditAbsenAdminPage extends StatelessWidget {
+  /// Inisialisasi controller dengan Get.put
+  final EditAbsenAdminController controller =
+      Get.put(EditAbsenAdminController());
+
+  /// TextEditingController untuk form
   final TextEditingController namaController = TextEditingController();
   final TextEditingController nomorController = TextEditingController();
   final TextEditingController jamAbsenController = TextEditingController();
   final TextEditingController tanggalAbsenController = TextEditingController();
+
   final List<String> statusList = ['Hadir', 'Sakit', 'Izin', 'Tidak Hadir'];
+
+  EditAbsenAdminPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +24,15 @@ class EditAbsenAdminPage extends StatelessWidget {
     final arguments = Get.arguments ?? {};
     final int kelasId = arguments['kelasId'] ?? 0; // ID kelas
     final int siswaId = arguments['siswaId'] ?? 0; // ID siswa
+
+    // Isi controller textfield
     namaController.text = arguments['name'] ?? '';
+    // Nomor absen, hapus "No Absen " jika ada
     nomorController.text =
-        (arguments['number'] ?? '').replaceAll('No Absen ', ''); // Nomor Absen
+        (arguments['number'] ?? '').replaceAll('No Absen ', '');
     jamAbsenController.text = arguments['jamAbsen'] ?? '';
-    tanggalAbsenController.text =
-        arguments['tanggalAbsen'] ?? ''; // Tanggal Absen
+    tanggalAbsenController.text = arguments['tanggalAbsen'] ?? '';
+    // Nilai default selectedStatus
     String selectedStatus = arguments['status'] ?? 'Hadir';
 
     return Scaffold(
@@ -30,11 +41,14 @@ class EditAbsenAdminPage extends StatelessWidget {
         title: Text(
           'Edit Absen',
           style: GoogleFonts.poppins(
-              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Get.back(),
         ),
       ),
@@ -43,22 +57,29 @@ class EditAbsenAdminPage extends StatelessWidget {
         child: Column(
           children: [
             _buildTextField('Nama Siswa', namaController),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             _buildTextField('Nomor Absen', nomorController),
-            SizedBox(height: 12),
-            _buildDropdown('Status Absensi', selectedStatus, statusList,
-                (value) {
-              selectedStatus = value!;
-            }),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
+            _buildDropdown(
+              label: 'Status Absensi',
+              value: selectedStatus,
+              items: statusList,
+              onChanged: (value) {
+                // Harus kita simpan ke selectedStatus
+                if (value != null) {
+                  selectedStatus = value;
+                }
+              },
+            ),
+            const SizedBox(height: 12),
             _buildTextField('Jam Absen', jamAbsenController),
-            SizedBox(height: 12),
-            _buildTextField(
-                'Tanggal Absen', tanggalAbsenController), // Tanggal Absen
-            SizedBox(height: 20),
+            const SizedBox(height: 12),
+            _buildTextField('Tanggal Absen', tanggalAbsenController),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                final response = await _updateAbsen(
+                // Panggil controller.updateAbsen
+                final response = await controller.updateAbsen(
                   kelasId: kelasId,
                   siswaId: siswaId,
                   nama: namaController.text,
@@ -68,8 +89,7 @@ class EditAbsenAdminPage extends StatelessWidget {
                   tanggalAbsen: tanggalAbsenController.text,
                 );
 
-                if (response['success']) {
-                  // Notifikasi bahwa perubahan berhasil
+                if (response['success'] == true) {
                   Get.snackbar(
                     'Berhasil',
                     'Data absensi berhasil diperbarui',
@@ -77,11 +97,10 @@ class EditAbsenAdminPage extends StatelessWidget {
                     backgroundColor: Colors.green,
                     colorText: Colors.white,
                   );
-                  // Menambahkan delay agar notifikasi sempat muncul
-                  await Future.delayed(Duration(seconds: 1));
-                  Get.back(); // Kembali ke halaman sebelumnya
+                  // Tambahkan delay jika mau
+                  await Future.delayed(const Duration(seconds: 1));
+                  Get.back(result: true); // Kembali & berikan indikasi success
                 } else {
-                  // Menampilkan error jika gagal
                   Get.snackbar(
                     'Gagal',
                     response['message'],
@@ -94,9 +113,10 @@ class EditAbsenAdminPage extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blueAccent,
-                padding: EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               child: Text(
                 'Simpan Perubahan',
@@ -109,6 +129,7 @@ class EditAbsenAdminPage extends StatelessWidget {
     );
   }
 
+  /// Widget helper: TextField
   Widget _buildTextField(String label, TextEditingController controller) {
     return TextField(
       controller: controller,
@@ -120,8 +141,13 @@ class EditAbsenAdminPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDropdown(String label, String value, List<String> items,
-      Function(String?) onChanged) {
+  /// Widget helper: Dropdown
+  Widget _buildDropdown({
+    required String label,
+    required String value,
+    required List<String> items,
+    required Function(String?) onChanged,
+  }) {
     return DropdownButtonFormField<String>(
       value: value,
       decoration: InputDecoration(
@@ -136,76 +162,5 @@ class EditAbsenAdminPage extends StatelessWidget {
           .toList(),
       onChanged: onChanged,
     );
-  }
-
-  Future<Map<String, dynamic>> _updateAbsen({
-    required int kelasId,
-    required int siswaId,
-    required String nama,
-    required String nomorAbsen,
-    required String jamAbsen,
-    required String status,
-    required String tanggalAbsen, // Tambahkan tanggal absen
-  }) async {
-    final Dio dio = Dio();
-    final String url =
-        'https://absen.randijourney.my.id/api/v1/kelas/update/$kelasId';
-
-    try {
-      debugPrint('Sending data to API...');
-      debugPrint('URL: $url');
-      debugPrint('Payload: ${{
-        'siswa': [
-          {
-            'id': siswaId,
-            'nama': nama,
-            'nomor_absen': nomorAbsen,
-            'keterangan': status,
-            'jam_absen': jamAbsen,
-            'tanggal_absen': tanggalAbsen, // Tanggal Absen
-          }
-        ]
-      }}');
-
-      final response = await dio.put(
-        url,
-        options: Options(headers: {'Content-Type': 'application/json'}),
-        data: {
-          'siswa': [
-            {
-              'id': siswaId,
-              'nama': nama,
-              'nomor_absen': nomorAbsen,
-              'keterangan': status,
-              'jam_absen': jamAbsen,
-              'tanggal_absen': tanggalAbsen, // Tanggal Absen
-            }
-          ],
-        },
-      );
-
-      debugPrint('Response status: ${response.statusCode}');
-      debugPrint('Response data: ${response.data}');
-
-      if (response.statusCode == 200) {
-        return {
-          'success': true,
-          'message': response.data['message'] ?? 'Data berhasil diperbarui',
-        };
-      } else {
-        return {
-          'success': false,
-          'message': response.data['message'] ?? 'Gagal memperbarui data',
-          'error': response.data,
-        };
-      }
-    } catch (e) {
-      debugPrint('Error during API call: $e');
-      return {
-        'success': false,
-        'message': 'Terjadi kesalahan saat menghubungi server.',
-        'error': e.toString(),
-      };
-    }
   }
 }
