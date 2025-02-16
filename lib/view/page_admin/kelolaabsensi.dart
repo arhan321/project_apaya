@@ -1,61 +1,19 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
+import '../../controller/admin_controller/kelolaabsenadmin_controller/kelolaabsenadmin_controller.dart';
 
-class KelolaAbsensiPage extends StatefulWidget {
-  @override
-  _KelolaAbsensiPageState createState() => _KelolaAbsensiPageState();
-}
+class KelolaAbsensiPage extends StatelessWidget {
+  KelolaAbsensiPage({Key? key}) : super(key: key);
 
-class _KelolaAbsensiPageState extends State<KelolaAbsensiPage> {
-  List<dynamic> kelasData = [];
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    fetchKelasData();
-  }
-
-  Future<void> fetchKelasData() async {
-    final String url = "https://absen.randijourney.my.id/api/v1/kelas";
-
-    try {
-      print("Fetching data from $url...");
-      final response = await http.get(Uri.parse(url));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          kelasData = data['data'] ?? [];
-          isLoading = false;
-        });
-      } else {
-        throw Exception("Failed to load kelas data");
-      }
-    } catch (e) {
-      print("Error fetching kelas data: $e");
-      setState(() {
-        isLoading = false;
-      });
-      Get.snackbar(
-        'Error',
-        'Gagal mengambil data kelas',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    }
-  }
+  final KelolaAbsensiController controller = Get.put(KelolaAbsensiController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.blueAccent, Colors.lightBlueAccent],
               begin: Alignment.centerLeft,
@@ -73,53 +31,72 @@ class _KelolaAbsensiPageState extends State<KelolaAbsensiPage> {
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Get.back();
-          },
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Get.back(),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Container(
         width: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Colors.blueAccent, Colors.lightBlueAccent],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
-        child: isLoading
-            ? Center(child: CircularProgressIndicator())
-            : Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    int crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
-                    double aspectRatio =
-                        constraints.maxWidth > 600 ? 3 / 2 : 4 / 3;
 
-                    return GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: aspectRatio,
+        /// Gunakan Obx agar widget rebuild saat isLoading atau kelasData berubah
+        child: Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          /// Jika tidak loading, tampilkan data
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Responsif: atur crossAxisCount dan aspectRatio
+                int crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
+                double aspectRatio = constraints.maxWidth > 600 ? 3 / 2 : 4 / 3;
+
+                // Jika data kosong, tampilkan teks
+                if (controller.kelasData.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'Tidak ada data kelas.',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.white,
                       ),
-                      itemCount: kelasData.length,
-                      itemBuilder: (context, index) {
-                        final kelas = kelasData[index];
-                        return _buildKelasCard(
-                          id: kelas['id'], // Kirim ID kelas
-                          namaKelas: kelas['nama_kelas'] ?? 'Tidak Ada Nama',
-                          waliKelas: kelas['nama_user'] ?? 'Tidak Ada Wali',
-                        );
-                      },
+                    ),
+                  );
+                }
+
+                // Tampilkan grid
+                return GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: aspectRatio,
+                  ),
+                  itemCount: controller.kelasData.length,
+                  itemBuilder: (context, index) {
+                    final kelas = controller.kelasData[index];
+                    return _buildKelasCard(
+                      id: kelas['id'] ?? 0,
+                      namaKelas: kelas['nama_kelas'] ?? 'Tidak Ada Nama',
+                      waliKelas: kelas['nama_user'] ?? 'Tidak Ada Wali',
                     );
                   },
-                ),
-              ),
+                );
+              },
+            ),
+          );
+        }),
       ),
     );
   }
@@ -144,14 +121,14 @@ class _KelolaAbsensiPageState extends State<KelolaAbsensiPage> {
         ),
         child: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               colors: [Colors.purpleAccent, Colors.lightBlue],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(15),
           ),
-          padding: EdgeInsets.all(12),
+          padding: const EdgeInsets.all(12),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,7 +141,7 @@ class _KelolaAbsensiPageState extends State<KelolaAbsensiPage> {
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 "Wali Kelas: $waliKelas",
                 style: GoogleFonts.poppins(

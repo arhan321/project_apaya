@@ -206,16 +206,21 @@ class EditKelasController extends GetxController {
       debugPrint("Response Data: ${response.data}");
 
       if (response.statusCode == 200) {
-        // Sukses
-        Get.snackbar(
-          'Berhasil',
-          'Data kelas berhasil diperbarui',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
+        // Tampilkan modal dialog
+        Get.defaultDialog(
+          title: 'Berhasil',
+          middleText: 'Data kelas berhasil diperbarui',
+          confirm: ElevatedButton(
+            onPressed: () {
+              // Tutup dialog
+              Get.back();
+              // Balik ke halaman sebelumnya dengan result true
+              Get.back(result: true);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent),
+            child: const Text("OK", style: TextStyle(color: Colors.white)),
+          ),
         );
-        // Balik ke halaman sebelumnya
-        Get.back(result: true);
       } else {
         Get.snackbar(
           'Error',

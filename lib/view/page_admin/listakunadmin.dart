@@ -3,117 +3,20 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dio/dio.dart';
 
-class ListAkunAdminPage extends StatefulWidget {
-  @override
-  _ListAkunAdminPageState createState() => _ListAkunAdminPageState();
-}
+import '../../controller/admin_controller/kelolaakun_controller/listakunadmin_controller.dart'; // Import controller
 
-class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
-  final Dio _dio = Dio();
-  List<Map<String, dynamic>> akunAdmin = [];
-  bool isLoading = true;
-  String errorMessage = '';
+class ListAkunAdminPage extends StatelessWidget {
+  ListAkunAdminPage({Key? key}) : super(key: key);
 
-  @override
-  void initState() {
-    super.initState();
-    fetchAkunAdmin();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (ModalRoute.of(context)?.isCurrent == true) {
-      fetchAkunAdmin();
-    }
-  }
-
-  Future<void> fetchAkunAdmin() async {
-    setState(() {
-      isLoading = true;
-      errorMessage = '';
-    });
-
-    const String url = 'https://absen.randijourney.my.id/api/v1/account';
-
-    try {
-      final response = await _dio.get(
-        url,
-        options: Options(headers: {'Accept': 'application/json'}),
-      );
-
-      if (response.statusCode == 200) {
-        final data = response.data;
-
-        debugPrint('Data API: $data');
-
-        setState(() {
-          akunAdmin = (data as List)
-              .where((item) => (item['role'] ?? '').toLowerCase() == 'admin')
-              .map((item) => {
-                    'id': item['id']?.toString() ?? '',
-                    'foto': item['image_url'] ?? '',
-                    'username': item['name'] ?? 'Nama tidak tersedia',
-                    'email': item['email'] ?? 'Email tidak tersedia',
-                    'password': item['password'] ?? '********',
-                    'role': item['role'] ?? '',
-                  })
-              .toList();
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          errorMessage =
-              'Gagal memuat data. Status Code: ${response.statusCode}';
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      debugPrint('Kesalahan API: $e');
-      setState(() {
-        errorMessage = 'Terjadi kesalahan saat memuat data: $e';
-        isLoading = false;
-      });
-    }
-  }
-
-  Future<void> deleteAkun(String id) async {
-    const String baseUrl = 'https://absen.randijourney.my.id/api/v1/account/';
-    try {
-      final response = await _dio.delete('$baseUrl$id');
-
-      if (response.statusCode == 200) {
-        setState(() {
-          akunAdmin.removeWhere((item) => item['id'] == id);
-        });
-        Get.snackbar(
-          'Sukses',
-          'Akun berhasil dihapus.',
-          snackPosition: SnackPosition.BOTTOM,
-        );
-      } else {
-        Get.snackbar(
-          'Gagal',
-          'Tidak dapat menghapus akun.',
-          snackPosition: SnackPosition.BOTTOM,
-        );
-      }
-    } catch (e) {
-      debugPrint('Kesalahan saat menghapus akun: $e');
-      Get.snackbar(
-        'Kesalahan',
-        'Terjadi kesalahan saat menghapus akun.',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    }
-  }
+  /// Inisialisasi controller via Get.put (atau boleh Get.find jika sudah di-bind sebelumnya)
+  final ListAkunAdminController controller = Get.put(ListAkunAdminController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.blueAccent, Colors.lightBlueAccent],
               begin: Alignment.centerLeft,
@@ -131,17 +34,23 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Get.back(),
         ),
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : errorMessage.isNotEmpty
-              ? _buildErrorWidget()
-              : _buildListAkun(),
+      body: Obx(() {
+        /// Reaktif, rebuild ketika controller.isLoading atau errorMessage berubah
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (controller.errorMessage.isNotEmpty) {
+          return _buildErrorWidget(controller.errorMessage.value);
+        } else {
+          // Tampilkan daftar akun
+          return _buildListAkun();
+        }
+      }),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Get.toNamed('/tambahAkunAdmin');
@@ -150,49 +59,55 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
           'Tambah Akun',
           style: GoogleFonts.poppins(color: Colors.white),
         ),
-        icon: Icon(Icons.add, color: Colors.white),
+        icon: const Icon(Icons.add, color: Colors.white),
         backgroundColor: Colors.blueAccent,
       ),
     );
   }
 
+  /// Widget untuk menampilkan daftar akun admin
   Widget _buildListAkun() {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [Colors.blueAccent, Colors.lightBlueAccent],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
       ),
-      child: akunAdmin.isEmpty
-          ? Center(
-              child: Text(
-                'Tidak ada akun admin tersedia.',
-                style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
-              ),
-            )
-          : ListView.builder(
-              padding: EdgeInsets.all(16),
-              itemCount: akunAdmin.length,
-              itemBuilder: (context, index) {
-                final akun = akunAdmin[index];
-                return _buildAkunCard(
-                  context,
-                  id: akun['id'],
-                  foto: akun['foto']!,
-                  username: akun['username']!,
-                  email: akun['email']!,
-                  password: akun['password']!,
-                  role: akun['role']!,
-                );
-              },
+      child: Obx(() {
+        // Jika data akunAdmin kosong
+        if (controller.akunAdmin.isEmpty) {
+          return Center(
+            child: Text(
+              'Tidak ada akun admin tersedia.',
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
             ),
+          );
+        }
+
+        // ListView builder
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: controller.akunAdmin.length,
+          itemBuilder: (context, index) {
+            final akun = controller.akunAdmin[index];
+            return _buildAkunCard(
+              id: akun['id'] ?? '',
+              foto: akun['foto'] ?? '',
+              username: akun['username'] ?? '',
+              email: akun['email'] ?? '',
+              password: akun['password'] ?? '',
+              role: akun['role'] ?? '',
+            );
+          },
+        );
+      }),
     );
   }
 
-  Widget _buildAkunCard(
-    BuildContext context, {
+  /// Widget card untuk 1 item akun
+  Widget _buildAkunCard({
     required String id,
     required String foto,
     required String username,
@@ -204,19 +119,21 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-      margin: EdgeInsets.symmetric(vertical: 10),
+      margin: const EdgeInsets.symmetric(vertical: 10),
       elevation: 4,
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             CircleAvatar(
               radius: 40,
               backgroundImage: foto.isNotEmpty
                   ? NetworkImage(foto)
-                  : AssetImage('assets/default_profile.png') as ImageProvider,
+                  : const AssetImage('assets/default_profile.png')
+                      as ImageProvider,
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
+            // Keterangan akun
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -254,10 +171,11 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
                 ],
               ),
             ),
+            // Tombol Edit & Delete
             Column(
               children: [
                 IconButton(
-                  icon: Icon(Icons.edit, color: Colors.blueAccent),
+                  icon: const Icon(Icons.edit, color: Colors.blueAccent),
                   onPressed: () {
                     Get.toNamed('/editProfileAdmin', arguments: {
                       'id': id,
@@ -270,9 +188,9 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
                   },
                 ),
                 IconButton(
-                  icon: Icon(Icons.delete, color: Colors.redAccent),
+                  icon: const Icon(Icons.delete, color: Colors.redAccent),
                   onPressed: () {
-                    deleteAkun(id);
+                    controller.deleteAkun(id);
                   },
                 ),
               ],
@@ -283,10 +201,11 @@ class _ListAkunAdminPageState extends State<ListAkunAdminPage> {
     );
   }
 
-  Widget _buildErrorWidget() {
+  /// Widget untuk menampilkan pesan error
+  Widget _buildErrorWidget(String message) {
     return Center(
       child: Text(
-        errorMessage,
+        message,
         style: GoogleFonts.poppins(fontSize: 16, color: Colors.red),
       ),
     );
