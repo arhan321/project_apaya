@@ -4,9 +4,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart' as dio;
 import 'dart:io';
 
+import '../../../model/admin_model/kelolaaccountadmin_model/editaccountadmin_model.dart';
+
 class EditAkunAdminController extends GetxController {
   final dio.Dio dioClient = dio.Dio();
-  final Map<String, dynamic> akun = Get.arguments;
+
+  /// Ambil data akun dari Get.arguments dan konversikan ke model
+  late AdminAkunModel akun;
 
   File? selectedImage;
   final picker = ImagePicker();
@@ -20,11 +24,16 @@ class EditAkunAdminController extends GetxController {
   void onInit() {
     super.onInit();
     print('EditAkunAdminController initialized');
-    namaController = TextEditingController(text: akun['name']);
-    emailController = TextEditingController(text: akun['email']);
-    passwordController = TextEditingController(text: akun['password']);
-    if (akun['tanggal_lahir'] != null) {
-      selectedTanggalLahir = DateTime.tryParse(akun['tanggal_lahir']);
+
+    // Konversikan Get.arguments (asumsi Map) menjadi objek AdminAkunModel
+    akun = AdminAkunModel.fromJson(Get.arguments);
+
+    namaController = TextEditingController(text: akun.name);
+    emailController = TextEditingController(text: akun.email);
+    passwordController = TextEditingController(text: akun.password);
+
+    if (akun.tanggalLahir != null) {
+      selectedTanggalLahir = DateTime.tryParse(akun.tanggalLahir!);
     }
     print('Initial data: $akun');
   }
@@ -39,13 +48,16 @@ class EditAkunAdminController extends GetxController {
 
   Future<void> updateProfile() async {
     final String url =
-        'https://absen.randijourney.my.id/api/v1/account/${akun['id']}';
+        'https://absen.randijourney.my.id/api/v1/account/${akun.id}';
 
     if (namaController.text.isEmpty || emailController.text.isEmpty) {
-      Get.snackbar('Error', 'Nama dan Email tidak boleh kosong',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
+      Get.snackbar(
+        'Error',
+        'Nama dan Email tidak boleh kosong',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       return;
     }
 
@@ -67,36 +79,48 @@ class EditAkunAdminController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        Get.snackbar('Berhasil', 'Profil berhasil diperbarui',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white);
+        Get.snackbar(
+          'Berhasil',
+          'Profil berhasil diperbarui',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
         Get.back();
       } else {
-        Get.snackbar('Error', 'Gagal memperbarui profil',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white);
-      }
-    } catch (e) {
-      Get.snackbar('Kesalahan', 'Terjadi kesalahan saat memperbarui profil',
+        Get.snackbar(
+          'Error',
+          'Gagal memperbarui profil',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
-          colorText: Colors.white);
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Kesalahan',
+        'Terjadi kesalahan saat memperbarui profil',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
   Future<void> uploadPhoto() async {
     if (selectedImage == null) {
-      Get.snackbar('Error', 'Pilih foto terlebih dahulu',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
+      Get.snackbar(
+        'Error',
+        'Pilih foto terlebih dahulu',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       return;
     }
 
     final String url =
-        'https://absen.randijourney.my.id/api/v1/account/${akun['id']}/foto';
+        'https://absen.randijourney.my.id/api/v1/account/${akun.id}/foto';
 
     try {
       String fileName = selectedImage!.path.split('/').last;
@@ -113,21 +137,30 @@ class EditAkunAdminController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        Get.snackbar('Berhasil', 'Foto berhasil diunggah',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white);
+        Get.snackbar(
+          'Berhasil',
+          'Foto berhasil diunggah',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
       } else {
-        Get.snackbar('Error', 'Gagal mengunggah foto',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white);
-      }
-    } catch (e) {
-      Get.snackbar('Kesalahan', 'Terjadi kesalahan saat mengunggah foto',
+        Get.snackbar(
+          'Error',
+          'Gagal mengunggah foto',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
-          colorText: Colors.white);
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Kesalahan',
+        'Terjadi kesalahan saat mengunggah foto',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 

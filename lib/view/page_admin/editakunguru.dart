@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controller/admin_controller/kelolaccountguru_controller/editakunguru_controller.dart';
+import 'dart:io';
 
 class EditAkunGuru extends StatelessWidget {
-  final controller = Get.put(EditAkunGuruController());
+  final EditAkunGuruController controller = Get.put(EditAkunGuruController());
 
   @override
   Widget build(BuildContext context) {
@@ -42,10 +43,10 @@ class EditAkunGuru extends StatelessWidget {
                         radius: 60,
                         backgroundImage: controller.selectedImage != null
                             ? FileImage(controller.selectedImage!)
-                            : (controller.akun['foto'] != null
-                                    ? NetworkImage(controller.akun['foto'])
-                                    : AssetImage('assets/placeholder.png'))
-                                as ImageProvider,
+                            : (controller.akun.foto.isNotEmpty
+                                ? NetworkImage(controller.akun.foto)
+                                : const AssetImage(
+                                    'assets/placeholder.png')) as ImageProvider,
                       ),
                       Positioned(
                         bottom: 0,
@@ -61,32 +62,32 @@ class EditAkunGuru extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextField(
                     controller: controller.namaController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Nama',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextField(
                     controller: controller.emailController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Email',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextField(
                     controller: controller.passwordController,
                     obscureText: true,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Password',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   GestureDetector(
                     onTap: () => controller.selectTanggalLahir(context),
                     child: AbsorbPointer(
@@ -95,19 +96,19 @@ class EditAkunGuru extends StatelessWidget {
                           labelText: controller.selectedTanggalLahir == null
                               ? 'Tanggal Lahir'
                               : '${controller.selectedTanggalLahir!.year}-${controller.selectedTanggalLahir!.month.toString().padLeft(2, '0')}-${controller.selectedTanggalLahir!.day.toString().padLeft(2, '0')}',
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                     ),
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   GestureDetector(
                     onTap: controller.updateProfile,
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 15),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [Colors.blueAccent, Colors.lightBlueAccent],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
@@ -126,14 +127,14 @@ class EditAkunGuru extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   GestureDetector(
                     onTap: controller.uploadPhoto,
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 15),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [Colors.green, Colors.lightGreenAccent],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,

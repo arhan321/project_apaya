@@ -4,9 +4,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart' as dio;
 import 'dart:io';
 
+import '../../../model/admin_model/kelolaaccountortu_model/editakunortu_model.dart';
+
 class EditAkunOrtuController extends GetxController {
   final dio.Dio dioClient = dio.Dio();
-  final Map<String, dynamic> akun = Get.arguments;
+
+  /// Konversikan Get.arguments (Map) ke objek OrtuAkunModel
+  late OrtuAkunModel akun;
 
   File? selectedImage;
   final picker = ImagePicker();
@@ -16,14 +20,21 @@ class EditAkunOrtuController extends GetxController {
   late TextEditingController emailController;
   late TextEditingController passwordController;
 
+  DateTime? selectedTanggalLahir;
+
   @override
   void onInit() {
     super.onInit();
     print('EditAkunOrtuController initialized');
-    namaController = TextEditingController(text: akun['name']);
-    usernameController = TextEditingController(text: akun['username']);
-    emailController = TextEditingController(text: akun['email']);
-    passwordController = TextEditingController(text: akun['password']);
+
+    // Konversi Get.arguments ke model
+    akun = OrtuAkunModel.fromJson(Get.arguments);
+
+    namaController = TextEditingController(text: akun.name);
+    usernameController = TextEditingController(text: akun.username);
+    emailController = TextEditingController(text: akun.email);
+    passwordController = TextEditingController(text: akun.password);
+
     print('Initial data: $akun');
   }
 
@@ -41,15 +52,18 @@ class EditAkunOrtuController extends GetxController {
 
   Future<void> updateProfile() async {
     final String url =
-        'https://absen.randijourney.my.id/api/v1/account/${akun['id']}';
+        'https://absen.randijourney.my.id/api/v1/account/${akun.id}';
     print('Updating parent account with URL: $url');
 
     if (namaController.text.isEmpty || emailController.text.isEmpty) {
       print('Validation failed: Nama or Email is empty');
-      Get.snackbar('Error', 'Nama dan Email tidak boleh kosong',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
+      Get.snackbar(
+        'Error',
+        'Nama dan Email tidak boleh kosong',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       return;
     }
 
@@ -71,40 +85,51 @@ class EditAkunOrtuController extends GetxController {
       print('Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         print('Parent account updated successfully');
-        Get.snackbar('Berhasil', 'Akun orang tua berhasil diperbarui',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white);
+        Get.snackbar(
+          'Berhasil',
+          'Akun orang tua berhasil diperbarui',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
         Get.back();
       } else {
         print('Failed to update parent account: ${response.statusCode}');
-        Get.snackbar('Error', 'Gagal memperbarui akun orang tua',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white);
+        Get.snackbar(
+          'Error',
+          'Gagal memperbarui akun orang tua',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
       }
     } catch (e) {
       print('Error updating parent account: $e');
       Get.snackbar(
-          'Kesalahan', 'Terjadi kesalahan saat memperbarui akun orang tua',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
+        'Kesalahan',
+        'Terjadi kesalahan saat memperbarui akun orang tua',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
   Future<void> uploadPhoto() async {
     if (selectedImage == null) {
       print('No image selected for upload');
-      Get.snackbar('Error', 'Pilih foto terlebih dahulu',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
+      Get.snackbar(
+        'Error',
+        'Pilih foto terlebih dahulu',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       return;
     }
 
     final String url =
-        'https://absen.randijourney.my.id/api/v1/account/${akun['id']}/foto';
+        'https://absen.randijourney.my.id/api/v1/account/${akun.id}/foto';
     print('Uploading photo to URL: $url');
 
     try {
@@ -125,23 +150,49 @@ class EditAkunOrtuController extends GetxController {
       print('Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         print('Photo uploaded successfully');
-        Get.snackbar('Berhasil', 'Foto berhasil diunggah',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white);
+        Get.snackbar(
+          'Berhasil',
+          'Foto berhasil diunggah',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
       } else {
         print('Failed to upload photo: ${response.statusCode}');
-        Get.snackbar('Error', 'Gagal mengunggah foto',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white);
+        Get.snackbar(
+          'Error',
+          'Gagal mengunggah foto',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
       }
     } catch (e) {
       print('Error uploading photo: $e');
-      Get.snackbar('Kesalahan', 'Terjadi kesalahan saat mengunggah foto',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
+      Get.snackbar(
+        'Kesalahan',
+        'Terjadi kesalahan saat mengunggah foto',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  void selectTanggalLahir(BuildContext context) async {
+    print('Opening date picker...');
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedTanggalLahir ?? DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != selectedTanggalLahir) {
+      selectedTanggalLahir = picked;
+      print('Selected date: $selectedTanggalLahir');
+      update();
+    } else {
+      print('No date selected.');
     }
   }
 }

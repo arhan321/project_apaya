@@ -4,14 +4,14 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../controller/admin_controller/kelolaccountsiswa_controller/editakunsiswa_controller.dart';
 
 class EditAkunSiswa extends StatelessWidget {
-  final controller = Get.put(EditAkunSiswaController());
+  final EditAkunSiswaController controller = Get.put(EditAkunSiswaController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.blueAccent, Colors.lightBlueAccent],
               begin: Alignment.centerLeft,
@@ -27,7 +27,13 @@ class EditAkunSiswa extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Get.back(),
+        ),
       ),
       body: GetBuilder<EditAkunSiswaController>(
         builder: (controller) {
@@ -36,16 +42,17 @@ class EditAkunSiswa extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  // Profile picture & pick image button
                   Stack(
                     children: [
                       CircleAvatar(
                         radius: 60,
                         backgroundImage: controller.selectedImage != null
                             ? FileImage(controller.selectedImage!)
-                            : (controller.akun['foto'] != null
-                                    ? NetworkImage(controller.akun['foto'])
-                                    : AssetImage('assets/placeholder.png'))
-                                as ImageProvider,
+                            : (controller.akun.foto.isNotEmpty
+                                ? NetworkImage(controller.akun.foto)
+                                : const AssetImage(
+                                    'assets/placeholder.png')) as ImageProvider,
                       ),
                       Positioned(
                         bottom: 0,
@@ -55,53 +62,74 @@ class EditAkunSiswa extends StatelessWidget {
                           child: CircleAvatar(
                             backgroundColor: Colors.blueAccent,
                             radius: 20,
-                            child: Icon(Icons.camera_alt, color: Colors.white),
+                            child: const Icon(Icons.camera_alt,
+                                color: Colors.white),
                           ),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
+                  // Nama
                   TextField(
                     controller: controller.namaController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Nama',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
+                  // No. Absen
                   TextField(
                     controller: controller.noAbsenController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'No. Absen',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
+                  // Email
                   TextField(
                     controller: controller.emailController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Email',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
+                  // Password
                   TextField(
                     controller: controller.passwordController,
                     obscureText: true,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Password',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
+                  // Tanggal Lahir
+                  GestureDetector(
+                    onTap: () => controller.selectTanggalLahir(context),
+                    child: AbsorbPointer(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          labelText: controller.selectedTanggalLahir == null
+                              ? 'Tanggal Lahir'
+                              : '${controller.selectedTanggalLahir!.year}-${controller.selectedTanggalLahir!.month.toString().padLeft(2, '0')}-${controller.selectedTanggalLahir!.day.toString().padLeft(2, '0')}',
+                          border: const OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Tombol Simpan Perubahan
                   GestureDetector(
                     onTap: controller.updateProfile,
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 15),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [Colors.blueAccent, Colors.lightBlueAccent],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
@@ -120,14 +148,15 @@ class EditAkunSiswa extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
+                  // Tombol Upload Foto
                   GestureDetector(
                     onTap: controller.uploadPhoto,
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 15),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [Colors.green, Colors.lightGreenAccent],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
