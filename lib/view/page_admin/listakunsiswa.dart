@@ -1,117 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:dio/dio.dart';
 
-class ListAkunSiswa extends StatefulWidget {
-  @override
-  _ListAkunSiswaState createState() => _ListAkunSiswaState();
-}
+import '../../controller/admin_controller/kelolaakun_controller/listakunsiswa_controller.dart';
 
-class _ListAkunSiswaState extends State<ListAkunSiswa> {
-  final Dio _dio = Dio();
-  List<Map<String, dynamic>> akunSiswa = [];
-  bool isLoading = true;
-  String errorMessage = '';
-
-  @override
-  void initState() {
-    super.initState();
-    fetchAkunSiswa();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (ModalRoute.of(context)?.isCurrent == true) {
-      fetchAkunSiswa();
-    }
-  }
-
-  Future<void> fetchAkunSiswa() async {
-    setState(() {
-      isLoading = true;
-      errorMessage = '';
-    });
-
-    const String url = 'https://absen.randijourney.my.id/api/v1/account';
-
-    try {
-      final response = await _dio.get(
-        url,
-        options: Options(headers: {'Accept': 'application/json'}),
-      );
-
-      if (response.statusCode == 200) {
-        final data = response.data;
-
-        setState(() {
-          akunSiswa = (data as List)
-              .where((item) => item['role']?.toLowerCase() == 'siswa')
-              .map((item) => {
-                    'id': item['id'].toString(),
-                    'foto': item['image_url'] ?? '',
-                    'nama': item['name'] ?? 'Nama tidak tersedia',
-                    'email': item['email'] ?? 'Email tidak tersedia',
-                    'password': '********',
-                    'role': item['role'] ?? '',
-                    'no_absen': item['nomor_absen']?.toString() ?? 'N/A',
-                  })
-              .toList();
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          errorMessage =
-              'Gagal memuat data. Status Code: ${response.statusCode}';
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        errorMessage = 'Terjadi kesalahan saat memuat data: $e';
-        isLoading = false;
-      });
-    }
-  }
-
-  Future<void> deleteAkunSiswa(String id) async {
-    final String url = 'https://absen.randijourney.my.id/api/v1/account/$id';
-
-    try {
-      final response = await _dio.delete(
-        url,
-        options: Options(headers: {'Accept': 'application/json'}),
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          akunSiswa.removeWhere((akun) => akun['id'] == id);
-        });
-        Get.snackbar('Berhasil', 'Akun berhasil dihapus',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white);
-      } else {
-        Get.snackbar('Gagal', 'Gagal menghapus akun',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white);
-      }
-    } catch (e) {
-      Get.snackbar('Kesalahan', 'Terjadi kesalahan saat menghapus akun',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
-    }
-  }
+class ListAkunSiswa extends StatelessWidget {
+  /// Injeksi controller agar dapat digunakan di View
+  final ListAkunSiswaController controller = Get.put(ListAkunSiswaController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.blueAccent, Colors.lightBlueAccent],
               begin: Alignment.centerLeft,
@@ -129,69 +31,78 @@ class _ListAkunSiswaState extends State<ListAkunSiswa> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Get.back(),
         ),
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : errorMessage.isNotEmpty
-              ? _buildErrorWidget()
-              : _buildListAkun(),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (controller.errorMessage.value.isNotEmpty) {
+          return _buildErrorWidget(controller.errorMessage.value);
+        }
+        return _buildListAkun();
+      }),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
+          /// Navigasi ke halaman tambah akun siswa
           Get.toNamed('/tambahAkunSiswa');
         },
         label: Text(
           'Tambah Akun',
           style: GoogleFonts.poppins(color: Colors.white),
         ),
-        icon: Icon(Icons.add, color: Colors.white),
+        icon: const Icon(Icons.add, color: Colors.white),
         backgroundColor: Colors.blueAccent,
       ),
     );
   }
 
+  /// Widget untuk menampilkan daftar akun
   Widget _buildListAkun() {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [Colors.blueAccent, Colors.lightBlueAccent],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
       ),
-      child: akunSiswa.isEmpty
-          ? Center(
-              child: Text(
-                'Tidak ada akun siswa tersedia.',
-                style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
-              ),
-            )
-          : ListView.builder(
-              padding: EdgeInsets.all(16),
-              itemCount: akunSiswa.length,
-              itemBuilder: (context, index) {
-                final akun = akunSiswa[index];
-                return _buildAkunCard(
-                  context,
-                  id: akun['id'],
-                  foto: akun['foto']!,
-                  nama: akun['nama']!,
-                  email: akun['email']!,
-                  password: akun['password']!,
-                  role: akun['role']!,
-                  noAbsen: akun['no_absen']!,
-                );
-              },
+      child: Obx(() {
+        if (controller.akunSiswa.isEmpty) {
+          return Center(
+            child: Text(
+              'Tidak ada akun siswa tersedia.',
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
             ),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: controller.akunSiswa.length,
+          itemBuilder: (context, index) {
+            final akun = controller.akunSiswa[index];
+            return _buildAkunCard(
+              id: akun['id'],
+              foto: akun['foto'] ?? '',
+              nama: akun['nama'] ?? '',
+              email: akun['email'] ?? '',
+              password: akun['password'] ?? '',
+              role: akun['role'] ?? '',
+              noAbsen: akun['no_absen'] ?? '',
+            );
+          },
+        );
+      }),
     );
   }
 
-  Widget _buildAkunCard(
-    BuildContext context, {
+  /// Widget Card untuk tiap item akun
+  Widget _buildAkunCard({
     required String id,
     required String foto,
     required String nama,
@@ -204,29 +115,30 @@ class _ListAkunSiswaState extends State<ListAkunSiswa> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-      margin: EdgeInsets.symmetric(vertical: 10),
+      margin: const EdgeInsets.symmetric(vertical: 10),
       elevation: 4,
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             CircleAvatar(
               radius: 40,
               backgroundImage: foto.isNotEmpty
                   ? NetworkImage(foto)
-                  : AssetImage('assets/default_profile.png') as ImageProvider,
+                  : const AssetImage('assets/default_profile.png')
+                      as ImageProvider,
               onBackgroundImageError: (exception, stackTrace) {
                 debugPrint('Gagal memuat gambar: $exception');
               },
               child: foto.isEmpty
-                  ? Text(
+                  ? const Text(
                       'No Image',
                       style: TextStyle(color: Colors.black, fontSize: 12),
                       textAlign: TextAlign.center,
                     )
                   : null,
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,8 +184,9 @@ class _ListAkunSiswaState extends State<ListAkunSiswa> {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.edit, color: Colors.blueAccent),
+              icon: const Icon(Icons.edit, color: Colors.blueAccent),
               onPressed: () {
+                /// Pindah ke halaman edit akun siswa dengan argument
                 Get.toNamed('/editAkunSiswa', arguments: {
                   'id': id,
                   'foto': foto,
@@ -286,9 +199,10 @@ class _ListAkunSiswaState extends State<ListAkunSiswa> {
               },
             ),
             IconButton(
-              icon: Icon(Icons.delete, color: Colors.red),
+              icon: const Icon(Icons.delete, color: Colors.red),
               onPressed: () {
-                deleteAkunSiswa(id);
+                /// Memanggil fungsi hapus di controller
+                controller.deleteAkunSiswa(id);
               },
             ),
           ],
@@ -297,10 +211,11 @@ class _ListAkunSiswaState extends State<ListAkunSiswa> {
     );
   }
 
-  Widget _buildErrorWidget() {
+  /// Widget untuk menampilkan pesan error
+  Widget _buildErrorWidget(String error) {
     return Center(
       child: Text(
-        errorMessage,
+        error,
         style: GoogleFonts.poppins(fontSize: 16, color: Colors.red),
       ),
     );

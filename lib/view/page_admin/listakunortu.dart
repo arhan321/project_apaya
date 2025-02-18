@@ -1,116 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:dio/dio.dart';
 
-class ListAkunOrtu extends StatefulWidget {
-  @override
-  _ListAkunOrtuState createState() => _ListAkunOrtuState();
-}
+import '../../controller/admin_controller/kelolaakun_controller/listakunortu_controller.dart';
 
-class _ListAkunOrtuState extends State<ListAkunOrtu> {
-  final Dio _dio = Dio();
-  List<Map<String, dynamic>> akunOrtu = [];
-  bool isLoading = true;
-  String errorMessage = '';
-
-  @override
-  void initState() {
-    super.initState();
-    fetchAkunOrtu();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (ModalRoute.of(context)?.isCurrent == true) {
-      fetchAkunOrtu();
-    }
-  }
-
-  Future<void> fetchAkunOrtu() async {
-    setState(() {
-      isLoading = true;
-      errorMessage = '';
-    });
-
-    const String url = 'https://absen.randijourney.my.id/api/v1/account';
-
-    try {
-      final response = await _dio.get(
-        url,
-        options: Options(headers: {'Accept': 'application/json'}),
-      );
-
-      if (response.statusCode == 200) {
-        final data = response.data;
-
-        setState(() {
-          akunOrtu = (data as List)
-              .where((item) => item['role']?.toLowerCase() == 'orang_tua')
-              .map((item) => {
-                    'id': item['id'].toString(),
-                    'foto': item['image_url'] ?? '',
-                    'nama': item['name'] ?? 'Nama tidak tersedia',
-                    'email': item['email'] ?? 'Email tidak tersedia',
-                    'password': '********',
-                    'role': item['role'] ?? '',
-                  })
-              .toList();
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          errorMessage =
-              'Gagal memuat data. Status Code: ${response.statusCode}';
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        errorMessage = 'Terjadi kesalahan saat memuat data: $e';
-        isLoading = false;
-      });
-    }
-  }
-
-  Future<void> deleteAkunOrtu(String id) async {
-    final String url = 'https://absen.randijourney.my.id/api/v1/account/$id';
-
-    try {
-      final response = await _dio.delete(
-        url,
-        options: Options(headers: {'Accept': 'application/json'}),
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          akunOrtu.removeWhere((akun) => akun['id'] == id);
-        });
-        Get.snackbar('Berhasil', 'Akun berhasil dihapus',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white);
-      } else {
-        Get.snackbar('Gagal', 'Gagal menghapus akun',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white);
-      }
-    } catch (e) {
-      Get.snackbar('Kesalahan', 'Terjadi kesalahan saat menghapus akun',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
-    }
-  }
+class ListAkunOrtu extends StatelessWidget {
+  // Inject Controller
+  final ListAkunOrtuController controller = Get.put(ListAkunOrtuController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.blueAccent, Colors.lightBlueAccent],
               begin: Alignment.centerLeft,
@@ -128,26 +31,38 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Get.back(),
         ),
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : errorMessage.isNotEmpty
-              ? _buildErrorWidget()
-              : _buildListAkun(),
+      body: Obx(
+        () {
+          // Loading
+          if (controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          // Error message
+          if (controller.errorMessage.value.isNotEmpty) {
+            return _buildErrorWidget(controller.errorMessage.value);
+          }
+
+          // List data
+          return _buildListAkun();
+        },
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
+          // Pindah ke halaman tambah akun (ubah route sesuai kebutuhan)
           Get.toNamed('/tambahAkunOrtu');
         },
         label: Text(
           'Tambah Akun',
           style: GoogleFonts.poppins(color: Colors.white),
         ),
-        icon: Icon(Icons.add, color: Colors.white),
+        icon: const Icon(Icons.add, color: Colors.white),
         backgroundColor: Colors.blueAccent,
       ),
     );
@@ -155,41 +70,43 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
 
   Widget _buildListAkun() {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [Colors.blueAccent, Colors.lightBlueAccent],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
       ),
-      child: akunOrtu.isEmpty
-          ? Center(
-              child: Text(
-                'Tidak ada akun orang tua tersedia.',
-                style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
-              ),
-            )
-          : ListView.builder(
-              padding: EdgeInsets.all(16),
-              itemCount: akunOrtu.length,
-              itemBuilder: (context, index) {
-                final akun = akunOrtu[index];
-                return _buildAkunCard(
-                  context,
-                  id: akun['id'],
-                  foto: akun['foto']!,
-                  nama: akun['nama']!,
-                  email: akun['email']!,
-                  password: akun['password']!,
-                  role: akun['role']!,
-                );
-              },
+      child: Obx(() {
+        if (controller.akunOrtu.isEmpty) {
+          return Center(
+            child: Text(
+              'Tidak ada akun orang tua tersedia.',
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
             ),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: controller.akunOrtu.length,
+          itemBuilder: (context, index) {
+            final akun = controller.akunOrtu[index];
+            return _buildAkunCard(
+              id: akun['id'],
+              foto: akun['foto'] ?? '',
+              nama: akun['nama'] ?? '',
+              email: akun['email'] ?? '',
+              password: akun['password'] ?? '',
+              role: akun['role'] ?? '',
+            );
+          },
+        );
+      }),
     );
   }
 
-  Widget _buildAkunCard(
-    BuildContext context, {
+  Widget _buildAkunCard({
     required String id,
     required String foto,
     required String nama,
@@ -201,29 +118,30 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-      margin: EdgeInsets.symmetric(vertical: 10),
+      margin: const EdgeInsets.symmetric(vertical: 10),
       elevation: 4,
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             CircleAvatar(
               radius: 40,
               backgroundImage: foto.isNotEmpty
                   ? NetworkImage(foto)
-                  : AssetImage('assets/default_profile.png') as ImageProvider,
+                  : const AssetImage('assets/default_profile.png')
+                      as ImageProvider,
               onBackgroundImageError: (exception, stackTrace) {
                 debugPrint('Gagal memuat gambar: $exception');
               },
               child: foto.isEmpty
-                  ? Text(
+                  ? const Text(
                       'No Image',
                       style: TextStyle(color: Colors.black, fontSize: 12),
                       textAlign: TextAlign.center,
                     )
                   : null,
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,8 +180,9 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.edit, color: Colors.blueAccent),
+              icon: const Icon(Icons.edit, color: Colors.blueAccent),
               onPressed: () {
+                // Pindah ke halaman edit akun (ubah route & arguments sesuai kebutuhan)
                 Get.toNamed('/editAkunOrtu', arguments: {
                   'id': id,
                   'foto': foto,
@@ -275,9 +194,9 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
               },
             ),
             IconButton(
-              icon: Icon(Icons.delete, color: Colors.red),
+              icon: const Icon(Icons.delete, color: Colors.red),
               onPressed: () {
-                deleteAkunOrtu(id);
+                controller.deleteAkunOrtu(id);
               },
             ),
           ],
@@ -286,10 +205,10 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
     );
   }
 
-  Widget _buildErrorWidget() {
+  Widget _buildErrorWidget(String message) {
     return Center(
       child: Text(
-        errorMessage,
+        message,
         style: GoogleFonts.poppins(fontSize: 16, color: Colors.red),
       ),
     );
