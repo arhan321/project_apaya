@@ -87,9 +87,9 @@ class KelolaAbsensiPage extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final kelas = controller.kelasData[index];
                     return _buildKelasCard(
-                      id: kelas['id'] ?? 0,
-                      namaKelas: kelas['nama_kelas'] ?? 'Tidak Ada Nama',
-                      waliKelas: kelas['nama_user'] ?? 'Tidak Ada Wali',
+                      id: kelas.id,
+                      namaKelas: kelas.namaKelas,
+                      waliKelas: kelas.namaUser,
                     );
                   },
                 );

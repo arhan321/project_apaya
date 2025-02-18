@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:dio/dio.dart';
-
-import '../../controller/admin_controller/kelolaakun_controller/listakunadmin_controller.dart'; // Import controller
+import '../../controller/admin_controller/kelolaakun_controller/listakunadmin_controller.dart'; // Pastikan path-nya benar
 
 class ListAkunAdminPage extends StatelessWidget {
   ListAkunAdminPage({Key? key}) : super(key: key);
 
-  /// Inisialisasi controller via Get.put (atau boleh Get.find jika sudah di-bind sebelumnya)
+  // Inisialisasi controller via Get.put (atau Get.find jika sudah di-bind sebelumnya)
   final ListAkunAdminController controller = Get.put(ListAkunAdminController());
 
   @override
@@ -41,7 +39,7 @@ class ListAkunAdminPage extends StatelessWidget {
         ),
       ),
       body: Obx(() {
-        /// Reaktif, rebuild ketika controller.isLoading atau errorMessage berubah
+        // Reaktif: rebuild ketika controller.isLoading atau errorMessage berubah
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         } else if (controller.errorMessage.isNotEmpty) {
@@ -76,7 +74,6 @@ class ListAkunAdminPage extends StatelessWidget {
         ),
       ),
       child: Obx(() {
-        // Jika data akunAdmin kosong
         if (controller.akunAdmin.isEmpty) {
           return Center(
             child: Text(
@@ -91,14 +88,15 @@ class ListAkunAdminPage extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           itemCount: controller.akunAdmin.length,
           itemBuilder: (context, index) {
+            // Karena controller.akunAdmin adalah List<AdminAkunModel>
             final akun = controller.akunAdmin[index];
             return _buildAkunCard(
-              id: akun['id'] ?? '',
-              foto: akun['foto'] ?? '',
-              username: akun['username'] ?? '',
-              email: akun['email'] ?? '',
-              password: akun['password'] ?? '',
-              role: akun['role'] ?? '',
+              id: akun.id,
+              foto: akun.foto,
+              username: akun.username,
+              email: akun.email,
+              password: akun.password,
+              role: akun.role,
             );
           },
         );
@@ -106,7 +104,7 @@ class ListAkunAdminPage extends StatelessWidget {
     );
   }
 
-  /// Widget card untuk 1 item akun
+  /// Widget card untuk menampilkan 1 item akun
   Widget _buildAkunCard({
     required String id,
     required String foto,

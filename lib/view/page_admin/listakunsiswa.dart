@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../../controller/admin_controller/kelolaakun_controller/listakunsiswa_controller.dart';
+import '../../model/admin_model/kelolaakun_model/listakunsiswa_model.dart';
 
 class ListAkunSiswa extends StatelessWidget {
   /// Injeksi controller agar dapat digunakan di View
@@ -61,7 +61,6 @@ class ListAkunSiswa extends StatelessWidget {
     );
   }
 
-  /// Widget untuk menampilkan daftar akun
   Widget _buildListAkun() {
     return Container(
       decoration: const BoxDecoration(
@@ -85,15 +84,15 @@ class ListAkunSiswa extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           itemCount: controller.akunSiswa.length,
           itemBuilder: (context, index) {
-            final akun = controller.akunSiswa[index];
+            final SiswaAkunModel akun = controller.akunSiswa[index];
             return _buildAkunCard(
-              id: akun['id'],
-              foto: akun['foto'] ?? '',
-              nama: akun['nama'] ?? '',
-              email: akun['email'] ?? '',
-              password: akun['password'] ?? '',
-              role: akun['role'] ?? '',
-              noAbsen: akun['no_absen'] ?? '',
+              id: akun.id,
+              foto: akun.foto,
+              nama: akun.nama,
+              email: akun.email,
+              password: akun.password,
+              role: akun.role,
+              noAbsen: akun.noAbsen,
             );
           },
         );
@@ -101,7 +100,6 @@ class ListAkunSiswa extends StatelessWidget {
     );
   }
 
-  /// Widget Card untuk tiap item akun
   Widget _buildAkunCard({
     required String id,
     required String foto,
@@ -186,7 +184,7 @@ class ListAkunSiswa extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.edit, color: Colors.blueAccent),
               onPressed: () {
-                /// Pindah ke halaman edit akun siswa dengan argument
+                /// Navigasi ke halaman edit akun siswa dengan argument
                 Get.toNamed('/editAkunSiswa', arguments: {
                   'id': id,
                   'foto': foto,
@@ -201,7 +199,6 @@ class ListAkunSiswa extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
               onPressed: () {
-                /// Memanggil fungsi hapus di controller
                 controller.deleteAkunSiswa(id);
               },
             ),
@@ -211,7 +208,6 @@ class ListAkunSiswa extends StatelessWidget {
     );
   }
 
-  /// Widget untuk menampilkan pesan error
   Widget _buildErrorWidget(String error) {
     return Center(
       child: Text(

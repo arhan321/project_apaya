@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../controller/admin_controller/kelolaakun_controller/listakunortu_controller.dart';
 
 class ListAkunOrtu extends StatelessWidget {
-  // Inject Controller
+  // Inject controller
   final ListAkunOrtuController controller = Get.put(ListAkunOrtuController());
 
   @override
@@ -37,25 +37,21 @@ class ListAkunOrtu extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
       ),
-      body: Obx(
-        () {
-          // Loading
-          if (controller.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          // Error message
-          if (controller.errorMessage.value.isNotEmpty) {
-            return _buildErrorWidget(controller.errorMessage.value);
-          }
-
-          // List data
-          return _buildListAkun();
-        },
-      ),
+      body: Obx(() {
+        // Jika loading, tampilkan CircularProgressIndicator
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        // Jika terjadi error, tampilkan pesan error
+        if (controller.errorMessage.value.isNotEmpty) {
+          return _buildErrorWidget(controller.errorMessage.value);
+        }
+        // Jika data tersedia, tampilkan list akun
+        return _buildListAkun();
+      }),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // Pindah ke halaman tambah akun (ubah route sesuai kebutuhan)
+          // Navigasi ke halaman Tambah Akun Orang Tua
           Get.toNamed('/tambahAkunOrtu');
         },
         label: Text(
@@ -78,6 +74,7 @@ class ListAkunOrtu extends StatelessWidget {
         ),
       ),
       child: Obx(() {
+        // Jika list akun kosong
         if (controller.akunOrtu.isEmpty) {
           return Center(
             child: Text(
@@ -86,19 +83,21 @@ class ListAkunOrtu extends StatelessWidget {
             ),
           );
         }
-
+        // Tampilkan list akun menggunakan ListView.builder
         return ListView.builder(
           padding: const EdgeInsets.all(16),
           itemCount: controller.akunOrtu.length,
           itemBuilder: (context, index) {
+            // Karena controller.akunOrtu sudah berupa List<OrtuAkunModel>,
+            // kita akses properti objek menggunakan notasi titik.
             final akun = controller.akunOrtu[index];
             return _buildAkunCard(
-              id: akun['id'],
-              foto: akun['foto'] ?? '',
-              nama: akun['nama'] ?? '',
-              email: akun['email'] ?? '',
-              password: akun['password'] ?? '',
-              role: akun['role'] ?? '',
+              id: akun.id,
+              foto: akun.foto,
+              nama: akun.nama,
+              email: akun.email,
+              password: akun.password,
+              role: akun.role,
             );
           },
         );
@@ -179,25 +178,28 @@ class ListAkunOrtu extends StatelessWidget {
                 ],
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.edit, color: Colors.blueAccent),
-              onPressed: () {
-                // Pindah ke halaman edit akun (ubah route & arguments sesuai kebutuhan)
-                Get.toNamed('/editAkunOrtu', arguments: {
-                  'id': id,
-                  'foto': foto,
-                  'nama': nama,
-                  'email': email,
-                  'password': password,
-                  'role': role,
-                });
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () {
-                controller.deleteAkunOrtu(id);
-              },
+            Column(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.blueAccent),
+                  onPressed: () {
+                    Get.toNamed('/editAkunOrtu', arguments: {
+                      'id': id,
+                      'foto': foto,
+                      'nama': nama,
+                      'email': email,
+                      'password': password,
+                      'role': role,
+                    });
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    controller.deleteAkunOrtu(id);
+                  },
+                ),
+              ],
             ),
           ],
         ),

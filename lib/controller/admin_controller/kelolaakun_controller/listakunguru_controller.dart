@@ -1,12 +1,15 @@
+// File: lib/controller/list_akun_guru_controller.dart
+
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import '../../../model/admin_model/kelolaakun_model/listakunguru_model.dart';
 
 class ListAkunGuruController extends GetxController {
   final Dio _dio = Dio();
 
-  /// Gunakan Rx (reaktif) agar dapat di-*listen* di view
-  var akunGuru = <Map<String, dynamic>>[].obs;
+  /// List akun guru sebagai List<GuruAkunModel> agar lebih terstruktur
+  var akunGuru = <GuruAkunModel>[].obs;
   var isLoading = true.obs;
   var errorMessage = ''.obs;
 
@@ -16,7 +19,7 @@ class ListAkunGuruController extends GetxController {
     fetchAkunGuru();
   }
 
-  /// Method untuk mengambil data akun guru
+  /// Method untuk mengambil data akun guru dari API
   Future<void> fetchAkunGuru() async {
     isLoading.value = true;
     errorMessage.value = '';
@@ -31,18 +34,12 @@ class ListAkunGuruController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = response.data;
-        // Pastikan `data` adalah List agar bisa di-map
+        // Pastikan data adalah List agar bisa di-map
         if (data is List) {
+          // Filter hanya akun dengan role "guru" dan parsing ke model
           final filteredData = data
               .where((item) => item['role']?.toLowerCase() == 'guru')
-              .map((item) => {
-                    'id': item['id'].toString(),
-                    'foto': item['image_url'] ?? '',
-                    'nama': item['name'] ?? 'Nama tidak tersedia',
-                    'email': item['email'] ?? 'Email tidak tersedia',
-                    'password': '********',
-                    'role': item['role'] ?? '',
-                  })
+              .map((item) => GuruAkunModel.fromJson(item))
               .toList();
 
           akunGuru.assignAll(filteredData);
@@ -59,7 +56,7 @@ class ListAkunGuruController extends GetxController {
     }
   }
 
-  /// Method untuk menghapus akun guru
+  /// Method untuk menghapus akun guru berdasarkan id
   Future<void> deleteAkunGuru(String id) async {
     final String url = 'https://absen.randijourney.my.id/api/v1/account/$id';
 
@@ -70,7 +67,9 @@ class ListAkunGuruController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        akunGuru.removeWhere((akun) => akun['id'] == id);
+        // Hapus akun dari list dengan mencocokkan property id
+        akunGuru.removeWhere((akun) => akun.id == id);
+
         Get.snackbar(
           'Berhasil',
           'Akun berhasil dihapus',

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../../controller/admin_controller/kelolaakun_controller/listakunguru_controller.dart';
 
 class ListAkunGuru extends StatelessWidget {
-  /// Injeksi controller menggunakan Get.put
+  // Injeksi controller dengan Get.put
   final ListAkunGuruController controller = Get.put(ListAkunGuruController());
 
   @override
@@ -38,11 +37,10 @@ class ListAkunGuru extends StatelessWidget {
         ),
       ),
       body: Obx(() {
-        /// Obx untuk memantau perubahan isLoading dan errorMessage
+        // Reaktif: rebuild saat isLoading atau errorMessage berubah
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         }
-
         if (controller.errorMessage.value.isNotEmpty) {
           return Center(
             child: Text(
@@ -51,12 +49,11 @@ class ListAkunGuru extends StatelessWidget {
             ),
           );
         }
-
         return _buildListAkun();
       }),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          /// Navigation ke Tambah Akun Guru (ubah sesuai kebutuhan route)
+          // Navigasi ke halaman Tambah Akun Guru
           Get.toNamed('/tambahAkunGuru');
         },
         label: Text(
@@ -79,7 +76,7 @@ class ListAkunGuru extends StatelessWidget {
         ),
       ),
       child: Obx(() {
-        /// Memantau perubahan pada list akunGuru
+        // Jika list akunGuru kosong
         if (controller.akunGuru.isEmpty) {
           return Center(
             child: Text(
@@ -93,15 +90,15 @@ class ListAkunGuru extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           itemCount: controller.akunGuru.length,
           itemBuilder: (context, index) {
+            // Karena akunGuru sudah berupa List<GuruAkunModel>
             final akun = controller.akunGuru[index];
             return _buildAkunCard(
-              context,
-              id: akun['id'],
-              foto: akun['foto'] ?? '',
-              nama: akun['nama'] ?? '',
-              email: akun['email'] ?? '',
-              password: akun['password'] ?? '',
-              role: akun['role'] ?? '',
+              id: akun.id,
+              foto: akun.foto,
+              nama: akun.nama,
+              email: akun.email,
+              password: akun.password,
+              role: akun.role,
             );
           },
         );
@@ -109,8 +106,7 @@ class ListAkunGuru extends StatelessWidget {
     );
   }
 
-  Widget _buildAkunCard(
-    BuildContext context, {
+  Widget _buildAkunCard({
     required String id,
     required String foto,
     required String nama,
@@ -183,25 +179,28 @@ class ListAkunGuru extends StatelessWidget {
                 ],
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.edit, color: Colors.blueAccent),
-              onPressed: () {
-                /// Navigation ke Edit Akun Guru (ubah sesuai kebutuhan route)
-                Get.toNamed('/editAkunGuru', arguments: {
-                  'id': id,
-                  'foto': foto,
-                  'nama': nama,
-                  'email': email,
-                  'password': password,
-                  'role': role,
-                });
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () {
-                controller.deleteAkunGuru(id);
-              },
+            Column(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.blueAccent),
+                  onPressed: () {
+                    Get.toNamed('/editAkunGuru', arguments: {
+                      'id': id,
+                      'foto': foto,
+                      'nama': nama,
+                      'email': email,
+                      'password': password,
+                      'role': role,
+                    });
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    controller.deleteAkunGuru(id);
+                  },
+                ),
+              ],
             ),
           ],
         ),

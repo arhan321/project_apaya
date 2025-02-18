@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
+import '../../../model/admin_model/kelolaakun_model/listakunadmin_model.dart';
 
 class ListAkunAdminController extends GetxController {
   final Dio dioClient = Dio();
 
-  /// Menyimpan list akun admin
-  var akunAdmin = <Map<String, dynamic>>[].obs;
+  /// Menyimpan list akun admin sebagai List<AdminAkunModel>
+  var akunAdmin = <AdminAkunModel>[].obs;
 
   /// Menyimpan state loading
   var isLoading = true.obs;
@@ -35,20 +37,19 @@ class ListAkunAdminController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = response.data;
-        // Filter hanya admin
-        final filteredList = (data as List)
-            .where((item) => (item['role'] ?? '').toLowerCase() == 'admin')
-            .map((item) => {
-                  'id': item['id']?.toString() ?? '',
-                  'foto': item['image_url'] ?? '',
-                  'username': item['name'] ?? 'Nama tidak tersedia',
-                  'email': item['email'] ?? 'Email tidak tersedia',
-                  'password': item['password'] ?? '********',
-                  'role': item['role'] ?? '',
-                })
-            .toList();
+        if (data is List) {
+          // Filter hanya akun dengan role 'admin'
+          final filteredList = data
+              .where((item) => (item['role'] ?? '').toLowerCase() == 'admin')
+              .toList();
 
-        akunAdmin.value = filteredList;
+          // Mapping ke dalam model AdminAkunModel
+          final List<AdminAkunModel> parsedData = filteredList
+              .map((item) => AdminAkunModel.fromJson(item))
+              .toList();
+
+          akunAdmin.value = parsedData;
+        }
       } else {
         errorMessage.value =
             'Gagal memuat data. Status Code: ${response.statusCode}';
@@ -67,8 +68,8 @@ class ListAkunAdminController extends GetxController {
       final response = await dioClient.delete('$baseUrl$id');
 
       if (response.statusCode == 200) {
-        // Hapus dari list
-        akunAdmin.removeWhere((item) => item['id'] == id);
+        // Hapus akun dari list berdasarkan properti id pada model
+        akunAdmin.removeWhere((item) => item.id == id);
 
         Get.snackbar(
           'Sukses',
