@@ -1,142 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:dio/dio.dart' as dio; // Tambahkan alias untuk pustaka dio
-import 'dart:io';
 import 'package:intl/intl.dart';
 
-class TambahAkunSiswa extends StatefulWidget {
-  @override
-  _TambahAkunSiswaState createState() => _TambahAkunSiswaState();
-}
+import '../../controller/admin_controller/tambahakun_controller/tambahakunsiswa_controller.dart';
 
-class _TambahAkunSiswaState extends State<TambahAkunSiswa> {
-  final dio.Dio _dio = dio.Dio();
-  File? _selectedImage;
-  final picker = ImagePicker();
+class TambahAkunSiswa extends StatelessWidget {
+  // Inject controller
+  final TambahAkunSiswaController controller =
+      Get.put(TambahAkunSiswaController());
 
-  final TextEditingController namaController = TextEditingController();
-  final TextEditingController noAbsenController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
-  DateTime? selectedTanggalLahir;
-  String selectedRole = 'siswa';
-
-  Future<void> _pickImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
-    }
-  }
-
-  Future<void> _selectTanggalLahir() async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null && picked != selectedTanggalLahir) {
-      setState(() {
-        selectedTanggalLahir = picked;
-      });
-    }
-  }
-
-  Future<void> _registerSiswa() async {
-    const String url =
-        'https://absen.randijourney.my.id/api/v1/account/register';
-
-    if (namaController.text.isEmpty ||
-        noAbsenController.text.isEmpty ||
-        emailController.text.isEmpty ||
-        passwordController.text.isEmpty ||
-        confirmPasswordController.text.isEmpty ||
-        selectedTanggalLahir == null) {
-      Get.snackbar('Error', 'Harap lengkapi semua field',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
-      return;
-    }
-
-    if (passwordController.text != confirmPasswordController.text) {
-      Get.snackbar('Error', 'Password dan konfirmasi password tidak cocok',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
-      return;
-    }
-
-    try {
-      dio.FormData formData = dio.FormData.fromMap({
-        'name': namaController.text,
-        'email': emailController.text,
-        'password': passwordController.text,
-        'password_confirmation': confirmPasswordController.text,
-        'role': selectedRole,
-        'nomor_absen': noAbsenController.text,
-        'tanggal_lahir': DateFormat('yyyy-MM-dd').format(selectedTanggalLahir!),
-        'photo': _selectedImage != null
-            ? await dio.MultipartFile.fromFile(_selectedImage!.path,
-                filename: _selectedImage!.path.split('/').last)
-            : null,
-      });
-
-      final response = await _dio.post(
-        url,
-        data: formData,
-        options: dio.Options(headers: {'Accept': 'application/json'}),
-      );
-
-      if (response.statusCode == 201) {
-        Get.snackbar('Berhasil', 'Akun siswa berhasil didaftarkan',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white);
-
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Berhasil', style: GoogleFonts.poppins(fontSize: 18)),
-            content: Text('Akun siswa berhasil dibuat!',
-                style: GoogleFonts.poppins(fontSize: 16)),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Get.back(); // Tutup dialog
-                  Get.back(); // Kembali ke halaman sebelumnya
-                },
-                child: Text('OK', style: GoogleFonts.poppins(fontSize: 16)),
-              ),
-            ],
-          ),
-        );
-      } else {
-        Get.snackbar('Error', 'Gagal mendaftarkan akun siswa',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white);
-      }
-    } catch (e) {
-      Get.snackbar('Kesalahan', 'Terjadi kesalahan saat mendaftarkan akun',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
-    }
-  }
+  TambahAkunSiswa({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.blueAccent, Colors.lightBlueAccent],
               begin: Alignment.centerLeft,
@@ -154,108 +35,128 @@ class _TambahAkunSiswaState extends State<TambahAkunSiswa> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundImage: _selectedImage != null
-                        ? FileImage(_selectedImage!)
-                        : AssetImage('assets/placeholder.png') as ImageProvider,
-                    child: _selectedImage == null
-                        ? Icon(
-                            Icons.person,
-                            size: 60,
-                            color: Colors.grey[300],
-                          )
-                        : null,
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: GestureDetector(
-                      onTap: _pickImage,
-                      child: CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.blueAccent,
-                        child: Icon(Icons.camera_alt, color: Colors.white),
+              // Foto profil
+              Obx(() {
+                final selectedImage = controller.selectedImage.value;
+                return Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 60,
+                      backgroundImage: selectedImage != null
+                          ? Image.file(selectedImage).image
+                          : const AssetImage('assets/placeholder.png'),
+                      child: selectedImage == null
+                          ? Icon(
+                              Icons.person,
+                              size: 60,
+                              color: Colors.grey[300],
+                            )
+                          : null,
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: controller.pickImage,
+                        child: const CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Colors.blueAccent,
+                          child: Icon(Icons.camera_alt, color: Colors.white),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
+                  ],
+                );
+              }),
+              const SizedBox(height: 16),
+
+              // Nama
               TextField(
-                controller: namaController,
-                decoration: InputDecoration(
+                controller: controller.namaController,
+                decoration: const InputDecoration(
                   labelText: 'Nama',
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
+
+              // No. Absen
               TextField(
-                controller: noAbsenController,
+                controller: controller.noAbsenController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'No. Absen',
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
+
+              // Email
               TextField(
-                controller: emailController,
-                decoration: InputDecoration(
+                controller: controller.emailController,
+                decoration: const InputDecoration(
                   labelText: 'Email',
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
+
+              // Password
               TextField(
-                controller: passwordController,
+                controller: controller.passwordController,
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Password',
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
+
+              // Konfirmasi Password
               TextField(
-                controller: confirmPasswordController,
+                controller: controller.confirmPasswordController,
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Konfirmasi Password',
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
+
+              // Tanggal Lahir
               GestureDetector(
-                onTap: _selectTanggalLahir,
+                onTap: () => controller.selectTanggalLahir(context),
                 child: AbsorbPointer(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: selectedTanggalLahir == null
-                          ? 'Tanggal Lahir'
-                          : DateFormat('yyyy-MM-dd')
-                              .format(selectedTanggalLahir!),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
+                  child: Obx(() {
+                    final tanggal = controller.selectedTanggalLahir.value;
+                    return TextField(
+                      decoration: InputDecoration(
+                        labelText: tanggal == null
+                            ? 'Tanggal Lahir'
+                            : DateFormat('yyyy-MM-dd').format(tanggal),
+                        border: const OutlineInputBorder(),
+                      ),
+                    );
+                  }),
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
+
+              // Tombol Simpan
               GestureDetector(
-                onTap: _registerSiswa,
+                onTap: () => controller.registerSiswa(context),
                 child: Container(
                   width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
+                    gradient: const LinearGradient(
                       colors: [Colors.blueAccent, Colors.lightBlueAccent],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
