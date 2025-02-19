@@ -25,6 +25,8 @@ return new class extends Migration
             $table->biginteger('nip_guru')->nullable();
             $table->string('kelas')->nullable();
             $table->enum('agama', ['islam', 'kristen','katolik','hindu','budha','konghucu'])->nullable();
+            $table->string('wali_murid')->nullable();
+            $table->string('wali_kelas')->nullable();
             $table->string('umur')->nullable();
             $table->rememberToken();
             $table->timestamps();

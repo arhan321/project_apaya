@@ -187,39 +187,41 @@ class AuthController extends Controller
     
     public function update(Request $request, $id)
     {
-        // Validasi input
-        $request->validate([
-            'name' => 'nullable|string|max:255',
-            'email' => 'nullable|string|email|max:255',
-            'password' => 'nullable|string|min:8',
-            'role' => 'nullable|string|in:admin,siswa,guru,kepala_sekolah,orang_tua',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:102400', // Maksimum 100 MB
-            'nomor_absen' => 'nullable|integer|min:1',
-            'tanggal_lahir' => 'nullable|date',
-            'nisn' => 'nullable|integer',
-            'nip_guru' => 'nullable|integer',
-            'agama' => 'nullable|string|in:islam,kristen,katolik,hindu,budha,konghucu',
-            'umur' => 'nullable|string|max:3',
-            'kelas' => 'nullable|string',
-        ]);
+        // Log seluruh request masuk
+        \Log::info('Update Request Data:', $request->all());
     
-        // Validasi khusus untuk role tertentu
-        if ($request->role === 'siswa') {
-            $request->validate([
-                'nisn' => 'required|integer',
+        // Validasi input
+        try {
+            $validatedData = $request->validate([
+                'name' => 'nullable|string|max:255',
+                'email' => 'nullable|string|email|max:255',
+                'password' => 'nullable|string|min:8',
+                'role' => 'nullable|string|in:admin,siswa,guru,kepala_sekolah,orang_tua',
+                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:102400',
+                'nomor_absen' => 'nullable|integer|min:1',
+                'tanggal_lahir' => 'nullable|date',
+                'nisn' => 'nullable|integer',
+                'nip_guru' => 'nullable|integer',
+                'agama' => 'nullable|string|in:islam,kristen,katolik,hindu,budha,konghucu',
+                'wali_murid' => 'nullable|string',
+                'wali_kelas' => 'nullable|string',
+                'umur' => 'nullable|integer',
+                'kelas' => 'nullable|string',
             ]);
+            \Log::info('Validated Data:', $validatedData);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation Error:', $e->errors());
+            return response()->json(['errors' => $e->errors()], 422);
         }
-
-        if ($request->role === 'guru') {
-            $request->validate([
-                'nip_guru' => 'required|integer',
-            ]);
-        }
+    
         // Cari user berdasarkan ID
         $user = User::find($id);
         if (!$user) {
+            \Log::error('User not found with ID: ' . $id);
             return response()->json(['message' => 'User tidak ditemukan'], 404);
         }
+    
+        \Log::info('User found:', ['id' => $user->id, 'name' => $user->name]);
     
         // Update data user jika ada perubahan
         $user->name = $request->name ?? $user->name;
@@ -230,12 +232,15 @@ class AuthController extends Controller
         $user->nisn = $request->nisn ?? $user->nisn;
         $user->kelas = $request->kelas ?? $user->kelas;
         $user->nip_guru = $request->nip_guru ?? $user->nip_guru;
+        $user->wali_murid = $request->wali_murid ?? $user->wali_murid;
+        $user->wali_kelas = $request->wali_kelas ?? $user->wali_kelas;
         $user->agama = $request->agama ?? $user->agama;
         $user->umur = $request->umur ?? $user->umur;
     
         // Password dihash jika diperbarui
         if ($request->filled('password')) {
             $user->password = bcrypt($request->password);
+            \Log::info('Password updated for user ID: ' . $user->id);
         }
     
         // Update foto jika ada
@@ -247,13 +252,16 @@ class AuthController extends Controller
             // Hapus foto lama jika ada
             if ($user->photo && Storage::disk('public')->exists($user->photo)) {
                 Storage::disk('public')->delete($user->photo);
+                \Log::info('Old photo deleted for user ID: ' . $user->id);
             }
     
             $user->photo = $photoPath;
+            \Log::info('New photo uploaded for user ID: ' . $user->id);
         }
     
         // Simpan perubahan
         if ($user->save()) {
+            \Log::info('User updated successfully:', ['id' => $user->id]);
             return response()->json([
                 'message' => 'Akun berhasil diperbarui',
                 'user' => [
@@ -267,12 +275,15 @@ class AuthController extends Controller
                     'nip_guru' => $user->nip_guru,
                     'agama' => $user->agama,
                     'umur' => $user->umur,
+                    'wali_murid' => $user->wali_murid,
+                    'wali_kelas' => $user->wali_kelas,
                     'kelas' => $user->kelas,
                     'image_url' => $user->photo ? asset('storage/' . $user->photo) : null,
                 ]
             ], 200);
         }
     
+        \Log::error('Failed to save user:', ['id' => $user->id]);
         return response()->json(['message' => 'Gagal memperbarui akun'], 500);
     }
     
@@ -356,6 +367,8 @@ class AuthController extends Controller
                 'agama' => $user->agama,
                 'umur' => $user->umur,
                 'kelas' => $user->kelas,
+                'wali_murid' => $user->wali_murid,
+                'wali_kelas' => $user->wali_kelas,
                 'image_url' => $user->photo ? asset('storage/' . $user->photo) : null,
                 'token' => $currentToken,
             ], 200);

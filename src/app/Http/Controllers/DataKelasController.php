@@ -8,41 +8,49 @@ use Illuminate\Support\Facades\Log;
 
 class DataKelasController extends Controller
 {
-    // READ: Lihat Semua Data Kelas
-    public function index()
-    {
-        Log::info('Request untuk mendapatkan semua data kelas diterima.');
-    
-        try {
-            // Ambil data kelas dengan relasi user
-            $dataKelas = DataKelas::with('user')->get();
-    
-            // Modifikasi data untuk hanya mengambil nama user
-            $dataKelas = $dataKelas->map(function ($kelas) {
-                return [
-                    'id' => $kelas->id,
-                    'user_id' => $kelas->user_id,
-                    'nama_user' => $kelas->user ? $kelas->user->name : null, // Ambil nama user
-                    'nama_kelas' => $kelas->nama_kelas,
-                    'tanggal_absen' => $kelas->tanggal_absen,
-                    'siswa' => $kelas->siswa,
-                ];
-            });
-    
-            Log::info('Semua data kelas berhasil diambil.', ['data' => $dataKelas]);
-    
-            return response()->json([
-                'message' => 'Data kelas berhasil diambil',
-                'data' => $dataKelas
-            ], 200);
-        } catch (\Exception $e) {
-            Log::error('Gagal mendapatkan data kelas.', ['error' => $e->getMessage()]);
-            return response()->json([
-                'message' => 'Terjadi kesalahan saat mengambil data kelas',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+ // READ: Lihat Semua Data Kelas
+public function index()
+{
+    // Cek header 'User-Agent'
+    $userAgent = request()->header('User-Agent');
+    if ($userAgent && str_contains($userAgent, 'Mozilla')) {
+        // Jika User-Agent mengandung 'Mozilla', anggap request berasal dari browser
+        abort(404);
     }
+
+    Log::info('Request untuk mendapatkan semua data kelas diterima.');
+
+    try {
+        // Ambil data kelas dengan relasi user
+        $dataKelas = DataKelas::with('user')->get();
+
+        // Modifikasi data untuk hanya mengambil nama user
+        $dataKelas = $dataKelas->map(function ($kelas) {
+            return [
+                'id' => $kelas->id,
+                'user_id' => $kelas->user_id,
+                'nama_user' => $kelas->user ? $kelas->user->name : null, // Ambil nama user
+                'nama_kelas' => $kelas->nama_kelas,
+                'tanggal_absen' => $kelas->tanggal_absen,
+                'siswa' => $kelas->siswa,
+            ];
+        });
+
+        Log::info('Semua data kelas berhasil diambil.', ['data' => $dataKelas]);
+
+        return response()->json([
+            'message' => 'Data kelas berhasil diambil',
+            'data' => $dataKelas
+        ], 200);
+    } catch (\Exception $e) {
+        Log::error('Gagal mendapatkan data kelas.', ['error' => $e->getMessage()]);
+        return response()->json([
+            'message' => 'Terjadi kesalahan saat mengambil data kelas',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
     
 
  // CREATE: Membuat data kelas baru

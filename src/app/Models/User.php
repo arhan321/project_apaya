@@ -30,6 +30,8 @@ class User extends Authenticatable
         'nip_guru',
         'agama',
         'umur',
+        'wali_murid',
+        'wali_kelas',
     ];
 
     /**
