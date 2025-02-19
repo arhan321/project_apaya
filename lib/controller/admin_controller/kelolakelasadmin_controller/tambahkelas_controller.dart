@@ -90,7 +90,7 @@ class TambahKelasController extends GetxController {
     }
 
     try {
-      final Map<String, dynamic> data = {
+      Map<String, dynamic> data = {
         'nama_kelas': namaKelasController.text,
         'user_id': selectedUserId.value,
       };
@@ -107,24 +107,15 @@ class TambahKelasController extends GetxController {
       );
 
       if (response.statusCode == 201) {
-        // Munculkan dialog sukses
-        Get.dialog(
-          AlertDialog(
-            title: const Text('Berhasil'),
-            content: const Text('Kelas berhasil ditambahkan!'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  // Tutup dialog terlebih dahulu
-                  Get.back();
-                  // Lalu kembali ke halaman sebelumnya dengan result:true
-                  Get.back(result: true);
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          ),
+        Get.snackbar(
+          'Berhasil',
+          'Kelas berhasil ditambahkan!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
         );
+        // Kembalikan result ke halaman sebelumnya
+        Get.back(result: true);
       } else {
         Get.snackbar(
           'Error',

@@ -1,19 +1,13 @@
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import '../../../model/admin_model/kelolaakun_model/listakunortu_model.dart';
 
 class ListAkunOrtuController extends GetxController {
   final Dio _dio = Dio();
 
-  /// Menyimpan list akun orang tua sebagai List<OrtuAkunModel>
-  var akunOrtu = <OrtuAkunModel>[].obs;
-
-  /// Menyimpan state loading
+  // Buat variabel reaktif untuk menyimpan data dan status
+  var akunOrtu = <Map<String, dynamic>>[].obs;
   var isLoading = true.obs;
-
-  /// Menyimpan pesan error (jika ada)
   var errorMessage = ''.obs;
 
   @override
@@ -22,7 +16,7 @@ class ListAkunOrtuController extends GetxController {
     fetchAkunOrtu();
   }
 
-  /// Memuat data akun orang tua dari API
+  /// Memuat data akun orang tua
   Future<void> fetchAkunOrtu() async {
     isLoading.value = true;
     errorMessage.value = '';
@@ -38,16 +32,19 @@ class ListAkunOrtuController extends GetxController {
       if (response.statusCode == 200) {
         final data = response.data;
         if (data is List) {
-          // Filter hanya akun dengan role "orang_tua"
-          final filteredData = data
+          final listOrtu = data
               .where((item) => item['role']?.toLowerCase() == 'orang_tua')
+              .map((item) => {
+                    'id': item['id'].toString(),
+                    'foto': item['image_url'] ?? '',
+                    'nama': item['name'] ?? 'Nama tidak tersedia',
+                    'email': item['email'] ?? 'Email tidak tersedia',
+                    'password': '********',
+                    'role': item['role'] ?? '',
+                  })
               .toList();
 
-          // Mapping data ke model OrtuAkunModel
-          final List<OrtuAkunModel> parsedData =
-              filteredData.map((item) => OrtuAkunModel.fromJson(item)).toList();
-
-          akunOrtu.assignAll(parsedData);
+          akunOrtu.assignAll(listOrtu);
         }
         isLoading.value = false;
       } else {
@@ -61,7 +58,7 @@ class ListAkunOrtuController extends GetxController {
     }
   }
 
-  /// Fungsi untuk menghapus akun orang tua berdasarkan id
+  /// Menghapus akun orang tua
   Future<void> deleteAkunOrtu(String id) async {
     final String url = 'https://absen.randijourney.my.id/api/v1/account/$id';
 
@@ -72,23 +69,21 @@ class ListAkunOrtuController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        // Hapus akun berdasarkan properti id pada model
-        akunOrtu.removeWhere((akun) => akun.id == id);
-
+        akunOrtu.removeWhere((akun) => akun['id'] == id);
         Get.snackbar(
           'Berhasil',
           'Akun berhasil dihapus',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
+          backgroundColor: const Color.fromARGB(255, 76, 175, 80),
+          colorText: const Color.fromARGB(255, 255, 255, 255),
         );
       } else {
         Get.snackbar(
           'Gagal',
           'Gagal menghapus akun',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
+          backgroundColor: const Color.fromARGB(255, 244, 67, 54),
+          colorText: const Color.fromARGB(255, 255, 255, 255),
         );
       }
     } catch (e) {
@@ -96,8 +91,8 @@ class ListAkunOrtuController extends GetxController {
         'Kesalahan',
         'Terjadi kesalahan saat menghapus akun',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+        backgroundColor: const Color.fromARGB(255, 244, 67, 54),
+        colorText: const Color.fromARGB(255, 255, 255, 255),
       );
     }
   }

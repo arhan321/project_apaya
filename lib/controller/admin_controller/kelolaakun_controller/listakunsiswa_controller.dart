@@ -1,14 +1,12 @@
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import '../../../model/admin_model/kelolaakun_model/listakunsiswa_model.dart';
 
 class ListAkunSiswaController extends GetxController {
   final Dio _dio = Dio();
 
-  /// Data siswa disimpan sebagai List<SiswaAkunModel> agar lebih terstruktur
-  var akunSiswa = <SiswaAkunModel>[].obs;
+  /// Data siswa disimpan dalam RxList agar reaktif
+  var akunSiswa = <Map<String, dynamic>>[].obs;
 
   /// Status loading
   var isLoading = true.obs;
@@ -38,16 +36,21 @@ class ListAkunSiswaController extends GetxController {
       if (response.statusCode == 200) {
         final data = response.data;
         if (data is List) {
-          // Filter data untuk role "siswa"
           final listSiswa = data
               .where((item) => item['role']?.toLowerCase() == 'siswa')
+              .map((item) => {
+                    'id': item['id'].toString(),
+                    'foto': item['image_url'] ?? '',
+                    'nama': item['name'] ?? 'Nama tidak tersedia',
+                    'email': item['email'] ?? 'Email tidak tersedia',
+                    'password': '********',
+                    'role': item['role'] ?? '',
+                    'no_absen': item['nomor_absen']?.toString() ?? 'N/A',
+                  })
               .toList();
 
-          // Mapping tiap item ke dalam model SiswaAkunModel
-          final List<SiswaAkunModel> parsedData =
-              listSiswa.map((item) => SiswaAkunModel.fromJson(item)).toList();
-
-          akunSiswa.assignAll(parsedData);
+          /// Menetapkan data ke RxList
+          akunSiswa.assignAll(listSiswa);
         }
         isLoading.value = false;
       } else {
@@ -61,7 +64,7 @@ class ListAkunSiswaController extends GetxController {
     }
   }
 
-  /// Menghapus akun siswa berdasarkan id
+  /// Menghapus akun siswa
   Future<void> deleteAkunSiswa(String id) async {
     final String url = 'https://absen.randijourney.my.id/api/v1/account/$id';
 
@@ -72,8 +75,8 @@ class ListAkunSiswaController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        // Hapus akun dari list berdasarkan properti id pada model
-        akunSiswa.removeWhere((akun) => akun.id == id);
+        /// Hapus data lokal
+        akunSiswa.removeWhere((akun) => akun['id'] == id);
 
         Get.snackbar(
           'Berhasil',
@@ -94,7 +97,7 @@ class ListAkunSiswaController extends GetxController {
     } catch (e) {
       Get.snackbar(
         'Kesalahan',
-        'Terjadi kesalahan saat menghapus akun: $e',
+        'Terjadi kesalahan saat menghapus akun',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color.fromARGB(255, 244, 67, 54),
         colorText: const Color.fromARGB(255, 255, 255, 255),

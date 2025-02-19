@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import '../../../model/admin_model/kelolakelasadmin_model/editabsenadmin_model.dart'; // Importing the model
 
 class EditAbsenAdminController extends GetxController {
   final Dio dio = Dio();
@@ -19,35 +20,17 @@ class EditAbsenAdminController extends GetxController {
 
     try {
       debugPrint('Sending data to API...');
-      debugPrint('URL: $url');
-      debugPrint('Payload: ${{
-        'siswa': [
-          {
-            'id': siswaId,
-            'nama': nama,
-            'nomor_absen': nomorAbsen,
-            'keterangan': status,
-            'jam_absen': jamAbsen,
-            'tanggal_absen': tanggalAbsen,
-          }
-        ]
-      }}');
-
       final response = await dio.put(
         url,
         options: Options(headers: {'Content-Type': 'application/json'}),
-        data: {
-          'siswa': [
-            {
-              'id': siswaId,
-              'nama': nama,
-              'nomor_absen': nomorAbsen,
-              'keterangan': status,
-              'jam_absen': jamAbsen,
-              'tanggal_absen': tanggalAbsen,
-            }
-          ],
-        },
+        data: AbsenData(
+          siswaId: siswaId,
+          nama: nama,
+          nomorAbsen: nomorAbsen,
+          jamAbsen: jamAbsen,
+          status: status,
+          tanggalAbsen: tanggalAbsen,
+        ).toJson(),
       );
 
       debugPrint('Response status: ${response.statusCode}');
