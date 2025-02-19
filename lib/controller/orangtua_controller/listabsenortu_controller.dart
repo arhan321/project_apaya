@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../model/orangtua_model/listabsenortu_model.dart';
 
 class ListAbsenOrtuController extends GetxController {
   var isLoading = true.obs;

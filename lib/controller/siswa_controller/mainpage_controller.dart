@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../model/siswa_model/mainpagesiswa_model.dart';
 
 class MainPageController extends GetxController {
   var userName = 'Guest'.obs;

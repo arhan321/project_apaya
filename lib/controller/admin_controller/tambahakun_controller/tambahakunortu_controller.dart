@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../model/admin_model/tambahakun_model/tambahakunortu_model.dart';
 
 class TambahAkunOrtuController extends GetxController {
   final dio.Dio _dio = dio.Dio();

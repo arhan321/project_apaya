@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../model/admin_model/profile_model/profileadmin_model.dart';
 
 class ProfileAdminController extends GetxController {
   final Dio _dio = Dio();

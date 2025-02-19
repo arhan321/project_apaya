@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import '../../model/siswa_model/formabasensiswa_model.dart';
 
 class FormAbsenController extends GetxController {
   final idController = TextEditingController(); // Controller untuk ID

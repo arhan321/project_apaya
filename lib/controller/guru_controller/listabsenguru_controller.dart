@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import '../../model/guru_model/listabsenguru_model.dart';
 
 class ListAbsenGuruController extends GetxController {
   var siswaAbsen = <Map<String, dynamic>>[].obs; // Data siswa asli

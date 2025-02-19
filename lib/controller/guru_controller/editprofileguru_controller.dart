@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../model/guru_model/editprofileguru_model.dart';
 
 class EditProfileGuruController extends GetxController {
   final nameController = TextEditingController(); // Nama

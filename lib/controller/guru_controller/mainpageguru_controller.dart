@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../model/guru_model/editprofileguru_model.dart';
 
 class MainPageGuruController extends GetxController {
   var userName = 'Guest'.obs;

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import '../../model/guru_model/tambahabsenguru_model.dart';
 
 class TambahAbsenController extends GetxController {
   // Dio untuk request HTTP

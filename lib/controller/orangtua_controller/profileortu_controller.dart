@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../model/orangtua_model/profileortu_model.dart';
 
 class ProfilortuController extends GetxController {
   var parentName = ''.obs;

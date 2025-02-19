@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../model/siswa_model/editprofilesiswa_model.dart';
 
 class EditProfileSiswaController extends GetxController {
   final nameController = TextEditingController();

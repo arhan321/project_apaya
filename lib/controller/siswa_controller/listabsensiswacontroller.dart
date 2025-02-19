@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:get/get.dart';
+import '../../model/siswa_model/listabsensiswa_model.dart';
 
 class ListAbsenController extends GetxController {
   final int classId;
