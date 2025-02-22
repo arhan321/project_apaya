@@ -4,58 +4,79 @@ import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart' as dio;
 import 'dart:io';
 
-import '../../../model/admin_model/kelolaaccountguru_model/editakunguru_model.dart';
-
 class EditAkunGuruController extends GetxController {
   final dio.Dio dioClient = dio.Dio();
 
-  /// Konversi Get.arguments ke objek model GuruAkunModel
-  late GuruAkunModel akun;
+  /// Data dari Get.arguments (Map) dengan minimal butuh ID user
+  final Map<String, dynamic> akun = Get.arguments;
 
   File? selectedImage;
   final picker = ImagePicker();
 
+  /// Controller field (TextEditingController)
   late TextEditingController namaController;
   late TextEditingController emailController;
   late TextEditingController passwordController;
+
+  /// Variabel untuk menampung tanggal lahir (DateTime).
   DateTime? selectedTanggalLahir;
+
+  /// Field tambahan
+  late TextEditingController nipGuruController;
+  late TextEditingController waliKelasController;
+  late TextEditingController umurController;
+  late TextEditingController nomorTelfonController;
 
   @override
   void onInit() {
     super.onInit();
     print('EditAkunGuruController initialized');
+    print('Initial argument data: $akun');
 
-    // Konversi Get.arguments (Map) ke objek GuruAkunModel
-    akun = GuruAkunModel.fromJson(Get.arguments);
+    // Inisialisasi text controller dengan data yang diterima dari Get.arguments
+    namaController = TextEditingController(text: akun['nama'] ?? '');
+    emailController = TextEditingController(text: akun['email'] ?? '');
+    passwordController = TextEditingController(text: akun['password'] ?? '');
 
-    // Inisialisasi TextEditingController dengan nilai dari model
-    namaController = TextEditingController(text: akun.nama);
-    emailController = TextEditingController(text: akun.email);
-    passwordController = TextEditingController(text: akun.password);
+    nipGuruController = TextEditingController(text: akun['nip_guru'] ?? '');
+    waliKelasController = TextEditingController(text: akun['wali_kelas'] ?? '');
+    umurController = TextEditingController(text: akun['umur'] ?? '');
+    nomorTelfonController =
+        TextEditingController(text: akun['nomor_telfon'] ?? '');
 
-    if (akun.tanggalLahir != null) {
-      selectedTanggalLahir = DateTime.tryParse(akun.tanggalLahir!);
+    // Parsing tanggal lahir dari arguments, jika ada
+    if (akun['tanggal_lahir'] != null) {
+      selectedTanggalLahir = DateTime.tryParse(akun['tanggal_lahir']);
     }
-    print('Initial data: $akun');
   }
 
+  /// Pilih gambar dari gallery
   Future<void> pickImage() async {
-    print('Attempting to pick an image...');
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       selectedImage = File(pickedFile.path);
-      print('Image selected: ${selectedImage!.path}');
       update();
     } else {
       print('No image selected.');
     }
   }
 
+  /// PUT / update profile (ke server)
   Future<void> updateProfile() async {
+    // Parsing ID agar aman
+    final dynamic rawId = akun['id'];
+    if (rawId == null) {
+      print('ID user tidak ditemukan di arguments!');
+      return;
+    }
+    final int userId = (rawId is int) ? rawId : int.parse(rawId.toString());
+
+    // URL update
     final String url =
-        'https://absen.randijourney.my.id/api/v1/account/${akun.id}';
+        'https://absen.randijourney.my.id/api/v1/account/$userId';
     print('Updating profile with URL: $url');
 
+    // Validasi sederhana
     if (namaController.text.isEmpty || emailController.text.isEmpty) {
       print('Validation failed: Nama or Email is empty');
       Get.snackbar(
@@ -69,21 +90,42 @@ class EditAkunGuruController extends GetxController {
     }
 
     try {
+      // Pastikan key sesuai dengan kebutuhan server
       Map<String, dynamic> data = {
         'name': namaController.text,
         'email': emailController.text,
-        if (passwordController.text.isNotEmpty)
-          'password': passwordController.text,
-        if (selectedTanggalLahir != null)
-          'tanggal_lahir':
-              '${selectedTanggalLahir!.year}-${selectedTanggalLahir!.month.toString().padLeft(2, '0')}-${selectedTanggalLahir!.day.toString().padLeft(2, '0')}',
       };
-      print('Data to be sent: $data');
+
+      // Kirim password jika diisi
+      if (passwordController.text.isNotEmpty) {
+        data['password'] = passwordController.text;
+      }
+
+      // Jika user sudah pilih tanggal lahir
+      if (selectedTanggalLahir != null) {
+        data['tanggal_lahir'] =
+            '${selectedTanggalLahir!.year.toString().padLeft(2, '0')}'
+            '-${selectedTanggalLahir!.month.toString().padLeft(2, '0')}'
+            '-${selectedTanggalLahir!.day.toString().padLeft(2, '0')}';
+      }
+
+      // Field tambahan
+      data['nip_guru'] = nipGuruController.text;
+      data['wali_kelas'] = waliKelasController.text;
+      data['umur'] = umurController.text;
+      data['nomor_telfon'] = nomorTelfonController.text;
+
+      print('Data to be sent (PUT): $data');
 
       final response = await dioClient.put(
         url,
         data: data,
-        options: dio.Options(headers: {'Accept': 'application/json'}),
+        options: dio.Options(
+          headers: {
+            'Accept': 'application/json',
+            // 'Authorization': 'Bearer <YOUR_ACCESS_TOKEN>' // jika butuh token
+          },
+        ),
       );
 
       print('Response status: ${response.statusCode}');
@@ -96,9 +138,10 @@ class EditAkunGuruController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        Get.back();
+        Get.back(); // Kembali ke halaman sebelumnya
       } else {
         print('Failed to update profile: ${response.statusCode}');
+        print('Response data: ${response.data}');
         Get.snackbar(
           'Error',
           'Gagal memperbarui profil',
@@ -119,7 +162,15 @@ class EditAkunGuruController extends GetxController {
     }
   }
 
+  /// POST / upload foto
   Future<void> uploadPhoto() async {
+    final dynamic rawId = akun['id'];
+    if (rawId == null) {
+      print('ID user tidak ditemukan!');
+      return;
+    }
+    final int userId = (rawId is int) ? rawId : int.parse(rawId.toString());
+
     if (selectedImage == null) {
       print('No image selected for upload');
       Get.snackbar(
@@ -133,22 +184,27 @@ class EditAkunGuruController extends GetxController {
     }
 
     final String url =
-        'https://absen.randijourney.my.id/api/v1/account/${akun.id}/foto';
+        'https://absen.randijourney.my.id/api/v1/account/$userId/foto';
     print('Uploading photo to URL: $url');
 
     try {
       String fileName = selectedImage!.path.split('/').last;
-      print('File name: $fileName');
 
       dio.FormData formData = dio.FormData.fromMap({
-        'photo': await dio.MultipartFile.fromFile(selectedImage!.path,
-            filename: fileName),
+        'photo': await dio.MultipartFile.fromFile(
+          selectedImage!.path,
+          filename: fileName,
+        ),
       });
 
       final response = await dioClient.post(
         url,
         data: formData,
-        options: dio.Options(headers: {'Accept': 'application/json'}),
+        options: dio.Options(
+          headers: {
+            'Accept': 'application/json',
+          },
+        ),
       );
 
       print('Response status: ${response.statusCode}');
@@ -163,6 +219,7 @@ class EditAkunGuruController extends GetxController {
         );
       } else {
         print('Failed to upload photo: ${response.statusCode}');
+        print('Response data: ${response.data}');
         Get.snackbar(
           'Error',
           'Gagal mengunggah foto',
@@ -183,8 +240,8 @@ class EditAkunGuruController extends GetxController {
     }
   }
 
+  /// Pilih tanggal lahir (DatePicker)
   void selectTanggalLahir(BuildContext context) async {
-    print('Opening date picker...');
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedTanggalLahir ?? DateTime.now(),
@@ -193,10 +250,7 @@ class EditAkunGuruController extends GetxController {
     );
     if (picked != null && picked != selectedTanggalLahir) {
       selectedTanggalLahir = picked;
-      print('Selected date: $selectedTanggalLahir');
-      update();
-    } else {
-      print('No date selected.');
+      update(); // Refresh UI
     }
   }
 }

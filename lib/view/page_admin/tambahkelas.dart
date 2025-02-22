@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart' as dio;
-
 import '../../controller/admin_controller/kelolakelasadmin_controller/tambahkelas_controller.dart';
 
 class TambahKelasPage extends StatefulWidget {
@@ -103,16 +102,19 @@ class _TambahKelasPageState extends State<TambahKelasPage> {
       );
 
       if (response.statusCode == 201) {
-        Get.snackbar(
-          'Berhasil',
-          'Kelas berhasil ditambahkan!',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
+        /// Tampilkan dialog konfirmasi
+        Get.defaultDialog(
+          title: 'Berhasil',
+          middleText: 'Kelas berhasil ditambahkan!',
+          textConfirm: 'Oke',
+          onConfirm: () {
+            // Tutup dialog
+            Get.back();
+            // Kembali ke halaman sebelumnya
+            Get.back(result: true);
+          },
+          barrierDismissible: false, // agar dialog tidak bisa ditutup sembarang
         );
-
-        // Kembalikan result ke halaman sebelumnya
-        Get.back(result: true);
       } else {
         debugPrint("Gagal menambahkan kelas: ${response.data}");
         Get.snackbar(

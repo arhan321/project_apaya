@@ -5,14 +5,14 @@ import '../../controller/admin_controller/kelolaccountguru_controller/editakungu
 import 'dart:io';
 
 class EditAkunGuru extends StatelessWidget {
-  final EditAkunGuruController controller = Get.put(EditAkunGuruController());
+  final controller = Get.put(EditAkunGuruController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.blueAccent, Colors.lightBlueAccent],
               begin: Alignment.topLeft,
@@ -37,14 +37,15 @@ class EditAkunGuru extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  // Foto profil
                   Stack(
                     children: [
                       CircleAvatar(
                         radius: 60,
                         backgroundImage: controller.selectedImage != null
                             ? FileImage(controller.selectedImage!)
-                            : (controller.akun.foto.isNotEmpty
-                                ? NetworkImage(controller.akun.foto)
+                            : (controller.akun['foto'] != null
+                                ? NetworkImage(controller.akun['foto'])
                                 : const AssetImage(
                                     'assets/placeholder.png')) as ImageProvider,
                       ),
@@ -53,7 +54,7 @@ class EditAkunGuru extends StatelessWidget {
                         right: 0,
                         child: GestureDetector(
                           onTap: controller.pickImage,
-                          child: CircleAvatar(
+                          child: const CircleAvatar(
                             backgroundColor: Colors.blueAccent,
                             radius: 20,
                             child: Icon(Icons.camera_alt, color: Colors.white),
@@ -63,6 +64,8 @@ class EditAkunGuru extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
+
+                  // Nama
                   TextField(
                     controller: controller.namaController,
                     decoration: const InputDecoration(
@@ -71,6 +74,8 @@ class EditAkunGuru extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
+
+                  // Email
                   TextField(
                     controller: controller.emailController,
                     decoration: const InputDecoration(
@@ -79,6 +84,8 @@ class EditAkunGuru extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
+
+                  // Password
                   TextField(
                     controller: controller.passwordController,
                     obscureText: true,
@@ -88,6 +95,8 @@ class EditAkunGuru extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
+
+                  // Tanggal Lahir
                   GestureDetector(
                     onTap: () => controller.selectTanggalLahir(context),
                     child: AbsorbPointer(
@@ -95,13 +104,57 @@ class EditAkunGuru extends StatelessWidget {
                         decoration: InputDecoration(
                           labelText: controller.selectedTanggalLahir == null
                               ? 'Tanggal Lahir'
-                              : '${controller.selectedTanggalLahir!.year}-${controller.selectedTanggalLahir!.month.toString().padLeft(2, '0')}-${controller.selectedTanggalLahir!.day.toString().padLeft(2, '0')}',
+                              : '${controller.selectedTanggalLahir!.year}-'
+                                  '${controller.selectedTanggalLahir!.month.toString().padLeft(2, '0')}-'
+                                  '${controller.selectedTanggalLahir!.day.toString().padLeft(2, '0')}',
                           border: const OutlineInputBorder(),
                         ),
                       ),
                     ),
                   ),
+                  const SizedBox(height: 16),
+
+                  // NIP Guru
+                  TextField(
+                    controller: controller.nipGuruController,
+                    decoration: const InputDecoration(
+                      labelText: 'NIP Guru',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Wali Kelas
+                  TextField(
+                    controller: controller.waliKelasController,
+                    decoration: const InputDecoration(
+                      labelText: 'Wali Kelas',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Umur
+                  TextField(
+                    controller: controller.umurController,
+                    decoration: const InputDecoration(
+                      labelText: 'Umur',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Nomor Telepon
+                  TextField(
+                    controller: controller.nomorTelfonController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nomor Telepon',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
                   const SizedBox(height: 24),
+
+                  // Tombol Simpan Perubahan
                   GestureDetector(
                     onTap: controller.updateProfile,
                     child: Container(
@@ -128,6 +181,8 @@ class EditAkunGuru extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
+
+                  // Tombol Upload Foto
                   GestureDetector(
                     onTap: controller.uploadPhoto,
                     child: Container(

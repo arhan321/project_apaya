@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dio/dio.dart';
-import '../../controller/admin_controller/kelolaakun_controller/listakunguru_controller.dart';
 
 class ListAkunGuru extends StatefulWidget {
   @override
@@ -48,14 +47,22 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
 
         setState(() {
           akunGuru = (data as List)
-              .where((item) => item['role']?.toLowerCase() == 'guru')
+              .where((item) => item['role']?.toString().toLowerCase() == 'guru')
               .map((item) => {
-                    'id': item['id'].toString(),
+                    'id': item['id']?.toString() ?? '',
                     'foto': item['image_url'] ?? '',
-                    'nama': item['name'] ?? 'Nama tidak tersedia',
-                    'email': item['email'] ?? 'Email tidak tersedia',
+                    'nama': item['name']?.toString() ?? 'Nama tidak tersedia',
+                    'email':
+                        item['email']?.toString() ?? 'Email tidak tersedia',
                     'password': '********',
-                    'role': item['role'] ?? '',
+                    'role': item['role']?.toString() ?? '',
+                    // Field tambahan
+                    'nip_guru': item['nip_guru']?.toString() ?? '',
+                    'wali_kelas': item['wali_kelas']?.toString() ?? '',
+                    'umur': item['umur']?.toString() ?? '',
+                    'nomor_telfon': item['nomor_telfon']?.toString() ?? '',
+                    // Tanggal lahir
+                    'tanggal_lahir': item['tanggal_lahir']?.toString() ?? '',
                   })
               .toList();
           isLoading = false;
@@ -88,21 +95,30 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
         setState(() {
           akunGuru.removeWhere((akun) => akun['id'] == id);
         });
-        Get.snackbar('Berhasil', 'Akun berhasil dihapus',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white);
+        Get.snackbar(
+          'Berhasil',
+          'Akun berhasil dihapus',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
       } else {
-        Get.snackbar('Gagal', 'Gagal menghapus akun',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white);
-      }
-    } catch (e) {
-      Get.snackbar('Kesalahan', 'Terjadi kesalahan saat menghapus akun',
+        Get.snackbar(
+          'Gagal',
+          'Gagal menghapus akun',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
-          colorText: Colors.white);
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Kesalahan',
+        'Terjadi kesalahan saat menghapus akun',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
@@ -183,11 +199,17 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
                 return _buildAkunCard(
                   context,
                   id: akun['id'],
-                  foto: akun['foto']!,
-                  nama: akun['nama']!,
-                  email: akun['email']!,
-                  password: akun['password']!,
-                  role: akun['role']!,
+                  foto: akun['foto'],
+                  nama: akun['nama'],
+                  email: akun['email'],
+                  password: akun['password'],
+                  role: akun['role'],
+                  // Field tambahan
+                  nipGuru: akun['nip_guru'],
+                  waliKelas: akun['wali_kelas'],
+                  umur: akun['umur'],
+                  nomorTelfon: akun['nomor_telfon'],
+                  tanggalLahir: akun['tanggal_lahir'],
                 );
               },
             ),
@@ -202,6 +224,12 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
     required String email,
     required String password,
     required String role,
+    // Field tambahan
+    required String nipGuru,
+    required String waliKelas,
+    required String umur,
+    required String nomorTelfon,
+    required String tanggalLahir,
   }) {
     return Card(
       shape: RoundedRectangleBorder(
@@ -270,6 +298,7 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
             IconButton(
               icon: Icon(Icons.edit, color: Colors.blueAccent),
               onPressed: () {
+                // Kirim semua data ke halaman Edit
                 Get.toNamed('/editAkunGuru', arguments: {
                   'id': id,
                   'foto': foto,
@@ -277,6 +306,12 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
                   'email': email,
                   'password': password,
                   'role': role,
+                  // Field tambahan
+                  'nip_guru': nipGuru,
+                  'wali_kelas': waliKelas,
+                  'tanggal_lahir': tanggalLahir,
+                  'umur': umur,
+                  'nomor_telfon': nomorTelfon,
                 });
               },
             ),
