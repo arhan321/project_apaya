@@ -6,6 +6,7 @@ import '../../controller/global_controller/login_controller.dart';
 
 class LoginScreen extends StatelessWidget {
   final LoginController loginController = Get.put(LoginController());
+  final RxBool isPasswordVisible = false.obs;
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +14,6 @@ class LoginScreen extends StatelessWidget {
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
-          // Latar belakang gradasi
           Container(
             width: double.infinity,
             height: double.infinity,
@@ -25,7 +25,6 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
           ),
-          // Konten halaman login
           Center(
             child: SingleChildScrollView(
               child: Padding(
@@ -35,18 +34,16 @@ class LoginScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Tombol Back
                     Align(
                       alignment: Alignment.topLeft,
                       child: IconButton(
                         icon: Icon(Icons.arrow_back, color: Colors.white),
                         onPressed: () {
-                          Get.back(); // Tutup halaman saat ini
+                          Get.back();
                         },
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // Teks Header
                     Text(
                       'Selamat Datang',
                       style: GoogleFonts.poppins(
@@ -64,22 +61,20 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 40),
-                    // Input Email
                     _buildTextField(
                       controller: loginController.emailController,
                       icon: Icons.email,
                       hint: 'Email',
                     ),
                     const SizedBox(height: 20),
-                    // Input Password
-                    _buildTextField(
-                      controller: loginController.passwordController,
-                      icon: Icons.lock,
-                      hint: 'Password',
-                      isPassword: true,
-                    ),
+                    Obx(() => _buildTextField(
+                          controller: loginController.passwordController,
+                          icon: Icons.lock,
+                          hint: 'Password',
+                          isPassword: true,
+                          isPasswordVisible: isPasswordVisible,
+                        )),
                     const SizedBox(height: 30),
-                    // Tombol Login
                     Obx(() {
                       return SizedBox(
                         width: double.infinity,
@@ -112,7 +107,6 @@ class LoginScreen extends StatelessWidget {
                       );
                     }),
                     const SizedBox(height: 20),
-                    // Reset Password
                     Align(
                       alignment: Alignment.centerRight,
                       child: GestureDetector(
@@ -130,10 +124,9 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // Navigasi ke Halaman Register
                     TextButton(
                       onPressed: () {
-                        Get.toNamed(AppRoutes.register); // Redirect ke register
+                        Get.toNamed(AppRoutes.register);
                       },
                       child: RichText(
                         text: TextSpan(
@@ -142,7 +135,7 @@ class LoginScreen extends StatelessWidget {
                               text: 'Belum punya akun? ',
                               style: GoogleFonts.poppins(
                                 color: Colors.white,
-                                fontWeight: FontWeight.normal, // Tidak bold
+                                fontWeight: FontWeight.normal,
                                 fontSize: 14,
                               ),
                             ),
@@ -150,7 +143,7 @@ class LoginScreen extends StatelessWidget {
                               text: 'Daftar di sini',
                               style: GoogleFonts.poppins(
                                 color: Colors.white,
-                                fontWeight: FontWeight.bold, // Bold
+                                fontWeight: FontWeight.bold,
                                 fontSize: 14,
                               ),
                             ),
@@ -168,12 +161,12 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  // Widget untuk Input Field
   Widget _buildTextField({
     required TextEditingController controller,
     required IconData icon,
     required String hint,
     bool isPassword = false,
+    RxBool? isPasswordVisible,
   }) {
     return Container(
       height: 50,
@@ -183,7 +176,7 @@ class LoginScreen extends StatelessWidget {
       ),
       child: TextField(
         controller: controller,
-        obscureText: isPassword,
+        obscureText: isPassword && !(isPasswordVisible?.value ?? false),
         style: GoogleFonts.poppins(fontSize: 16),
         decoration: InputDecoration(
           isDense: true,
@@ -193,6 +186,21 @@ class LoginScreen extends StatelessWidget {
           border: InputBorder.none,
           contentPadding:
               const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(
+                    (isPasswordVisible?.value ?? false)
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                    color: Colors.blueAccent,
+                  ),
+                  onPressed: () {
+                    if (isPasswordVisible != null) {
+                      isPasswordVisible.value = !isPasswordVisible.value;
+                    }
+                  },
+                )
+              : null,
         ),
         textAlignVertical: TextAlignVertical.center,
       ),

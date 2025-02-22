@@ -1,11 +1,11 @@
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../model/orangtua_model/profileortu_model.dart';
+import 'dart:developer';
 
 class ProfilortuController extends GetxController {
   var parentName = ''.obs;
-  var childName = ''.obs; // Nama anak akan dinamis dari API
+  var childName = ''.obs;
   var email = ''.obs;
   var photoUrl = ''.obs;
   var isLoading = true.obs;
@@ -48,29 +48,33 @@ class ProfilortuController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = response.data;
-
         parentName.value = data['name'] ?? 'Nama tidak tersedia';
         email.value = data['email'] ?? 'Email tidak tersedia';
-        photoUrl.value = data['image_url'];
+        photoUrl.value = data['image_url'] ?? '';
 
-        // Check if 'wali_murid' is a String or a Map
         if (data['wali_murid'] is String) {
-          childName.value = data['wali_murid'] ?? 'Nama Anak Tidak Ditemukan';
+          childName.value = data['wali_murid'].toString().isNotEmpty
+              ? data['wali_murid']
+              : 'Nama Anak Tidak Ditemukan';
         } else {
           childName.value = (data['wali_murid'] != null &&
-                  data['wali_murid'] is Map)
-              ? (data['wali_murid']['nama_anak'] ?? 'Nama Anak Tidak Ditemukan')
+                  data['wali_murid'] is Map &&
+                  data['wali_murid']['nama_anak'] != null)
+              ? data['wali_murid']['nama_anak']
               : 'Nama Anak Tidak Ditemukan';
         }
-
         isLoading.value = false;
       } else {
         errorMessage.value =
-            'Gagal mengambil data. Status Code: ${response.statusCode}\nPesan: ${response.data}';
+            'Gagal mengambil data. Status Code: ${response.statusCode}';
+        log('Error Fetching Data: ${response.data}',
+            name: 'ProfilortuController');
         isLoading.value = false;
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       errorMessage.value = _handleError(e);
+      log('Exception: $e',
+          name: 'ProfilortuController', error: e, stackTrace: stackTrace);
       isLoading.value = false;
     }
   }
@@ -89,13 +93,13 @@ class ProfilortuController extends GetxController {
           return 'Waktu pengiriman data habis. Silakan coba lagi.';
         default:
           if (error.response != null) {
-            return 'Terjadi kesalahan server. Status: ${error.response?.statusCode}';
+            return 'Kesalahan server. Status: ${error.response?.statusCode}';
           } else {
-            return 'Terjadi kesalahan tak terduga: ${error.message}';
+            return 'Kesalahan tak terduga: ${error.message}';
           }
       }
     } else {
-      return 'Terjadi kesalahan tak terduga. Detail error: $error';
+      return 'Kesalahan tak terduga: $error';
     }
   }
 
@@ -132,8 +136,10 @@ class ProfilortuController extends GetxController {
       } else {
         Get.snackbar('Error', 'Gagal menghapus akun');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       Get.snackbar('Error', 'Terjadi kesalahan saat menghapus akun');
+      log('Exception in deleteAccount: $e',
+          name: 'ProfilortuController', error: e, stackTrace: stackTrace);
     }
   }
 }

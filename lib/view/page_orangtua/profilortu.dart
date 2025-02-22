@@ -1,10 +1,130 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '/../../controller/orangtua_controller/profileortu_controller.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ProfilortuPage extends StatelessWidget {
-  final ProfilortuController controller = Get.put(ProfilortuController());
+class ProfilortuPage extends StatefulWidget {
+  @override
+  _ProfilortuPageState createState() => _ProfilortuPageState();
+}
+
+class _ProfilortuPageState extends State<ProfilortuPage> {
+  String parentName = '';
+  String childName = 'Budiono'; // Nama anak dibuat statis
+  String email = '';
+  String? photoUrl;
+  bool isLoading = true;
+  String errorMessage = '';
+
+  final Dio _dio = Dio();
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context)?.isCurrent == true) {
+      fetchUserData();
+    }
+  }
+
+  Future<void> fetchUserData() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = '';
+    });
+
+    const String url = 'https://absen.randijourney.my.id/auth/me';
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      if (authToken == null) {
+        setState(() {
+          errorMessage = 'Token tidak ditemukan. Silakan login ulang.';
+          isLoading = false;
+        });
+        Get.offAllNamed('/login');
+        return;
+      }
+
+      final response = await _dio.get(
+        url,
+        options: Options(
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $authToken',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+
+        setState(() {
+          parentName = data['name'] ?? 'Nama tidak tersedia';
+          email = data['email'] ?? 'Email tidak tersedia';
+          photoUrl = data['image_url'];
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          errorMessage =
+              'Gagal mengambil data. Status Code: ${response.statusCode}\nPesan: ${response.data}';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Terjadi kesalahan saat memuat data.';
+        isLoading = false;
+      });
+    }
+  }
+
+  void navigateToEditProfile() {
+    Get.toNamed('/editProfileOrtu');
+  }
+
+  void deleteAccount() async {
+    const String url = 'https://absen.randijourney.my.id/api/v1/account/logout';
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      if (authToken == null) {
+        Get.offAllNamed('/login');
+        return;
+      }
+
+      final response = await _dio.delete(
+        url,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $authToken',
+            'Accept': 'application/json',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        Get.snackbar('Success', 'Akun berhasil dihapus');
+        prefs.clear();
+        Get.offAllNamed('/login');
+      } else {
+        Get.snackbar('Error', 'Gagal menghapus akun');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Terjadi kesalahan saat menghapus akun');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,21 +153,15 @@ class ProfilortuPage extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return Center(child: CircularProgressIndicator());
-        }
-
-        if (controller.errorMessage.value.isNotEmpty) {
-          return _buildErrorWidget(controller.errorMessage.value);
-        }
-
-        return _buildProfileContent(controller);
-      }),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : errorMessage.isNotEmpty
+              ? _buildErrorWidget()
+              : _buildProfileContent(),
     );
   }
 
-  Widget _buildProfileContent(ProfilortuController controller) {
+  Widget _buildProfileContent() {
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -64,6 +178,7 @@ class ProfilortuPage extends StatelessWidget {
           child: Column(
             children: [
               SizedBox(height: 20),
+              // Profile Card
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
@@ -76,10 +191,9 @@ class ProfilortuPage extends StatelessWidget {
                       CircleAvatar(
                         radius: 60,
                         backgroundColor: Colors.grey[200],
-                        backgroundImage: controller.photoUrl.value != null
-                            ? NetworkImage(controller.photoUrl.value)
-                            : null,
-                        child: controller.photoUrl.value == null
+                        backgroundImage:
+                            photoUrl != null ? NetworkImage(photoUrl!) : null,
+                        child: photoUrl == null
                             ? Text(
                                 'Gambar\nKosong',
                                 textAlign: TextAlign.center,
@@ -90,7 +204,7 @@ class ProfilortuPage extends StatelessWidget {
                       ),
                       SizedBox(height: 16),
                       Text(
-                        controller.parentName.value,
+                        parentName,
                         style: GoogleFonts.poppins(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -99,7 +213,7 @@ class ProfilortuPage extends StatelessWidget {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Nama Anak: ${controller.childName.value}', // Menampilkan nama anak yang dinamis
+                        'Wali Murid: $childName',
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           color: Colors.black54,
@@ -107,7 +221,7 @@ class ProfilortuPage extends StatelessWidget {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Email: ${controller.email.value}',
+                        'Email: $email',
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           color: Colors.black54,
@@ -117,9 +231,10 @@ class ProfilortuPage extends StatelessWidget {
                   ),
                 ),
               ),
+              // Edit Profile Button
               SizedBox(height: 30),
               ElevatedButton(
-                onPressed: controller.navigateToEditProfile,
+                onPressed: navigateToEditProfile,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blueAccent,
                   padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
@@ -137,8 +252,9 @@ class ProfilortuPage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 12),
+              // Delete Account Button
               ElevatedButton(
-                onPressed: controller.deleteAccount,
+                onPressed: deleteAccount,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.redAccent,
                   padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
@@ -162,7 +278,7 @@ class ProfilortuPage extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorWidget(String errorMessage) {
+  Widget _buildErrorWidget() {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -190,7 +306,7 @@ class ProfilortuPage extends StatelessWidget {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: controller.fetchUserData,
+              onPressed: fetchUserData,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blueAccent,
               ),

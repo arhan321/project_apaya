@@ -106,7 +106,9 @@ class EditProfileOrtuPage extends StatelessWidget {
                 ),
                 SizedBox(height: 20),
                 DropdownButtonFormField<String>(
-                  value: _.selectedWaliMurid,
+                  value: _.waliMuridList.contains(_.selectedWaliMurid)
+                      ? _.selectedWaliMurid
+                      : null,
                   onChanged: _.setWaliMurid,
                   decoration: InputDecoration(
                     labelText: 'Wali Murid',
@@ -116,19 +118,12 @@ class EditProfileOrtuPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  items: _.waliMuridList.isEmpty
-                      ? [
-                          DropdownMenuItem(
-                            value: null,
-                            child: Text('Memuat...'),
-                          )
-                        ]
-                      : _.waliMuridList.map((wali) {
-                          return DropdownMenuItem(
-                            value: wali,
-                            child: Text(wali),
-                          );
-                        }).toList(),
+                  items: _.waliMuridList.map((wali) {
+                    return DropdownMenuItem(
+                      value: wali,
+                      child: Text(wali),
+                    );
+                  }).toList(),
                 ),
                 SizedBox(height: 30),
                 Center(
