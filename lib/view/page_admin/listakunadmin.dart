@@ -3,12 +3,12 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dio/dio.dart';
 
-import '../../controller/admin_controller/kelolaakun_controller/listakunadmin_controller.dart'; // Import controller
+import '../../controller/admin_controller/kelolaakun_controller/listakunadmin_controller.dart'; // Pastikan path controller benar
 
 class ListAkunAdminPage extends StatelessWidget {
   ListAkunAdminPage({Key? key}) : super(key: key);
 
-  /// Inisialisasi controller via Get.put (atau boleh Get.find jika sudah di-bind sebelumnya)
+  // Inisialisasi controller via Get.put (atau Get.find jika sudah di-bind)
   final ListAkunAdminController controller = Get.put(ListAkunAdminController());
 
   @override
@@ -41,13 +41,12 @@ class ListAkunAdminPage extends StatelessWidget {
         ),
       ),
       body: Obx(() {
-        /// Reaktif, rebuild ketika controller.isLoading atau errorMessage berubah
+        // Reaktif: rebuild saat isLoading atau errorMessage berubah
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         } else if (controller.errorMessage.isNotEmpty) {
           return _buildErrorWidget(controller.errorMessage.value);
         } else {
-          // Tampilkan daftar akun
           return _buildListAkun();
         }
       }),
@@ -65,7 +64,6 @@ class ListAkunAdminPage extends StatelessWidget {
     );
   }
 
-  /// Widget untuk menampilkan daftar akun admin
   Widget _buildListAkun() {
     return Container(
       decoration: const BoxDecoration(
@@ -76,7 +74,6 @@ class ListAkunAdminPage extends StatelessWidget {
         ),
       ),
       child: Obx(() {
-        // Jika data akunAdmin kosong
         if (controller.akunAdmin.isEmpty) {
           return Center(
             child: Text(
@@ -86,7 +83,6 @@ class ListAkunAdminPage extends StatelessWidget {
           );
         }
 
-        // ListView builder
         return ListView.builder(
           padding: const EdgeInsets.all(16),
           itemCount: controller.akunAdmin.length,
@@ -99,6 +95,11 @@ class ListAkunAdminPage extends StatelessWidget {
               email: akun['email'] ?? '',
               password: akun['password'] ?? '',
               role: akun['role'] ?? '',
+              nomorTelfon: akun['nomor_telfon'] ?? '',
+              agama: akun['agama'] ?? '',
+              nipGuru: akun['nip_guru'] ?? '',
+              tanggalLahir: akun['tanggal_lahir'] ?? '',
+              umur: akun['umur'] ?? '',
             );
           },
         );
@@ -106,7 +107,6 @@ class ListAkunAdminPage extends StatelessWidget {
     );
   }
 
-  /// Widget card untuk 1 item akun
   Widget _buildAkunCard({
     required String id,
     required String foto,
@@ -114,6 +114,11 @@ class ListAkunAdminPage extends StatelessWidget {
     required String email,
     required String password,
     required String role,
+    required String nomorTelfon,
+    required String agama,
+    required String nipGuru,
+    required String tanggalLahir,
+    required String umur,
   }) {
     return Card(
       shape: RoundedRectangleBorder(
@@ -133,7 +138,7 @@ class ListAkunAdminPage extends StatelessWidget {
                       as ImageProvider,
             ),
             const SizedBox(width: 16),
-            // Keterangan akun
+            // Tampilan detail akun
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,6 +173,42 @@ class ListAkunAdminPage extends StatelessWidget {
                       color: Colors.grey[700],
                     ),
                   ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Nomor Telepon: $nomorTelfon',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  Text(
+                    'Agama: $agama',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  Text(
+                    'NIP Guru: $nipGuru',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  Text(
+                    'Tanggal Lahir: $tanggalLahir',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  Text(
+                    'Umur: $umur',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -184,13 +225,28 @@ class ListAkunAdminPage extends StatelessWidget {
                       'email': email,
                       'password': password,
                       'role': role,
+                      'nomor_telfon': nomorTelfon,
+                      'agama': agama,
+                      'nip_guru': nipGuru,
+                      'tanggal_lahir': tanggalLahir,
+                      'umur': umur,
                     });
                   },
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete, color: Colors.redAccent),
                   onPressed: () {
-                    controller.deleteAkun(id);
+                    Get.defaultDialog(
+                      title: "Konfirmasi",
+                      middleText: "Apakah Anda yakin ingin menghapus akun ini?",
+                      textCancel: "Batal",
+                      textConfirm: "Hapus",
+                      confirmTextColor: Colors.white,
+                      onConfirm: () {
+                        Get.back();
+                        controller.deleteAkun(id);
+                      },
+                    );
                   },
                 ),
               ],
@@ -201,7 +257,6 @@ class ListAkunAdminPage extends StatelessWidget {
     );
   }
 
-  /// Widget untuk menampilkan pesan error
   Widget _buildErrorWidget(String message) {
     return Center(
       child: Text(

@@ -15,6 +15,19 @@ class EditAkunOrtuController extends GetxController {
   late TextEditingController usernameController;
   late TextEditingController emailController;
   late TextEditingController passwordController;
+  late TextEditingController nomorTelfonController;
+
+  // Variable untuk dropdown agama
+  String selectedAgama = 'islam';
+  // Daftar opsi agama
+  final List<String> listAgama = [
+    'islam',
+    'kristen',
+    'katolik',
+    'hindu',
+    'budha',
+    'konghucu'
+  ];
 
   @override
   void onInit() {
@@ -24,6 +37,11 @@ class EditAkunOrtuController extends GetxController {
     usernameController = TextEditingController(text: akun['username']);
     emailController = TextEditingController(text: akun['email']);
     passwordController = TextEditingController(text: akun['password']);
+    nomorTelfonController = TextEditingController(text: akun['nomor_telfon']);
+    // Jika data agama sudah ada di argument, gunakan; jika tidak, pakai default "islam"
+    if (akun['agama'] != null && akun['agama'].toString().isNotEmpty) {
+      selectedAgama = akun['agama'].toString();
+    }
     print('Initial data: $akun');
   }
 
@@ -56,9 +74,12 @@ class EditAkunOrtuController extends GetxController {
     try {
       Map<String, dynamic> data = {
         'name': namaController.text,
-        'username': usernameController.text,
+        // 'username': usernameController.text,
         'email': emailController.text,
         'password': passwordController.text,
+        // Field tambahan
+        'nomor_telfon': nomorTelfonController.text,
+        'agama': selectedAgama,
       };
       print('Data to be sent: $data');
 
@@ -71,11 +92,17 @@ class EditAkunOrtuController extends GetxController {
       print('Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         print('Parent account updated successfully');
-        Get.snackbar('Berhasil', 'Akun orang tua berhasil diperbarui',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white);
-        Get.back();
+        Get.defaultDialog(
+          title: "Sukses",
+          middleText: "Data berhasil di edit",
+          textConfirm: "OK",
+          confirmTextColor: Colors.white,
+          onConfirm: () {
+            Get.back(); // Menutup dialog
+            Get.offNamed(
+                '/listAkunOrtu'); // Navigasi ke halaman list akun orang tua
+          },
+        );
       } else {
         print('Failed to update parent account: ${response.statusCode}');
         Get.snackbar('Error', 'Gagal memperbarui akun orang tua',

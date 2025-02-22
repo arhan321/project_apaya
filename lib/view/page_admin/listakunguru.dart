@@ -44,7 +44,6 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
 
       if (response.statusCode == 200) {
         final data = response.data;
-
         setState(() {
           akunGuru = (data as List)
               .where((item) => item['role']?.toString().toLowerCase() == 'guru')
@@ -318,7 +317,18 @@ class _ListAkunGuruState extends State<ListAkunGuru> {
             IconButton(
               icon: Icon(Icons.delete, color: Colors.red),
               onPressed: () {
-                deleteAkunGuru(id);
+                // Tampilkan modal konfirmasi sebelum menghapus
+                Get.defaultDialog(
+                  title: "Konfirmasi",
+                  middleText: "Apakah Anda yakin ingin menghapus akun ini?",
+                  textCancel: "Batal",
+                  textConfirm: "Hapus",
+                  confirmTextColor: Colors.white,
+                  onConfirm: () {
+                    Get.back(); // Menutup dialog
+                    deleteAkunGuru(id);
+                  },
+                );
               },
             ),
           ],

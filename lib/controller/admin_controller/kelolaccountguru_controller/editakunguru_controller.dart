@@ -61,7 +61,6 @@ class EditAkunGuruController extends GetxController {
     }
   }
 
-  /// PUT / update profile (ke server)
   Future<void> updateProfile() async {
     // Parsing ID agar aman
     final dynamic rawId = akun['id'];
@@ -104,9 +103,9 @@ class EditAkunGuruController extends GetxController {
       // Jika user sudah pilih tanggal lahir
       if (selectedTanggalLahir != null) {
         data['tanggal_lahir'] =
-            '${selectedTanggalLahir!.year.toString().padLeft(2, '0')}'
-            '-${selectedTanggalLahir!.month.toString().padLeft(2, '0')}'
-            '-${selectedTanggalLahir!.day.toString().padLeft(2, '0')}';
+            '${selectedTanggalLahir!.year.toString().padLeft(2, '0')}-'
+            '${selectedTanggalLahir!.month.toString().padLeft(2, '0')}-'
+            '${selectedTanggalLahir!.day.toString().padLeft(2, '0')}';
       }
 
       // Field tambahan
@@ -123,7 +122,6 @@ class EditAkunGuruController extends GetxController {
         options: dio.Options(
           headers: {
             'Accept': 'application/json',
-            // 'Authorization': 'Bearer <YOUR_ACCESS_TOKEN>' // jika butuh token
           },
         ),
       );
@@ -131,14 +129,19 @@ class EditAkunGuruController extends GetxController {
       print('Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         print('Profile updated successfully');
-        Get.snackbar(
-          'Berhasil',
-          'Profil berhasil diperbarui',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
+
+        // Tampilkan modal dialog
+        Get.defaultDialog(
+          title: "Sukses",
+          middleText: "Data berhasil di edit",
+          textConfirm: "OK",
+          confirmTextColor: Colors.white,
+          onConfirm: () {
+            Get.back(); // Menutup dialog
+            // Navigasi kembali ke halaman list akun guru
+            Get.offNamed('/listAkunGuru');
+          },
         );
-        Get.back(); // Kembali ke halaman sebelumnya
       } else {
         print('Failed to update profile: ${response.statusCode}');
         print('Response data: ${response.data}');

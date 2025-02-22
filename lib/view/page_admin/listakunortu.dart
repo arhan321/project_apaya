@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dio/dio.dart';
-import '../../controller/admin_controller/kelolaakun_controller/listakunortu_controller.dart';
+// Pastikan file controller sesuai path jika diperlukan
 
 class ListAkunOrtu extends StatefulWidget {
   @override
@@ -48,14 +48,19 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
 
         setState(() {
           akunOrtu = (data as List)
-              .where((item) => item['role']?.toLowerCase() == 'orang_tua')
+              .where((item) =>
+                  item['role']?.toString().toLowerCase() == 'orang_tua')
               .map((item) => {
                     'id': item['id'].toString(),
                     'foto': item['image_url'] ?? '',
+                    // Gunakan key 'nama' agar konsisten
                     'nama': item['name'] ?? 'Nama tidak tersedia',
                     'email': item['email'] ?? 'Email tidak tersedia',
                     'password': '********',
                     'role': item['role'] ?? '',
+                    // Field tambahan khusus akun orang tua
+                    'nomor_telfon': item['nomor_telfon']?.toString() ?? '',
+                    'agama': item['agama']?.toString() ?? '',
                   })
               .toList();
           isLoading = false;
@@ -88,68 +93,38 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
         setState(() {
           akunOrtu.removeWhere((akun) => akun['id'] == id);
         });
-        Get.snackbar('Berhasil', 'Akun berhasil dihapus',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white);
+        Get.snackbar(
+          'Berhasil',
+          'Akun berhasil dihapus',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
       } else {
-        Get.snackbar('Gagal', 'Gagal menghapus akun',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white);
-      }
-    } catch (e) {
-      Get.snackbar('Kesalahan', 'Terjadi kesalahan saat menghapus akun',
+        Get.snackbar(
+          'Gagal',
+          'Gagal menghapus akun',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
-          colorText: Colors.white);
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Kesalahan',
+        'Terjadi kesalahan saat menghapus akun',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.blueAccent, Colors.lightBlueAccent],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-          ),
-        ),
-        title: Text(
-          'Daftar Akun Orang Tua',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: IconThemeData(color: Colors.white),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Get.back(),
-        ),
-      ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : errorMessage.isNotEmpty
-              ? _buildErrorWidget()
-              : _buildListAkun(),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Get.toNamed('/tambahAkunOrtu');
-        },
-        label: Text(
-          'Tambah Akun',
-          style: GoogleFonts.poppins(color: Colors.white),
-        ),
-        icon: Icon(Icons.add, color: Colors.white),
-        backgroundColor: Colors.blueAccent,
+  Widget _buildErrorWidget() {
+    return Center(
+      child: Text(
+        errorMessage,
+        style: GoogleFonts.poppins(fontSize: 16, color: Colors.red),
       ),
     );
   }
@@ -179,10 +154,13 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
                   context,
                   id: akun['id'],
                   foto: akun['foto']!,
+                  // Gunakan key 'nama' untuk mendapatkan data nama
                   nama: akun['nama']!,
                   email: akun['email']!,
                   password: akun['password']!,
                   role: akun['role']!,
+                  nomorTelfon: akun['nomor_telfon'],
+                  agama: akun['agama'],
                 );
               },
             ),
@@ -197,6 +175,8 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
     required String email,
     required String password,
     required String role,
+    required String nomorTelfon,
+    required String agama,
   }) {
     return Card(
       shape: RoundedRectangleBorder(
@@ -259,26 +239,55 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
                       fontStyle: FontStyle.italic,
                     ),
                   ),
+                  Text(
+                    'Nomor Telepon: $nomorTelfon',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  Text(
+                    'Agama: $agama',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
                 ],
               ),
             ),
             IconButton(
               icon: Icon(Icons.edit, color: Colors.blueAccent),
               onPressed: () {
+                // Kirim semua data ke halaman Edit
                 Get.toNamed('/editAkunOrtu', arguments: {
                   'id': id,
                   'foto': foto,
-                  'nama': nama,
+                  'name':
+                      nama, // Kirim key 'name' agar sesuai dengan yang diharapkan di halaman edit
                   'email': email,
                   'password': password,
                   'role': role,
+                  'nomor_telfon': nomorTelfon,
+                  'agama': agama,
                 });
               },
             ),
             IconButton(
               icon: Icon(Icons.delete, color: Colors.red),
               onPressed: () {
-                deleteAkunOrtu(id);
+                // Tampilkan modal konfirmasi sebelum menghapus
+                Get.defaultDialog(
+                  title: "Konfirmasi",
+                  middleText: "Apakah Anda yakin ingin menghapus akun ini?",
+                  textCancel: "Batal",
+                  textConfirm: "Hapus",
+                  confirmTextColor: Colors.white,
+                  onConfirm: () {
+                    Get.back();
+                    deleteAkunOrtu(id);
+                  },
+                );
               },
             ),
           ],
@@ -287,11 +296,50 @@ class _ListAkunOrtuState extends State<ListAkunOrtu> {
     );
   }
 
-  Widget _buildErrorWidget() {
-    return Center(
-      child: Text(
-        errorMessage,
-        style: GoogleFonts.poppins(fontSize: 16, color: Colors.red),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blueAccent, Colors.lightBlueAccent],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+          ),
+        ),
+        title: Text(
+          'Daftar Akun Orang Tua',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.white),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Get.back(),
+        ),
+      ),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : errorMessage.isNotEmpty
+              ? _buildErrorWidget()
+              : _buildListAkun(),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Get.toNamed('/tambahAkunOrtu');
+        },
+        label: Text(
+          'Tambah Akun',
+          style: GoogleFonts.poppins(color: Colors.white),
+        ),
+        icon: Icon(Icons.add, color: Colors.white),
+        backgroundColor: Colors.blueAccent,
       ),
     );
   }

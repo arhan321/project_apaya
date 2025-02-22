@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controller/admin_controller/kelolaccountortu_controller/editakunortu_controller.dart';
+import 'dart:io';
 
 class EditAkunOrtu extends StatelessWidget {
   final controller = Get.put(EditAkunOrtuController());
@@ -36,6 +37,7 @@ class EditAkunOrtu extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  // Foto Profil
                   Stack(
                     children: [
                       CircleAvatar(
@@ -62,6 +64,7 @@ class EditAkunOrtu extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 16),
+                  // Nama
                   TextField(
                     controller: controller.namaController,
                     decoration: InputDecoration(
@@ -70,6 +73,7 @@ class EditAkunOrtu extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 16),
+                  // Username
                   // TextField(
                   //   controller: controller.usernameController,
                   //   decoration: InputDecoration(
@@ -78,6 +82,7 @@ class EditAkunOrtu extends StatelessWidget {
                   //   ),
                   // ),
                   // SizedBox(height: 16),
+                  // Email
                   TextField(
                     controller: controller.emailController,
                     decoration: InputDecoration(
@@ -86,6 +91,7 @@ class EditAkunOrtu extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 16),
+                  // Password
                   TextField(
                     controller: controller.passwordController,
                     obscureText: true,
@@ -94,7 +100,40 @@ class EditAkunOrtu extends StatelessWidget {
                       border: OutlineInputBorder(),
                     ),
                   ),
+                  SizedBox(height: 16),
+                  // Nomor Telepon
+                  TextField(
+                    controller: controller.nomorTelfonController,
+                    decoration: InputDecoration(
+                      labelText: 'Nomor Telepon',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  // Dropdown Agama
+                  DropdownButtonFormField<String>(
+                    decoration: InputDecoration(
+                      labelText: 'Agama',
+                      border: OutlineInputBorder(),
+                    ),
+                    value: controller.selectedAgama,
+                    items: controller.listAgama
+                        .map(
+                          (agama) => DropdownMenuItem<String>(
+                            value: agama,
+                            child: Text(agama),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        controller.selectedAgama = value;
+                        controller.update();
+                      }
+                    },
+                  ),
                   SizedBox(height: 24),
+                  // Tombol Simpan
                   GestureDetector(
                     onTap: controller.updateProfile,
                     child: Container(
@@ -121,6 +160,7 @@ class EditAkunOrtu extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 16),
+                  // Tombol Upload Foto
                   GestureDetector(
                     onTap: controller.uploadPhoto,
                     child: Container(

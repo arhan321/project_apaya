@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controller/admin_controller/kelolaccountadmin_controller/editakunadmin_controller.dart';
-import 'package:image_picker/image_picker.dart';
-import '../../../model/admin_model/kelolaaccountadmin_model/editaccountadmin_model.dart';
+import 'dart:io';
 
 class EditProfileAdminPage extends StatelessWidget {
-  final EditAkunAdminController controller = Get.put(EditAkunAdminController());
+  final controller = Get.put(EditAkunAdminController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.blueAccent, Colors.lightBlueAccent],
               begin: Alignment.topLeft,
@@ -38,16 +37,17 @@ class EditProfileAdminPage extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  // Foto Profil
                   Stack(
                     children: [
                       CircleAvatar(
                         radius: 60,
                         backgroundImage: controller.selectedImage != null
                             ? FileImage(controller.selectedImage!)
-                            : (controller.akun.foto.isNotEmpty
-                                ? NetworkImage(controller.akun.foto)
-                                : const AssetImage(
-                                    'assets/placeholder.png')) as ImageProvider,
+                            : (controller.akun['foto'] != null
+                                    ? NetworkImage(controller.akun['foto'])
+                                    : AssetImage('assets/placeholder.png'))
+                                as ImageProvider,
                       ),
                       Positioned(
                         bottom: 0,
@@ -55,40 +55,44 @@ class EditProfileAdminPage extends StatelessWidget {
                         child: GestureDetector(
                           onTap: controller.pickImage,
                           child: CircleAvatar(
-                            backgroundColor: Colors.blueAccent,
                             radius: 20,
+                            backgroundColor: Colors.blueAccent,
                             child: Icon(Icons.camera_alt, color: Colors.white),
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
+                  // Nama (Prefilled dengan data lama)
                   TextField(
                     controller: controller.namaController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Nama',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
+                  // Email (Tetap prefilled dengan data lama)
                   TextField(
                     controller: controller.emailController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Email',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
+                  // Password (Prefilled dengan data lama)
                   TextField(
                     controller: controller.passwordController,
                     obscureText: true,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Password',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
+                  // Tanggal Lahir (DatePicker, prefill jika data lama ada)
                   GestureDetector(
                     onTap: () => controller.selectTanggalLahir(context),
                     child: AbsorbPointer(
@@ -97,19 +101,68 @@ class EditProfileAdminPage extends StatelessWidget {
                           labelText: controller.selectedTanggalLahir == null
                               ? 'Tanggal Lahir'
                               : '${controller.selectedTanggalLahir!.year}-${controller.selectedTanggalLahir!.month.toString().padLeft(2, '0')}-${controller.selectedTanggalLahir!.day.toString().padLeft(2, '0')}',
-                          border: const OutlineInputBorder(),
+                          border: OutlineInputBorder(),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 16),
+                  // Nomor Telepon (Prefilled dengan data lama)
+                  TextField(
+                    controller: controller.nomorTelfonController,
+                    decoration: InputDecoration(
+                      labelText: 'Nomor Telepon',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  // NIP Guru (Prefilled dengan data lama)
+                  TextField(
+                    controller: controller.nipGuruController,
+                    decoration: InputDecoration(
+                      labelText: 'NIP Guru',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  // Umur (Prefilled dengan data lama)
+                  TextField(
+                    controller: controller.umurController,
+                    decoration: InputDecoration(
+                      labelText: 'Umur',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  // Dropdown Agama (Prefilled dengan data lama)
+                  DropdownButtonFormField<String>(
+                    decoration: InputDecoration(
+                      labelText: 'Agama',
+                      border: OutlineInputBorder(),
+                    ),
+                    value: controller.selectedAgama,
+                    items: controller.listAgama
+                        .map((agama) => DropdownMenuItem<String>(
+                              value: agama,
+                              child: Text(agama),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        controller.selectedAgama = value;
+                        controller.update();
+                      }
+                    },
+                  ),
+                  SizedBox(height: 24),
+                  // Tombol Simpan Perubahan
                   GestureDetector(
                     onTap: controller.updateProfile,
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      padding: EdgeInsets.symmetric(vertical: 15),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
+                        gradient: LinearGradient(
                           colors: [Colors.blueAccent, Colors.lightBlueAccent],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
@@ -128,14 +181,15 @@ class EditProfileAdminPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
+                  // Tombol Upload Foto
                   GestureDetector(
                     onTap: controller.uploadPhoto,
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      padding: EdgeInsets.symmetric(vertical: 15),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
+                        gradient: LinearGradient(
                           colors: [Colors.green, Colors.lightGreenAccent],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,

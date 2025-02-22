@@ -13,6 +13,9 @@ class EditProfileAdminController extends GetxController {
   final passwordController = TextEditingController(); // Untuk password
   final ageController = TextEditingController(); // Untuk umur
   final nipGuruController = TextEditingController(); // Tambahan untuk NIP Guru
+  final phoneController =
+      TextEditingController(); // Tambahan untuk Nomor Telepon
+
   String? selectedReligion; // Tambahkan untuk agama
 
   File? imageFile;
@@ -60,6 +63,8 @@ class EditProfileAdminController extends GetxController {
         ageController.text =
             data['umur']?.toString() ?? ''; // Inisialisasi umur
         selectedReligion = data['agama'] ?? null; // Inisialisasi agama
+        // Inisialisasi nomor telepon jika tersedia
+        phoneController.text = data['nomor_telfon'] ?? '';
         userId = data['id']?.toString();
         imageUrl = data['image_url'];
         update();
@@ -153,6 +158,8 @@ class EditProfileAdminController extends GetxController {
           'umur': int.parse(ageController.text),
         if (selectedReligion != null && selectedReligion!.isNotEmpty)
           'agama': selectedReligion,
+        if (phoneController.text.isNotEmpty)
+          'nomor_telfon': phoneController.text,
       };
 
       final response = await _dio.put(

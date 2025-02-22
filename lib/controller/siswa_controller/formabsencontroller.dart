@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
-import '../../model/siswa_model/formabasensiswa_model.dart';
+// import '../../model/siswa_model/formabasensiswa_model.dart';
 
 class FormAbsenController extends GetxController {
   final idController = TextEditingController(); // Controller untuk ID
@@ -135,17 +135,19 @@ class FormAbsenController extends GetxController {
 
       if (response.statusCode == 200) {
         print("Response dari server (PUT): ${response.data}");
-        Get.snackbar(
-          'Sukses',
-          'Absen berhasil disimpan!',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
         clearFields();
 
-        // Kembali ke halaman list absen sambil membawa result true
-        Get.back(result: true); // <-- Penambahan
+        // Tampilkan modal dialog ketika absen berhasil
+        Get.defaultDialog(
+          title: "Sukses",
+          middleText: "Absen berhasil disimpan!",
+          textConfirm: "OK",
+          barrierDismissible: false,
+          onConfirm: () {
+            Get.back(); // Tutup dialog
+            Get.back(result: true); // Kembali ke halaman ListAbsenPage
+          },
+        );
       } else {
         throw Exception(response.data['message'] ?? 'Gagal menyimpan absen.');
       }

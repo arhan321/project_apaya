@@ -45,6 +45,12 @@ class ListAkunAdminController extends GetxController {
                   'email': item['email'] ?? 'Email tidak tersedia',
                   'password': item['password'] ?? '********',
                   'role': item['role'] ?? '',
+                  // Field tambahan:
+                  'nomor_telfon': item['nomor_telfon']?.toString() ?? '',
+                  'agama': item['agama']?.toString() ?? '',
+                  'nip_guru': item['nip_guru']?.toString() ?? '',
+                  'tanggal_lahir': item['tanggal_lahir']?.toString() ?? '',
+                  'umur': item['umur']?.toString() ?? '',
                 })
             .toList();
 

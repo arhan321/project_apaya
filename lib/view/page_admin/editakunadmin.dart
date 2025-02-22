@@ -80,6 +80,10 @@ class EditAkunAdminPage extends StatelessWidget {
                 SizedBox(height: 20),
                 _buildInputField('Email', _.emailController),
                 SizedBox(height: 20),
+                // Tambahan field Nomor Telepon
+                _buildInputField('Nomor Telepon', _.phoneController,
+                    keyboardType: TextInputType.phone),
+                SizedBox(height: 20),
                 _buildDropdownField(
                   'Agama',
                   ['islam', 'kristen', 'katolik', 'hindu', 'budha', 'konghucu'],

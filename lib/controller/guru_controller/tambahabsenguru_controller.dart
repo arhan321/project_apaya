@@ -104,7 +104,7 @@ class TambahAbsenController extends GetxController {
       return;
     }
 
-    // Data siswa yang akan ditambahkan
+    // Data absensi yang akan dikirim
     final siswaData = {
       "id": int.tryParse(idController.text) ??
           DateTime.now().millisecondsSinceEpoch,
@@ -143,18 +143,20 @@ class TambahAbsenController extends GetxController {
       print("Response data: ${response.data}");
 
       if (response.statusCode == 200) {
-        // Sukses
-        Get.snackbar(
-          'Sukses',
-          'Absen berhasil disimpan!',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
+        // Bersihkan form
         clearFields();
 
-        // Kembali ke halaman list absen sambil membawa result true
-        Get.back(result: true);
+        // Tampilkan modal dialog untuk konfirmasi sukses
+        Get.defaultDialog(
+          title: "Sukses",
+          middleText: "Absen berhasil disimpan!",
+          textConfirm: "OK",
+          barrierDismissible: false,
+          onConfirm: () {
+            Get.back(); // Menutup dialog
+            Get.back(result: true); // Kembali ke halaman ListAbsenSiswaPage
+          },
+        );
       } else {
         throw Exception(response.data['message'] ?? 'Gagal menyimpan absen.');
       }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dio/dio.dart';
-import '../../controller/admin_controller/kelolaakun_controller/listakunsiswa_controller.dart';
 
 class ListAkunSiswa extends StatefulWidget {
   @override
@@ -48,15 +47,21 @@ class _ListAkunSiswaState extends State<ListAkunSiswa> {
 
         setState(() {
           akunSiswa = (data as List)
-              .where((item) => item['role']?.toLowerCase() == 'siswa')
+              .where(
+                  (item) => item['role']?.toString().toLowerCase() == 'siswa')
               .map((item) => {
-                    'id': item['id'].toString(),
+                    'id': item['id']?.toString() ?? '',
                     'foto': item['image_url'] ?? '',
-                    'nama': item['name'] ?? 'Nama tidak tersedia',
-                    'email': item['email'] ?? 'Email tidak tersedia',
+                    'nama': item['name']?.toString() ?? 'Nama tidak tersedia',
+                    'email':
+                        item['email']?.toString() ?? 'Email tidak tersedia',
                     'password': '********',
-                    'role': item['role'] ?? '',
-                    'no_absen': item['nomor_absen']?.toString() ?? 'N/A',
+                    'role': item['role']?.toString() ?? '',
+                    // Field tambahan untuk siswa
+                    'nisn': item['nisn']?.toString() ?? '',
+                    'nomor_telfon': item['nomor_telfon']?.toString() ?? '',
+                    'nomor_absen': item['nomor_absen']?.toString() ?? 'N/A',
+                    'umur': item['umur']?.toString() ?? '',
                   })
               .toList();
           isLoading = false;
@@ -89,22 +94,227 @@ class _ListAkunSiswaState extends State<ListAkunSiswa> {
         setState(() {
           akunSiswa.removeWhere((akun) => akun['id'] == id);
         });
-        Get.snackbar('Berhasil', 'Akun berhasil dihapus',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white);
+        Get.snackbar(
+          'Berhasil',
+          'Akun berhasil dihapus',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
       } else {
-        Get.snackbar('Gagal', 'Gagal menghapus akun',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white);
-      }
-    } catch (e) {
-      Get.snackbar('Kesalahan', 'Terjadi kesalahan saat menghapus akun',
+        Get.snackbar(
+          'Gagal',
+          'Gagal menghapus akun',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
-          colorText: Colors.white);
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Kesalahan',
+        'Terjadi kesalahan saat menghapus akun',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
+  }
+
+  Widget _buildErrorWidget() {
+    return Center(
+      child: Text(
+        errorMessage,
+        style: GoogleFonts.poppins(fontSize: 16, color: Colors.red),
+      ),
+    );
+  }
+
+  Widget _buildListAkun() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blueAccent, Colors.lightBlueAccent],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: akunSiswa.isEmpty
+          ? Center(
+              child: Text(
+                'Tidak ada akun siswa tersedia.',
+                style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
+              ),
+            )
+          : ListView.builder(
+              padding: EdgeInsets.all(16),
+              itemCount: akunSiswa.length,
+              itemBuilder: (context, index) {
+                final akun = akunSiswa[index];
+                return _buildAkunCard(
+                  context,
+                  id: akun['id'],
+                  foto: akun['foto'],
+                  nama: akun['nama'],
+                  email: akun['email'],
+                  password: akun['password'],
+                  role: akun['role'],
+                  // Field tambahan untuk siswa
+                  nisn: akun['nisn'],
+                  nomorTelfon: akun['nomor_telfon'],
+                  nomorAbsen: akun['nomor_absen'],
+                  umur: akun['umur'],
+                );
+              },
+            ),
+    );
+  }
+
+  Widget _buildAkunCard(
+    BuildContext context, {
+    required String id,
+    required String foto,
+    required String nama,
+    required String email,
+    required String password,
+    required String role,
+    // Field tambahan untuk siswa
+    required String nisn,
+    required String nomorTelfon,
+    required String nomorAbsen,
+    required String umur,
+  }) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      margin: EdgeInsets.symmetric(vertical: 10),
+      elevation: 4,
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 40,
+              backgroundImage: foto.isNotEmpty
+                  ? NetworkImage(foto)
+                  : AssetImage('assets/default_profile.png') as ImageProvider,
+              onBackgroundImageError: (exception, stackTrace) {
+                debugPrint('Gagal memuat gambar: $exception');
+              },
+              child: foto.isEmpty
+                  ? Text(
+                      'No Image',
+                      style: TextStyle(color: Colors.black, fontSize: 12),
+                      textAlign: TextAlign.center,
+                    )
+                  : null,
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    nama,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  Text(
+                    'NISN: $nisn',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  Text(
+                    'No. Absen: $nomorAbsen',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  Text(
+                    'Umur: $umur',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  Text(
+                    'No. Telepon: $nomorTelfon',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  Text(
+                    'Email: $email',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  Text(
+                    'Password: $password',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  Text(
+                    'Role: $role',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.edit, color: Colors.blueAccent),
+              onPressed: () {
+                Get.toNamed('/editAkunSiswa', arguments: {
+                  'id': id,
+                  'foto': foto,
+                  'nama': nama,
+                  'email': email,
+                  'password': password,
+                  'role': role,
+                  // Sertakan field tambahan untuk siswa
+                  'nisn': nisn,
+                  'nomor_telfon': nomorTelfon,
+                  'nomor_absen': nomorAbsen,
+                  'umur': umur,
+                });
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.delete, color: Colors.red),
+              onPressed: () {
+                // Tampilkan modal konfirmasi sebelum menghapus
+                Get.defaultDialog(
+                  title: "Konfirmasi",
+                  middleText: "Apakah Anda yakin ingin menghapus akun ini?",
+                  textCancel: "Batal",
+                  textConfirm: "Hapus",
+                  confirmTextColor: Colors.white,
+                  onConfirm: () {
+                    Get.back();
+                    deleteAkunSiswa(id);
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -151,158 +361,6 @@ class _ListAkunSiswaState extends State<ListAkunSiswa> {
         ),
         icon: Icon(Icons.add, color: Colors.white),
         backgroundColor: Colors.blueAccent,
-      ),
-    );
-  }
-
-  Widget _buildListAkun() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.blueAccent, Colors.lightBlueAccent],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: akunSiswa.isEmpty
-          ? Center(
-              child: Text(
-                'Tidak ada akun siswa tersedia.',
-                style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
-              ),
-            )
-          : ListView.builder(
-              padding: EdgeInsets.all(16),
-              itemCount: akunSiswa.length,
-              itemBuilder: (context, index) {
-                final akun = akunSiswa[index];
-                return _buildAkunCard(
-                  context,
-                  id: akun['id'],
-                  foto: akun['foto']!,
-                  nama: akun['nama']!,
-                  email: akun['email']!,
-                  password: akun['password']!,
-                  role: akun['role']!,
-                  noAbsen: akun['no_absen']!,
-                );
-              },
-            ),
-    );
-  }
-
-  Widget _buildAkunCard(
-    BuildContext context, {
-    required String id,
-    required String foto,
-    required String nama,
-    required String email,
-    required String password,
-    required String role,
-    required String noAbsen,
-  }) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      margin: EdgeInsets.symmetric(vertical: 10),
-      elevation: 4,
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 40,
-              backgroundImage: foto.isNotEmpty
-                  ? NetworkImage(foto)
-                  : AssetImage('assets/default_profile.png') as ImageProvider,
-              onBackgroundImageError: (exception, stackTrace) {
-                debugPrint('Gagal memuat gambar: $exception');
-              },
-              child: foto.isEmpty
-                  ? Text(
-                      'No Image',
-                      style: TextStyle(color: Colors.black, fontSize: 12),
-                      textAlign: TextAlign.center,
-                    )
-                  : null,
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    nama,
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  Text(
-                    'No. Absen: $noAbsen',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                  Text(
-                    'Email: $email',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                  Text(
-                    'Password: $password',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                  Text(
-                    'Role: $role',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.grey[700],
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            IconButton(
-              icon: Icon(Icons.edit, color: Colors.blueAccent),
-              onPressed: () {
-                Get.toNamed('/editAkunSiswa', arguments: {
-                  'id': id,
-                  'foto': foto,
-                  'nama': nama,
-                  'email': email,
-                  'password': password,
-                  'role': role,
-                  'no_absen': noAbsen,
-                });
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.delete, color: Colors.red),
-              onPressed: () {
-                deleteAkunSiswa(id);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildErrorWidget() {
-    return Center(
-      child: Text(
-        errorMessage,
-        style: GoogleFonts.poppins(fontSize: 16, color: Colors.red),
       ),
     );
   }
