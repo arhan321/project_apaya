@@ -9,6 +9,7 @@ import '../../model/guru_model/editprofileguru_model.dart';
 class EditProfileGuruController extends GetxController {
   final nameController = TextEditingController(); // Nama
   final nipGuruController = TextEditingController(); // NIP Guru
+  final phoneController = TextEditingController(); // Tambahan: Nomor Telepon
   final agamaController = TextEditingController(); // Agama
   final umurController = TextEditingController(); // Umur
   final waliKelasController = TextEditingController(); // Wali Kelas
@@ -103,6 +104,8 @@ class EditProfileGuruController extends GetxController {
         final data = response.data;
         nameController.text = data['name'] ?? '';
         nipGuruController.text = data['nip_guru']?.toString() ?? '';
+        // Inisialisasi nomor telepon jika tersedia
+        phoneController.text = data['nomor_telfon'] ?? '';
         agamaController.text = data['agama'] ?? '';
         umurController.text = data['umur'] ?? '';
         waliKelasController.text = data['wali_kelas'] ?? '';
@@ -203,6 +206,8 @@ class EditProfileGuruController extends GetxController {
         if (nameController.text.isNotEmpty) 'name': nameController.text,
         if (nipGuruController.text.isNotEmpty)
           'nip_guru': nipGuruController.text,
+        if (phoneController.text.isNotEmpty)
+          'nomor_telfon': phoneController.text,
         if (agamaController.text.isNotEmpty) 'agama': agamaController.text,
         if (umurController.text.isNotEmpty) 'umur': umurController.text,
         if (waliKelasController.text.isNotEmpty)

@@ -15,6 +15,9 @@ class EditProfileSiswaController extends GetxController {
   final nisnController = TextEditingController(); // NISN
   final umurController = TextEditingController(); // Umur
 
+  // Tambahan untuk Nomor Telepon
+  final phoneController = TextEditingController();
+
   File? imageFile;
   String? imageUrl;
   String? userId;
@@ -110,6 +113,8 @@ class EditProfileSiswaController extends GetxController {
         agamaController.text = data['agama'] ?? '';
         nisnController.text = data['nisn']?.toString() ?? '';
         umurController.text = data['umur'] ?? '';
+        // Tambahan: inisialisasi nomor_telfon
+        phoneController.text = data['nomor_telfon'] ?? '';
         userId = data['id']?.toString();
         imageUrl = data['image_url'];
         update(); // Refresh UI
@@ -207,6 +212,9 @@ class EditProfileSiswaController extends GetxController {
         if (umurController.text.isNotEmpty) 'umur': umurController.text,
         if (birthDateController.text.isNotEmpty)
           'tanggal_lahir': birthDateController.text,
+        // Tambahan: nomor_telfon
+        if (phoneController.text.isNotEmpty)
+          'nomor_telfon': phoneController.text,
       };
 
       final response = await _dio.put(

@@ -80,11 +80,12 @@ class EditProfileOrtuPage extends StatelessWidget {
                 SizedBox(height: 20),
                 _buildInputField('Email', _.emailController),
                 SizedBox(height: 20),
-                _buildInputField(
-                  'Umur',
-                  _.umurController,
-                  keyboardType: TextInputType.number,
-                ),
+                // Tambahan field Nomor Telepon
+                _buildInputField('Nomor Telepon', _.phoneController,
+                    keyboardType: TextInputType.phone),
+                SizedBox(height: 20),
+                _buildInputField('Umur', _.umurController,
+                    keyboardType: TextInputType.number),
                 SizedBox(height: 20),
                 DropdownButtonFormField<String>(
                   value: _.agama,

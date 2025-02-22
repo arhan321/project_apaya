@@ -94,6 +94,10 @@ class EditProfileGuruPage extends StatelessWidget {
                 SizedBox(height: 20),
                 _buildInputField('NIP Guru', _.nipGuruController),
                 SizedBox(height: 20),
+                // Tambahan: Input field Nomor Telepon
+                _buildInputField('Nomor Telepon', _.phoneController,
+                    keyboardType: TextInputType.phone),
+                SizedBox(height: 20),
                 _buildDropdownField(
                   'Agama',
                   agamaList,
@@ -151,10 +155,12 @@ class EditProfileGuruPage extends StatelessWidget {
   }
 
   Widget _buildInputField(String label, TextEditingController controller,
-      {bool isEnabled = true}) {
+      {bool isEnabled = true,
+      TextInputType keyboardType = TextInputType.text}) {
     return TextField(
       controller: controller,
       enabled: isEnabled,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: label,
         filled: true,

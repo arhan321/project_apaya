@@ -77,7 +77,7 @@ class _ProfileSiswaPageState extends State<ProfilePage> {
           studentNumber = data['nomor_absen']?.toString() ?? 'N/A';
           studentBirthDate =
               data['tanggal_lahir'] ?? 'Tidak tersedia'; // Tanggal lahir
-          studentClass = data['kelas'] ?? 'kelas tidak terbaca'; //kelas
+          studentClass = data['kelas'] ?? 'kelas belum di pilih'; //kelas
           photoUrl = data['image_url'];
           isLoading = false;
         });

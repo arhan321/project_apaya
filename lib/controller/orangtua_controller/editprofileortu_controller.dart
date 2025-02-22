@@ -10,6 +10,8 @@ class EditProfileOrtuController extends GetxController {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final umurController = TextEditingController();
+  final phoneController =
+      TextEditingController(); // Tambahan untuk Nomor Telepon
   String? agama;
   List<String> agamaOptions = [
     'islam',
@@ -52,14 +54,13 @@ class EditProfileOrtuController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = response.data;
-
         if (data is List) {
           waliMuridList = data
               .where((user) =>
                   user is Map<String, dynamic> &&
                   user.containsKey('name') &&
                   user.containsKey('role') &&
-                  user['role'] == 'siswa') // Filter hanya dengan role "siswa"
+                  user['role'] == 'siswa')
               .map((user) => user['name']?.toString() ?? 'Unknown')
               .toList();
 
@@ -128,6 +129,8 @@ class EditProfileOrtuController extends GetxController {
         emailController.text = data['email'] ?? '';
         umurController.text = data['umur']?.toString() ?? '';
         agama = data['agama'];
+        // Inisialisasi nomor telepon jika tersedia
+        phoneController.text = data['nomor_telfon'] ?? '';
         userId = data['id']?.toString();
         imageUrl = data['image_url'];
         selectedWaliMurid = data['wali_murid']; // Set default Wali Murid
@@ -243,6 +246,9 @@ class EditProfileOrtuController extends GetxController {
         if (umurController.text.isNotEmpty) 'umur': umurController.text,
         if (agama != null) 'agama': agama,
         if (selectedWaliMurid != null) 'wali_murid': selectedWaliMurid,
+        // Tambahan: nomor_telfon
+        if (phoneController.text.isNotEmpty)
+          'nomor_telfon': phoneController.text,
       };
 
       debugPrint('Sending update data: $data');

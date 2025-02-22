@@ -123,6 +123,10 @@ class EditProfileSiswaPage extends StatelessWidget {
                 SizedBox(height: 20),
                 _buildInputField('Umur', _.umurController),
                 SizedBox(height: 20),
+                // Tambahan field Nomor Telepon
+                _buildInputField('Nomor Telepon', _.phoneController,
+                    keyboardType: TextInputType.phone),
+                SizedBox(height: 20),
                 _buildDateField(
                     context, 'Tanggal Lahir', _.birthDateController),
                 SizedBox(height: 20),
@@ -154,10 +158,12 @@ class EditProfileSiswaPage extends StatelessWidget {
   }
 
   Widget _buildInputField(String label, TextEditingController controller,
-      {bool isEnabled = true}) {
+      {bool isEnabled = true,
+      TextInputType keyboardType = TextInputType.text}) {
     return TextField(
       controller: controller,
       enabled: isEnabled,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: label,
         filled: true,
@@ -172,7 +178,6 @@ class EditProfileSiswaPage extends StatelessWidget {
   Widget _buildDropdownField(String label, List<String> items, String? value,
       ValueChanged<String?> onChanged) {
     final validValue = (value != null && items.contains(value)) ? value : null;
-
     return DropdownButtonFormField<String>(
       value: validValue, // Validasi nilai
       decoration: InputDecoration(
@@ -204,7 +209,6 @@ class EditProfileSiswaPage extends StatelessWidget {
           firstDate: DateTime(1900),
           lastDate: DateTime.now(),
         );
-
         if (pickedDate != null) {
           String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
           controller.text = formattedDate;
