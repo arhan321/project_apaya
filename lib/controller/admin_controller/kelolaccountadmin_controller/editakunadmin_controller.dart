@@ -1,11 +1,12 @@
+import 'dart:io';
+import 'package:dio/dio.dart' as dio;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:dio/dio.dart' as dio;
-import 'dart:io';
 
 class EditAkunAdminController extends GetxController {
   final dio.Dio dioClient = dio.Dio();
+
   final Map<String, dynamic> akun = Get.arguments;
 
   File? selectedImage;
@@ -13,17 +14,13 @@ class EditAkunAdminController extends GetxController {
 
   late TextEditingController namaController;
   late TextEditingController emailController;
-  // Tampilkan password lama
   late TextEditingController passwordController;
-
-  // Field tambahan
   late TextEditingController nomorTelfonController;
   late TextEditingController nipGuruController;
   late TextEditingController umurController;
 
   DateTime? selectedTanggalLahir;
 
-  // Dropdown untuk agama (prefilled dengan data lama)
   String selectedAgama = 'islam';
   final List<String> listAgama = [
     'islam',
@@ -37,8 +34,8 @@ class EditAkunAdminController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print('EditAkunAdminController initialized');
-    // Load semua data lama (old data)
+    print('EditAkunAdminController onInit() - Diterima akun: $akun');
+
     namaController = TextEditingController(text: akun['username'] ?? '');
     emailController = TextEditingController(text: akun['email'] ?? '');
     passwordController = TextEditingController(text: akun['password'] ?? '');
@@ -46,29 +43,45 @@ class EditAkunAdminController extends GetxController {
         TextEditingController(text: akun['nomor_telfon'] ?? '');
     nipGuruController = TextEditingController(text: akun['nip_guru'] ?? '');
     umurController = TextEditingController(text: akun['umur'] ?? '');
+
     if (akun['tanggal_lahir'] != null &&
         akun['tanggal_lahir'].toString().isNotEmpty) {
       selectedTanggalLahir = DateTime.tryParse(akun['tanggal_lahir']);
     }
+
     if (akun['agama'] != null && akun['agama'].toString().isNotEmpty) {
       selectedAgama = akun['agama'].toString();
     }
-    print('Initial data: $akun');
   }
 
   Future<void> pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       selectedImage = File(pickedFile.path);
+      print("pickImage() - Image selected: ${selectedImage!.path}");
       update();
     }
   }
 
   Future<void> updateProfile() async {
+    print("updateProfile() called");
+
+    // Pastikan ID tidak null
+    final String? userId = akun['id']?.toString();
+    if (userId == null) {
+      print("updateProfile() - akun['id'] is null. Cannot proceed.");
+      Get.snackbar('Error', 'User ID tidak ditemukan',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white);
+      return;
+    }
+
     final String url =
-        'https://absen.randijourney.my.id/api/v1/account/${akun['id']}';
+        'https://absen.randijourney.my.id/api/v1/account/$userId';
 
     if (namaController.text.isEmpty || emailController.text.isEmpty) {
+      print("updateProfile() - Nama / Email kosong");
       Get.snackbar('Error', 'Nama dan Email tidak boleh kosong',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
@@ -76,33 +89,47 @@ class EditAkunAdminController extends GetxController {
       return;
     }
 
-    try {
-      Map<String, dynamic> data = {
-        'username': namaController.text,
-        'email': emailController.text,
-        // Kirim password lama jika tidak diubah atau jika diisi
-        'password': passwordController.text,
-        if (selectedTanggalLahir != null)
-          'tanggal_lahir':
-              '${selectedTanggalLahir!.year}-${selectedTanggalLahir!.month.toString().padLeft(2, '0')}-${selectedTanggalLahir!.day.toString().padLeft(2, '0')}',
-        'nomor_telfon': nomorTelfonController.text,
-        'nip_guru': nipGuruController.text,
-        'umur': umurController.text,
-        'agama': selectedAgama,
-      };
+    Map<String, dynamic> data = {
+      'username': namaController.text,
+      'email': emailController.text,
+      'password': passwordController.text,
+      if (selectedTanggalLahir != null)
+        'tanggal_lahir':
+            '${selectedTanggalLahir!.year}-${selectedTanggalLahir!.month.toString().padLeft(2, '0')}-${selectedTanggalLahir!.day.toString().padLeft(2, '0')}',
+      'nomor_telfon': nomorTelfonController.text,
+      'nip_guru': nipGuruController.text,
+      'umur': umurController.text,
+      'agama': selectedAgama,
+    };
 
+    print("updateProfile() - Sending data: $data");
+
+    try {
       final response = await dioClient.put(
         url,
         data: data,
         options: dio.Options(headers: {'Accept': 'application/json'}),
       );
 
+      print("updateProfile() - Response status: ${response.statusCode}");
+      print("updateProfile() - Response data: ${response.data}");
+
       if (response.statusCode == 200) {
-        Get.snackbar('Berhasil', 'Profil berhasil diperbarui',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white);
-        Get.back();
+        // ===>>> Gantikan Snackbar dengan Dialog <<<===
+        Get.defaultDialog(
+          title: "Berhasil",
+          middleText: "Data akun admin berhasil diperbarui!",
+          textConfirm: "OK",
+          confirmTextColor: Colors.white,
+          onConfirm: () {
+            // Tutup dialog
+            Get.back();
+
+            // Arahkan ke halaman ListAkunAdmin
+            // Bisa pakai Get.offNamed, Get.toNamed, atau Get.offAllNamed
+            Get.offNamed('/listAkunadmin');
+          },
+        );
       } else {
         Get.snackbar('Error', 'Gagal memperbarui profil',
             snackPosition: SnackPosition.BOTTOM,
@@ -110,6 +137,8 @@ class EditAkunAdminController extends GetxController {
             colorText: Colors.white);
       }
     } catch (e) {
+      print("updateProfile() - Error detail: $e");
+
       Get.snackbar('Kesalahan', 'Terjadi kesalahan saat memperbarui profil',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
@@ -118,7 +147,9 @@ class EditAkunAdminController extends GetxController {
   }
 
   Future<void> uploadPhoto() async {
+    print("uploadPhoto() called");
     if (selectedImage == null) {
+      print("uploadPhoto() - No image selected");
       Get.snackbar('Error', 'Pilih foto terlebih dahulu',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
@@ -126,22 +157,39 @@ class EditAkunAdminController extends GetxController {
       return;
     }
 
+    final String? userId = akun['id']?.toString();
+    if (userId == null) {
+      print("uploadPhoto() - akun['id'] is null. Cannot proceed.");
+      Get.snackbar('Error', 'User ID tidak ditemukan',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white);
+      return;
+    }
+
     final String url =
-        'https://absen.randijourney.my.id/api/v1/account/${akun['id']}/foto';
+        'https://absen.randijourney.my.id/api/v1/account/$userId/foto';
 
     try {
       String fileName = selectedImage!.path.split('/').last;
 
       dio.FormData formData = dio.FormData.fromMap({
-        'photo': await dio.MultipartFile.fromFile(selectedImage!.path,
-            filename: fileName),
+        'photo': await dio.MultipartFile.fromFile(
+          selectedImage!.path,
+          filename: fileName,
+        ),
       });
+
+      print("uploadPhoto() - Uploading file: $fileName to $url");
 
       final response = await dioClient.post(
         url,
         data: formData,
         options: dio.Options(headers: {'Accept': 'application/json'}),
       );
+
+      print("uploadPhoto() - Response status: ${response.statusCode}");
+      print("uploadPhoto() - Response data: ${response.data}");
 
       if (response.statusCode == 200) {
         Get.snackbar('Berhasil', 'Foto berhasil diunggah',
@@ -155,6 +203,7 @@ class EditAkunAdminController extends GetxController {
             colorText: Colors.white);
       }
     } catch (e) {
+      print("uploadPhoto() - Error detail: $e");
       Get.snackbar('Kesalahan', 'Terjadi kesalahan saat mengunggah foto',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
@@ -163,6 +212,7 @@ class EditAkunAdminController extends GetxController {
   }
 
   void selectTanggalLahir(BuildContext context) async {
+    print("selectTanggalLahir() called");
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedTanggalLahir ?? DateTime.now(),
@@ -172,6 +222,7 @@ class EditAkunAdminController extends GetxController {
 
     if (picked != null && picked != selectedTanggalLahir) {
       selectedTanggalLahir = picked;
+      print("selectTanggalLahir() - Picked date: $picked");
       update();
     }
   }

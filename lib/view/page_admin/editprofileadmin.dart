@@ -1,8 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controller/admin_controller/kelolaccountadmin_controller/editakunadmin_controller.dart';
-import 'dart:io';
 
 class EditProfileAdminPage extends StatelessWidget {
   final controller = Get.put(EditAkunAdminController());
@@ -12,7 +12,7 @@ class EditProfileAdminPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.blueAccent, Colors.lightBlueAccent],
               begin: Alignment.topLeft,
@@ -45,16 +45,16 @@ class EditProfileAdminPage extends StatelessWidget {
                         backgroundImage: controller.selectedImage != null
                             ? FileImage(controller.selectedImage!)
                             : (controller.akun['foto'] != null
-                                    ? NetworkImage(controller.akun['foto'])
-                                    : AssetImage('assets/placeholder.png'))
-                                as ImageProvider,
+                                ? NetworkImage(controller.akun['foto'])
+                                : const AssetImage(
+                                    'assets/placeholder.png')) as ImageProvider,
                       ),
                       Positioned(
                         bottom: 0,
                         right: 0,
                         child: GestureDetector(
                           onTap: controller.pickImage,
-                          child: CircleAvatar(
+                          child: const CircleAvatar(
                             radius: 20,
                             backgroundColor: Colors.blueAccent,
                             child: Icon(Icons.camera_alt, color: Colors.white),
@@ -63,80 +63,83 @@ class EditProfileAdminPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
-                  // Nama (Prefilled dengan data lama)
+                  const SizedBox(height: 16),
+                  // Nama
                   TextField(
                     controller: controller.namaController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Nama',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
-                  // Email (Tetap prefilled dengan data lama)
+                  const SizedBox(height: 16),
+                  // Email
                   TextField(
                     controller: controller.emailController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Email',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
-                  // Password (Prefilled dengan data lama)
+                  const SizedBox(height: 16),
+                  // Password
                   TextField(
                     controller: controller.passwordController,
                     obscureText: true,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Password',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
-                  // Tanggal Lahir (DatePicker, prefill jika data lama ada)
+                  const SizedBox(height: 16),
+                  // Tanggal Lahir
                   GestureDetector(
+                    behavior: HitTestBehavior.opaque,
                     onTap: () => controller.selectTanggalLahir(context),
                     child: AbsorbPointer(
                       child: TextField(
                         decoration: InputDecoration(
                           labelText: controller.selectedTanggalLahir == null
                               ? 'Tanggal Lahir'
-                              : '${controller.selectedTanggalLahir!.year}-${controller.selectedTanggalLahir!.month.toString().padLeft(2, '0')}-${controller.selectedTanggalLahir!.day.toString().padLeft(2, '0')}',
-                          border: OutlineInputBorder(),
+                              : '${controller.selectedTanggalLahir!.year}-'
+                                  '${controller.selectedTanggalLahir!.month.toString().padLeft(2, '0')}-'
+                                  '${controller.selectedTanggalLahir!.day.toString().padLeft(2, '0')}',
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                     ),
                   ),
-                  SizedBox(height: 16),
-                  // Nomor Telepon (Prefilled dengan data lama)
+                  const SizedBox(height: 16),
+                  // Nomor Telepon
                   TextField(
                     controller: controller.nomorTelfonController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Nomor Telepon',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
-                  // NIP Guru (Prefilled dengan data lama)
+                  const SizedBox(height: 16),
+                  // NIP Guru
                   TextField(
                     controller: controller.nipGuruController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'NIP Guru',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
-                  // Umur (Prefilled dengan data lama)
+                  const SizedBox(height: 16),
+                  // Umur
                   TextField(
                     controller: controller.umurController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Umur',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
-                  // Dropdown Agama (Prefilled dengan data lama)
+                  const SizedBox(height: 16),
+                  // Dropdown Agama
                   DropdownButtonFormField<String>(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Agama',
                       border: OutlineInputBorder(),
                     ),
@@ -154,15 +157,19 @@ class EditProfileAdminPage extends StatelessWidget {
                       }
                     },
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   // Tombol Simpan Perubahan
                   GestureDetector(
-                    onTap: controller.updateProfile,
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      print("GestureDetector onTap triggered");
+                      controller.updateProfile();
+                    },
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 15),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [Colors.blueAccent, Colors.lightBlueAccent],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
@@ -181,15 +188,16 @@ class EditProfileAdminPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   // Tombol Upload Foto
                   GestureDetector(
+                    behavior: HitTestBehavior.opaque,
                     onTap: controller.uploadPhoto,
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 15),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [Colors.green, Colors.lightGreenAccent],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
