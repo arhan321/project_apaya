@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../model/guru_model/editprofileguru_model.dart';
+import 'dart:convert'; // Untuk penggunaan json.decode
 
 class MainPageGuruController extends GetxController {
   var userName = 'Guest'.obs;
@@ -14,19 +14,14 @@ class MainPageGuruController extends GetxController {
   var errorMessage = ''.obs;
 
   final Dio _dio = Dio();
+  var previousData = <Map<String, dynamic>>[]
+      .obs; // Data kelas sebelumnya untuk mendeteksi perubahan
 
   @override
   void onInit() {
     super.onInit();
     fetchUserData();
     fetchKelasData(); // Muat data kelas saat pertama kali diinisialisasi
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
-    fetchUserData();
-    fetchKelasData(); // Memastikan data kelas diperbarui saat halaman siap
   }
 
   Future<void> fetchUserData() async {
@@ -97,9 +92,13 @@ class MainPageGuruController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
-        kelasList.value = data
-            .map((e) => e as Map<String, dynamic>)
-            .toList(); // Simpan data kelas
+        final List<Map<String, dynamic>> newData =
+            data.map((e) => e as Map<String, dynamic>).toList();
+
+        // Cek perbedaan data siswa
+        _checkForChanges(newData);
+
+        kelasList.value = newData; // Simpan data kelas
       } else {
         errorMessage.value =
             'Gagal mengambil data kelas. Status Code: ${response.statusCode}';
@@ -109,6 +108,41 @@ class MainPageGuruController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  // Membandingkan data sebelumnya dengan data terbaru
+  void _checkForChanges(List<Map<String, dynamic>> newData) {
+    for (int i = 0; i < newData.length; i++) {
+      if (i < previousData.length) {
+        final currentClass = newData[i];
+        final previousClass = previousData[i];
+
+        final List<dynamic> currentSiswa = currentClass['siswa'] == null
+            ? []
+            : List.from(json.decode(currentClass['siswa']));
+        final List<dynamic> previousSiswa = previousClass['siswa'] == null
+            ? []
+            : List.from(json.decode(previousClass['siswa']));
+
+        if (currentSiswa.length != previousSiswa.length) {
+          // Jika ada perubahan jumlah siswa
+          _showChangeNotification();
+        }
+      }
+    }
+
+    // Update previous data
+    previousData.value = newData;
+  }
+
+  void _showChangeNotification() {
+    Get.snackbar(
+      'Pembaruan Data',
+      'Ada perubahan pada data kelas.',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.orangeAccent,
+      colorText: Colors.white,
+    );
   }
 
   Future<void> logout() async {

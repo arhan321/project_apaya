@@ -203,6 +203,9 @@ class _MainPageGuruState extends State<MainPageGuru>
                   itemCount: controller.kelasList.length,
                   itemBuilder: (context, index) {
                     final classData = controller.kelasList[index];
+                    bool hasChanges = classData['siswa'] !=
+                        '[]'; // Menandakan apakah ada perubahan siswa
+
                     return _buildCard(
                       title: classData['nama_kelas'] ?? 'Tidak ada nama kelas',
                       subtitle: 'Pengajar: ${classData['nama_user'] ?? 'N/A'}',
@@ -212,6 +215,7 @@ class _MainPageGuruState extends State<MainPageGuru>
                               classId: classData['id'], // Menggunakan classId
                             ));
                       },
+                      showNotification: hasChanges,
                     );
                   },
                 );
@@ -228,6 +232,7 @@ class _MainPageGuruState extends State<MainPageGuru>
     required String subtitle,
     required String teacher,
     required VoidCallback onTap,
+    bool showNotification = false,
   }) {
     return InkWell(
       onTap: onTap,
@@ -249,33 +254,51 @@ class _MainPageGuruState extends State<MainPageGuru>
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            Text(
-              title,
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  teacher,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
-            Text(
-              subtitle,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: Colors.white,
+            if (showNotification)
+              Positioned(
+                right: 10,
+                top: 10,
+                child: CircleAvatar(
+                  backgroundColor: Colors.orangeAccent,
+                  radius: 10,
+                  child: Icon(
+                    Icons.notification_important,
+                    color: Colors.white,
+                    size: 12,
+                  ),
+                ),
               ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              teacher,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontStyle: FontStyle.italic,
-                color: Colors.white,
-              ),
-            ),
           ],
         ),
       ),

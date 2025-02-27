@@ -9,6 +9,9 @@ class NewPasswordScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController newPasswordController = TextEditingController();
 
+  // Tambahkan RxBool untuk toggle password
+  final RxBool isPasswordVisible = false.obs;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,10 +81,12 @@ class NewPasswordScreen extends StatelessWidget {
                     hintText: 'Email Anda',
                   ),
                   SizedBox(height: 20),
+                  // Sandi Baru (dengan toggle)
                   _buildTextField(
                     controller: newPasswordController,
                     hintText: 'Sandi Baru',
                     isPassword: true,
+                    isObscureObs: isPasswordVisible,
                   ),
                   SizedBox(height: 30),
                   _buildResetPasswordButton(),
@@ -107,31 +112,76 @@ class NewPasswordScreen extends StatelessWidget {
     );
   }
 
+  /// Fungsi pembentuk TextField
   Widget _buildTextField({
     required TextEditingController controller,
     required String hintText,
     bool isPassword = false,
+    RxBool? isObscureObs,
   }) {
-    return Container(
-      height: 50,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 5,
-            offset: Offset(0, 3),
+    // Jika bukan field Password, buat TextField biasa
+    if (!isPassword || hintText != 'Sandi Baru') {
+      return Container(
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 5,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: TextField(
+          controller: controller,
+          obscureText: isPassword,
+          decoration: InputDecoration(
+            hintText: hintText,
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
           ),
-        ],
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: isPassword,
-        decoration: InputDecoration(
-          hintText: hintText,
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
+        ),
+      );
+    }
+
+    // Jika field ini adalah Password atau Sandi Baru, tambahkan Obx untuk toggle visibilitas.
+    return Obx(
+      () => Container(
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 5,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: TextField(
+          controller: controller,
+          obscureText: !isObscureObs!.value, // negasi karena 'true' = terlihat
+          decoration: InputDecoration(
+            hintText: hintText,
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical:
+                    15.0), // Tambahkan padding vertikal untuk meratakan teks
+            // Suffix icon: tombol toggle
+            suffixIcon: IconButton(
+              icon: Icon(
+                isObscureObs.value ? Icons.visibility : Icons.visibility_off,
+                color: Colors.purple,
+              ),
+              onPressed: () {
+                isObscureObs.value = !isObscureObs.value;
+              },
+            ),
+          ),
         ),
       ),
     );
