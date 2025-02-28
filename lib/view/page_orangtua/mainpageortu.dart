@@ -176,6 +176,11 @@ class _MainPageOrtuState extends State<MainPageOrtu> {
                   itemCount: controller.classList.length,
                   itemBuilder: (context, index) {
                     final classData = controller.classList[index];
+                    // Jika terdapat key 'siswa', kita asumsikan ada notifikasi jika tidak kosong
+                    bool hasChanges = false;
+                    if (classData.containsKey('siswa')) {
+                      hasChanges = classData['siswa'] != '[]';
+                    }
                     return _buildCard(
                       title: classData['nama_kelas'] ?? 'Tidak ada nama kelas',
                       subtitle:
@@ -187,6 +192,7 @@ class _MainPageOrtuState extends State<MainPageOrtu> {
                           arguments: {'classId': classData['id']},
                         );
                       },
+                      showNotification: hasChanges,
                     );
                   },
                 );
@@ -204,6 +210,7 @@ class _MainPageOrtuState extends State<MainPageOrtu> {
     required String subtitle,
     required String teacher,
     required VoidCallback onTap,
+    bool showNotification = false,
   }) {
     return InkWell(
       onTap: onTap,
@@ -225,33 +232,51 @@ class _MainPageOrtuState extends State<MainPageOrtu> {
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            Text(
-              title,
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  teacher,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
-            Text(
-              subtitle,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: Colors.white,
+            if (showNotification)
+              Positioned(
+                right: 10,
+                top: 10,
+                child: CircleAvatar(
+                  backgroundColor: Colors.orangeAccent,
+                  radius: 10,
+                  child: Icon(
+                    Icons.notification_important,
+                    color: Colors.white,
+                    size: 12,
+                  ),
+                ),
               ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              teacher,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontStyle: FontStyle.italic,
-                color: Colors.white,
-              ),
-            ),
           ],
         ),
       ),

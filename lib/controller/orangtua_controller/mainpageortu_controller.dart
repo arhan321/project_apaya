@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../../model/orangtua_model/mainpageortu_model.dart';
 
 class MainPageOrtuController extends GetxController {
@@ -10,7 +11,9 @@ class MainPageOrtuController extends GetxController {
   var userImageUrl = Rxn<String>();
   var isLoading = true.obs;
   var errorMessage = ''.obs;
-  var classList = <Map<String, dynamic>>[].obs; // Tambahkan untuk daftar kelas
+  var classList = <Map<String, dynamic>>[].obs; // Daftar kelas
+  var previousData =
+      <Map<String, dynamic>>[].obs; // Untuk mendeteksi perubahan data
 
   final Dio _dio = Dio();
 
@@ -18,7 +21,7 @@ class MainPageOrtuController extends GetxController {
   void onInit() {
     super.onInit();
     fetchUserData();
-    fetchClassData(); // Tambahkan untuk memuat data kelas saat init
+    fetchClassData(); // Memuat data kelas saat init
   }
 
   Future<void> fetchUserData() async {
@@ -87,9 +90,13 @@ class MainPageOrtuController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
-        classList.value = data
-            .map((e) => e as Map<String, dynamic>)
-            .toList(); // Simpan data kelas
+        final List<Map<String, dynamic>> newData =
+            data.map((e) => e as Map<String, dynamic>).toList();
+
+        // Cek perubahan data (misalnya jumlah siswa pada setiap kelas)
+        _checkForChanges(newData);
+
+        classList.value = newData; // Simpan data kelas
       } else {
         errorMessage.value =
             'Gagal mengambil data kelas. Status Code: ${response.statusCode}';
@@ -99,6 +106,47 @@ class MainPageOrtuController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void _checkForChanges(List<Map<String, dynamic>> newData) {
+    if (previousData.isNotEmpty) {
+      // Misal: jika jumlah kelas berbeda, atau jika pada masing-masing kelas jumlah siswa berubah
+      if (newData.length != previousData.length) {
+        _showChangeNotification();
+      } else {
+        for (int i = 0; i < newData.length; i++) {
+          final newClass = newData[i];
+          final prevClass = previousData[i];
+          if (newClass.containsKey('siswa') && prevClass.containsKey('siswa')) {
+            final List<dynamic> newSiswa = newClass['siswa'] == null
+                ? []
+                : (newClass['siswa'] is String
+                    ? List.from(json.decode(newClass['siswa']))
+                    : newClass['siswa']);
+            final List<dynamic> prevSiswa = prevClass['siswa'] == null
+                ? []
+                : (prevClass['siswa'] is String
+                    ? List.from(json.decode(prevClass['siswa']))
+                    : prevClass['siswa']);
+            if (newSiswa.length != prevSiswa.length) {
+              _showChangeNotification();
+              break;
+            }
+          }
+        }
+      }
+    }
+    previousData.value = newData;
+  }
+
+  void _showChangeNotification() {
+    Get.snackbar(
+      'Pembaruan Data',
+      'Ada perubahan pada data kelas.',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.orangeAccent,
+      colorText: Colors.white,
+    );
   }
 
   Future<void> logout() async {
