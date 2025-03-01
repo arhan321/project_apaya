@@ -1,3 +1,4 @@
+import 'dart:async'; // Import Timer
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
@@ -12,8 +13,13 @@ class MainPageOrtuController extends GetxController {
   var isLoading = true.obs;
   var errorMessage = ''.obs;
   var classList = <Map<String, dynamic>>[].obs; // Daftar kelas
+
+  // --- Tambahan untuk notifikasi lonceng ---
+  var lastChangedClassIndex =
+      (-1).obs; // Menyimpan indeks kelas yang terakhir berubah
   var previousData =
       <Map<String, dynamic>>[].obs; // Untuk mendeteksi perubahan data
+  Timer? _timer;
 
   final Dio _dio = Dio();
 
@@ -109,14 +115,22 @@ class MainPageOrtuController extends GetxController {
   }
 
   void _checkForChanges(List<Map<String, dynamic>> newData) {
+    bool hasChanges = false;
+    int changedIndex = -1;
+
+    // Hanya jalankan jika previousData tidak kosong
     if (previousData.isNotEmpty) {
-      // Misal: jika jumlah kelas berbeda, atau jika pada masing-masing kelas jumlah siswa berubah
+      // Jika jumlah kelas berubah
       if (newData.length != previousData.length) {
-        _showChangeNotification();
+        hasChanges = true;
+        changedIndex =
+            newData.length - 1; // Asumsikan perubahan di kelas terakhir
       } else {
+        // Cek setiap kelas
         for (int i = 0; i < newData.length; i++) {
           final newClass = newData[i];
           final prevClass = previousData[i];
+
           if (newClass.containsKey('siswa') && prevClass.containsKey('siswa')) {
             final List<dynamic> newSiswa = newClass['siswa'] == null
                 ? []
@@ -128,14 +142,27 @@ class MainPageOrtuController extends GetxController {
                 : (prevClass['siswa'] is String
                     ? List.from(json.decode(prevClass['siswa']))
                     : prevClass['siswa']);
+
             if (newSiswa.length != prevSiswa.length) {
-              _showChangeNotification();
+              hasChanges = true;
+              changedIndex =
+                  i; // Menyimpan indeks kelas yang mengalami perubahan
               break;
             }
           }
         }
       }
     }
+
+    if (hasChanges) {
+      lastChangedClassIndex.value = changedIndex;
+      _showChangeNotification();
+      _cancelTimer(); // Kita reset timer jika ada perubahan
+    } else {
+      // Jika tidak ada perubahan, mulai timer 10 detik
+      _startTimer();
+    }
+
     previousData.value = newData;
   }
 
@@ -148,6 +175,21 @@ class MainPageOrtuController extends GetxController {
       colorText: Colors.white,
     );
   }
+
+  // ---- Bagian Timer untuk menghilangkan notifikasi setelah 10 detik ----
+  void _startTimer() {
+    _cancelTimer();
+    _timer = Timer(Duration(seconds: 10), () {
+      lastChangedClassIndex.value = -1;
+    });
+  }
+
+  void _cancelTimer() {
+    if (_timer != null && _timer!.isActive) {
+      _timer!.cancel();
+    }
+  }
+  // ----------------------------------------------------
 
   Future<void> logout() async {
     const String url = 'https://absen.randijourney.my.id/api/v1/account/logout';

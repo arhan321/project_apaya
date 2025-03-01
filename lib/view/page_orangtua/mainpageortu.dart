@@ -29,6 +29,13 @@ class _MainPageOrtuState extends State<MainPageOrtu> {
     }
   }
 
+  /// Method yang dipanggil saat user melakukan pull-to-refresh
+  Future<void> _onRefresh() async {
+    // Memanggil ulang fetch data
+    await controller.fetchUserData();
+    await controller.fetchClassData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,6 +77,7 @@ class _MainPageOrtuState extends State<MainPageOrtu> {
         } else if (controller.errorMessage.value.isNotEmpty) {
           return Center(child: Text(controller.errorMessage.value));
         } else {
+          // Konten utama ketika data berhasil dimuat
           return _buildDashboardContent();
         }
       }),
@@ -170,34 +178,35 @@ class _MainPageOrtuState extends State<MainPageOrtu> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            // Bungkus ListView.builder dengan RefreshIndicator
             Expanded(
-              child: Obx(() {
-                return ListView.builder(
-                  itemCount: controller.classList.length,
-                  itemBuilder: (context, index) {
-                    final classData = controller.classList[index];
-                    // Jika terdapat key 'siswa', kita asumsikan ada notifikasi jika tidak kosong
-                    bool hasChanges = false;
-                    if (classData.containsKey('siswa')) {
-                      hasChanges = classData['siswa'] != '[]';
-                    }
-                    return _buildCard(
-                      title: classData['nama_kelas'] ?? 'Tidak ada nama kelas',
-                      subtitle:
-                          'Pengajar: ${classData['nama_user'] ?? 'Tidak diketahui'}',
-                      teacher: 'ID Kelas: ${classData['id'] ?? '-'}',
-                      onTap: () {
-                        Get.toNamed(
-                          '/listAbsenOrtu',
-                          arguments: {'classId': classData['id']},
-                        );
-                      },
-                      showNotification: hasChanges,
-                    );
-                  },
-                );
-              }),
+              child: RefreshIndicator(
+                onRefresh: _onRefresh,
+                child: Obx(() {
+                  return ListView.builder(
+                    itemCount: controller.classList.length,
+                    itemBuilder: (context, index) {
+                      final classData = controller.classList[index];
+                      return _buildCard(
+                        title:
+                            classData['nama_kelas'] ?? 'Tidak ada nama kelas',
+                        subtitle:
+                            'Pengajar: ${classData['nama_user'] ?? 'Tidak diketahui'}',
+                        teacher: 'ID Kelas: ${classData['id'] ?? '-'}',
+                        onTap: () {
+                          Get.toNamed(
+                            '/listAbsenOrtu',
+                            arguments: {'classId': classData['id']},
+                          );
+                        },
+                        index: index,
+                      );
+                    },
+                  );
+                }),
+              ),
             ),
+            SizedBox(height: 16),
             _buildLogoutButton(),
           ],
         ),
@@ -210,7 +219,7 @@ class _MainPageOrtuState extends State<MainPageOrtu> {
     required String subtitle,
     required String teacher,
     required VoidCallback onTap,
-    bool showNotification = false,
+    required int index,
   }) {
     return InkWell(
       onTap: onTap,
@@ -263,20 +272,24 @@ class _MainPageOrtuState extends State<MainPageOrtu> {
                 ),
               ],
             ),
-            if (showNotification)
-              Positioned(
-                right: 10,
-                top: 10,
-                child: CircleAvatar(
-                  backgroundColor: Colors.orangeAccent,
-                  radius: 10,
-                  child: Icon(
-                    Icons.notification_important,
-                    color: Colors.white,
-                    size: 12,
-                  ),
-                ),
-              ),
+            Obx(() {
+              // Menampilkan ikon hanya pada kelas terakhir yang berubah
+              return controller.lastChangedClassIndex.value == index
+                  ? Positioned(
+                      right: 10,
+                      top: 10,
+                      child: CircleAvatar(
+                        backgroundColor: Colors.orangeAccent,
+                        radius: 10,
+                        child: Icon(
+                          Icons.notification_important,
+                          color: Colors.white,
+                          size: 12,
+                        ),
+                      ),
+                    )
+                  : SizedBox.shrink();
+            }),
           ],
         ),
       ),

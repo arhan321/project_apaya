@@ -1,8 +1,9 @@
+import 'dart:async'; // Impor untuk Timer
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert'; // Untuk penggunaan json.decode
+import 'dart:convert';
 
 class MainPageGuruController extends GetxController {
   var userName = 'Guest'.obs;
@@ -12,16 +13,19 @@ class MainPageGuruController extends GetxController {
   var kelasList = <Map<String, dynamic>>[].obs; // List kelas yang diampu guru
   var isLoading = true.obs;
   var errorMessage = ''.obs;
-
-  final Dio _dio = Dio();
+  var lastChangedClassIndex =
+      (-1).obs; // Menyimpan indeks kelas yang terakhir berubah
   var previousData = <Map<String, dynamic>>[]
       .obs; // Data kelas sebelumnya untuk mendeteksi perubahan
+
+  final Dio _dio = Dio();
+  Timer? _timer;
 
   @override
   void onInit() {
     super.onInit();
     fetchUserData();
-    fetchKelasData(); // Muat data kelas saat pertama kali diinisialisasi
+    fetchKelasData();
   }
 
   Future<void> fetchUserData() async {
@@ -110,8 +114,10 @@ class MainPageGuruController extends GetxController {
     }
   }
 
-  // Membandingkan data sebelumnya dengan data terbaru
   void _checkForChanges(List<Map<String, dynamic>> newData) {
+    bool hasChanges = false;
+    int changedIndex = -1;
+
     for (int i = 0; i < newData.length; i++) {
       if (i < previousData.length) {
         final currentClass = newData[i];
@@ -125,16 +131,25 @@ class MainPageGuruController extends GetxController {
             : List.from(json.decode(previousClass['siswa']));
 
         if (currentSiswa.length != previousSiswa.length) {
-          // Jika ada perubahan jumlah siswa
-          _showChangeNotification();
+          hasChanges = true;
+          changedIndex = i; // Menyimpan indeks kelas yang mengalami perubahan
+          break;
         }
       }
     }
 
-    // Update previous data
+    // Jika ada perubahan, simpan indeks kelas yang berubah
+    if (hasChanges) {
+      lastChangedClassIndex.value = changedIndex;
+      _showChangeNotification();
+    } else {
+      _startTimer(); // Mulai timer untuk menghapus notifikasi
+    }
+
     previousData.value = newData;
   }
 
+  // Menampilkan notifikasi perubahan data
   void _showChangeNotification() {
     Get.snackbar(
       'Pembaruan Data',
@@ -143,6 +158,23 @@ class MainPageGuruController extends GetxController {
       backgroundColor: Colors.orangeAccent,
       colorText: Colors.white,
     );
+    _cancelTimer(); // Menghentikan timer jika ada perubahan
+  }
+
+  // Memulai timer untuk menghilangkan ikon setelah 10 detik
+  void _startTimer() {
+    _cancelTimer(); // Membatalkan timer sebelumnya jika ada
+    _timer = Timer(Duration(seconds: 10), () {
+      lastChangedClassIndex.value =
+          -1; // Menghilangkan ikon notifikasi setelah 10 detik
+    });
+  }
+
+  // Membatalkan timer jika diperlukan
+  void _cancelTimer() {
+    if (_timer != null && _timer!.isActive) {
+      _timer!.cancel();
+    }
   }
 
   Future<void> logout() async {

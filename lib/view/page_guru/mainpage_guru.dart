@@ -1,3 +1,4 @@
+import 'dart:async'; // Impor untuk Timer
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -41,6 +42,11 @@ class _MainPageGuruState extends State<MainPageGuru>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  /// Method yang dipanggil saat user menarik layar ke bawah (pull-to-refresh)
+  Future<void> _onRefresh() async {
+    await controller.fetchKelasData();
   }
 
   @override
@@ -156,7 +162,6 @@ class _MainPageGuruState extends State<MainPageGuru>
                 );
               },
             ),
-            // Tambahkan menu Rekap Absen di sini
             ListTile(
               leading: Icon(Icons.list_alt, color: Colors.blueAccent),
               title: Text(
@@ -197,29 +202,35 @@ class _MainPageGuruState extends State<MainPageGuru>
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            // Bungkus ListView.builder dengan RefreshIndicator
             Expanded(
-              child: Obx(() {
-                return ListView.builder(
-                  itemCount: controller.kelasList.length,
-                  itemBuilder: (context, index) {
-                    final classData = controller.kelasList[index];
-                    bool hasChanges = classData['siswa'] !=
-                        '[]'; // Menandakan apakah ada perubahan siswa
+              child: RefreshIndicator(
+                onRefresh: _onRefresh,
+                child: Obx(() {
+                  return ListView.builder(
+                    itemCount: controller.kelasList.length,
+                    itemBuilder: (context, index) {
+                      final classData = controller.kelasList[index];
 
-                    return _buildCard(
-                      title: classData['nama_kelas'] ?? 'Tidak ada nama kelas',
-                      subtitle: 'Pengajar: ${classData['nama_user'] ?? 'N/A'}',
-                      teacher: 'ID Kelas: ${classData['id'] ?? '-'}',
-                      onTap: () {
-                        Get.to(() => ListAbsenSiswaPage(
-                              classId: classData['id'], // Menggunakan classId
-                            ));
-                      },
-                      showNotification: hasChanges,
-                    );
-                  },
-                );
-              }),
+                      return _buildCard(
+                        title:
+                            classData['nama_kelas'] ?? 'Tidak ada nama kelas',
+                        subtitle:
+                            'Pengajar: ${classData['nama_user'] ?? 'N/A'}',
+                        teacher: 'ID Kelas: ${classData['id'] ?? '-'}',
+                        onTap: () {
+                          Get.to(
+                            () => ListAbsenSiswaPage(
+                              classId: classData['id'],
+                            ),
+                          );
+                        },
+                        index: index,
+                      );
+                    },
+                  );
+                }),
+              ),
             ),
           ],
         ),
@@ -232,7 +243,7 @@ class _MainPageGuruState extends State<MainPageGuru>
     required String subtitle,
     required String teacher,
     required VoidCallback onTap,
-    bool showNotification = false,
+    required int index,
   }) {
     return InkWell(
       onTap: onTap,
@@ -285,20 +296,23 @@ class _MainPageGuruState extends State<MainPageGuru>
                 ),
               ],
             ),
-            if (showNotification)
-              Positioned(
-                right: 10,
-                top: 10,
-                child: CircleAvatar(
-                  backgroundColor: Colors.orangeAccent,
-                  radius: 10,
-                  child: Icon(
-                    Icons.notification_important,
-                    color: Colors.white,
-                    size: 12,
-                  ),
-                ),
-              ),
+            Obx(() {
+              return controller.lastChangedClassIndex.value == index
+                  ? Positioned(
+                      right: 10,
+                      top: 10,
+                      child: CircleAvatar(
+                        backgroundColor: Colors.orangeAccent,
+                        radius: 10,
+                        child: Icon(
+                          Icons.notification_important,
+                          color: Colors.white,
+                          size: 12,
+                        ),
+                      ),
+                    )
+                  : SizedBox.shrink();
+            }),
           ],
         ),
       ),
