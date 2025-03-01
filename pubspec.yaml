@@ -95,8 +95,8 @@ flutter:
 flutter_icons:
   android: true
   ios: true
-  image_path_android: "assets/icon/absenku.png"
-  image_path_ios: "assets/icon/absenku.png"
+  image_path_android: "assets/icon/absenku_logonew.png"
+  image_path_ios: "assets/icon/absenku_logonew.png"
 
   # To add assets to your application, add an assets section, like this:
   assets:
