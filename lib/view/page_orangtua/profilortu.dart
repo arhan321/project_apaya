@@ -11,7 +11,7 @@ class ProfilortuPage extends StatefulWidget {
 
 class _ProfilortuPageState extends State<ProfilortuPage> {
   String parentName = '';
-  String childName = 'Budiono'; // Nama anak dibuat statis
+  String childName = ''; // Awalnya kosong, diisi dari API
   String email = '';
   String? photoUrl;
   bool isLoading = true;
@@ -71,6 +71,9 @@ class _ProfilortuPageState extends State<ProfilortuPage> {
           parentName = data['name'] ?? 'Nama tidak tersedia';
           email = data['email'] ?? 'Email tidak tersedia';
           photoUrl = data['image_url'];
+          // Ambil data wali_murid jika tersedia
+          childName = data['wali_murid'] ?? 'Nama Anak tidak tersedia';
+
           isLoading = false;
         });
       } else {
