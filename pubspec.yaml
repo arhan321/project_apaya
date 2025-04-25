@@ -51,6 +51,9 @@ dependencies:
   pdf: ^3.6.0
   permission_handler: ^10.2.0
   html: ^0.15.5
+  url_launcher: ^6.2.1
+  font_awesome_flutter: ^10.7.0
+
 
 
 dev_dependencies:

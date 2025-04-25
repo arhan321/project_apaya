@@ -32,6 +32,7 @@ import '../view/page_orangtua/cekcatatan.dart';
 import '../view/page_guru/catatanguru.dart'; // Halaman Catatan Guru
 import '../view/page_admin/mainpage.dart'; // Halaman Dashboard Admin
 import '../view/page_admin/listaccount.dart'; // Impor halaman List Account
+import '../view/page_admin/statusakunsiswa.dart'; //neww
 import '../view/page_admin/listakunguru.dart'; // Impor halaman ListAkunGuru
 import '../view/page_admin/editakunguru.dart'; // Impor halaman EditAkunGuru
 import '../view/page_admin/listakunsiswa.dart';
@@ -86,6 +87,7 @@ class AppRoutes {
   static const cekCatatan = '/cekCatatan'; // Rute Catatan Harian Orang Tua
   static const adminDashboard = '/adminDashboard'; // Rute Dashboard Admin
   static const listAccount = '/listAccount'; // Rute untuk List Account
+ static const statusAkunSiswa = '/statusAkunSiswa'; //neww
   static const listAkunGuru = '/listAkunGuru'; // Rute untuk List Akun Guru
   static const editAkunGuru = '/editAkunGuru'; // Rute untuk Edit Akun Guru
   static const tambahAkunGuru = '/tambahAkunGuru';
@@ -225,6 +227,10 @@ class AppRoutes {
     GetPage(
       name: listAccount,
       page: () => ListAccountPage(), // Rute ke halaman List Account
+    ),
+     GetPage(
+      name: statusAkunSiswa,
+      page: () => StatusAkunSiswa(), //neww
     ),
     GetPage(
       name: listAkunGuru,
