@@ -69,6 +69,16 @@ class ListAccountPage extends StatelessWidget {
                       '/listAkunSiswa'); // Arahkan ke halaman List Akun Guru
                 },
               ),
+                SizedBox(height: 16),
+              _buildAccountCard(
+                title: 'Status Siswa akun siswa',
+                subtitle: 'Cek Akun siswa yg bermasalah.',
+                icon: Icons.school,
+                onTap: () {
+                  Get.toNamed(
+                      '/statusAkunSiswa'); // Arahkan ke halaman List Akun Guru
+                },
+              ),
               SizedBox(height: 16),
               _buildAccountCard(
                 title: 'Akun Orang Tua',
