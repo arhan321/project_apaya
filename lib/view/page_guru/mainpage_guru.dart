@@ -1,5 +1,6 @@
 import 'dart:async'; // Impor untuk Timer
 import 'package:flutter/material.dart';
+import 'package:forum/routes/routes.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controller/guru_controller/mainpageguru_controller.dart';
@@ -173,6 +174,16 @@ class _MainPageGuruState extends State<MainPageGuru>
                 Get.toNamed('/rekapAbsen');
               },
             ),
+                      ListTile(
+                  leading: Icon(Icons.verified_user, color: Colors.blueAccent),
+                  title: Text(
+                    'Cek Status Akun Siswa',
+                    style: GoogleFonts.poppins(),
+                  ),
+                onTap: () {
+                  Get.toNamed(AppRoutes.statusAkunSiswaInGuru);
+                },
+                ),
             ListTile(
               leading: Icon(Icons.logout, color: Colors.blueAccent),
               title: Text(
