@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,53 +7,53 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:android_intent_plus/android_intent.dart';
+import 'package:http/http.dart' as http;
 
-/// ---------------------------------------------------------------------------
-/// Utility ➜ buka WhatsApp (Android & iOS)
-/// ---------------------------------------------------------------------------
+/*───────────────────────────*/
+/*  Utility ➜ buka WhatsApp  */
+/*───────────────────────────*/
 Future<bool> openWhatsApp({
   required String phone,
   required String message,
 }) async {
   final normalized = phone.replaceAll(RegExp(r'[^0-9]'), '');
-  final encodedMsg = Uri.encodeComponent(message);
+  final encoded = Uri.encodeComponent(message);
 
   if (Platform.isAndroid) {
     final intent = AndroidIntent(
       action: 'action_view',
-      data: 'https://wa.me/$normalized?text=$encodedMsg',
+      data: 'https://wa.me/$normalized?text=$encoded',
       package: 'com.whatsapp',
     );
     try {
       await intent.launch();
       return true;
     } catch (_) {
-      final intentBiz = AndroidIntent(
+      final biz = AndroidIntent(
         action: 'action_view',
-        data: 'https://wa.me/$normalized?text=$encodedMsg',
+        data: 'https://wa.me/$normalized?text=$encoded',
         package: 'com.whatsapp.w4b',
       );
       try {
-        await intentBiz.launch();
+        await biz.launch();
         return true;
       } catch (_) {
         return false;
       }
     }
   } else if (Platform.isIOS) {
-    final uri = Uri.parse('whatsapp://send?phone=$normalized&text=$encodedMsg');
+    final uri = Uri.parse('whatsapp://send?phone=$normalized&text=$encoded');
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
       return true;
     }
-    return false;
   }
   return false;
 }
 
-/// ---------------------------------------------------------------------------
-/// Page ➜ Daftar Siswa + Pull-to-Refresh + Tombol WhatsApp
-/// ---------------------------------------------------------------------------
+/*───────────────────────────*/
+/*  Page ➜ Siswa bolong ≠ 0   */
+/*───────────────────────────*/
 class StatusAkunSiswaInGuruPage extends StatefulWidget {
   const StatusAkunSiswaInGuruPage({super.key});
 
@@ -62,8 +63,8 @@ class StatusAkunSiswaInGuruPage extends StatefulWidget {
 }
 
 class _StatusAkunSiswaInGuruPageState extends State<StatusAkunSiswaInGuruPage> {
-  /// sumber data (dummy); ganti dengan fetch endpoint
   List<Map<String, String>> _akunSiswa = [];
+  bool _loading = true;
 
   @override
   void initState() {
@@ -71,49 +72,113 @@ class _StatusAkunSiswaInGuruPageState extends State<StatusAkunSiswaInGuruPage> {
     _loadData();
   }
 
-  /// ambil data (simulasi API 1,5 detik)
+  /*───────────────────────────*/
+  /*  Fetch kelas + phone-book  */
+  /*───────────────────────────*/
   Future<void> _loadData() async {
-    await Future.delayed(const Duration(milliseconds: 1500));
-    setState(() {
-      _akunSiswa = [
-        {
-          'nama': 'Ahmad Faizz',
-          'email': 'ahmad@email.com',
-          'kelas': 'X IPA 1',
-          'ttl': 'Bandung, 12 Jan 2007',
-          'absen': '10',
-          'noOrtu': '6289652731947',
-          'tidakHadir': '3',
-        },
-        {
-          'nama': 'Bunga Lestari',
-          'email': 'bunga@email.com',
-          'kelas': 'XI IPS 2',
-          'ttl': 'Jakarta, 5 Mei 2006',
-          'absen': '07',
-          'noOrtu': '6282112125639',
-          'tidakHadir': '22',
-        },
-      ];
-    });
+    setState(() => _loading = true);
+
+    try {
+      /* fetch kedua endpoint paralel */
+      final responses = await Future.wait([
+        http.get(Uri.parse('https://absen.randijourney.my.id/api/v1/kelas')),
+        http.get(Uri.parse('https://absen.randijourney.my.id/api/v1/account')),
+      ]);
+
+      final kelasRes = responses[0];
+      final accountRes = responses[1];
+
+      if (kelasRes.statusCode != 200) {
+        throw 'kelas HTTP ${kelasRes.statusCode}';
+      }
+      if (accountRes.statusCode != 200) {
+        throw 'account HTTP ${accountRes.statusCode}';
+      }
+
+      /* ---------- phone-book dari /account ---------- */
+      final List<dynamic> accRows = jsonDecode(accountRes.body);
+      final Map<String, String> phoneBook = {
+        for (final r in accRows)
+          (r['name']?.toString().toLowerCase() ?? ''):
+              (r['nomor_telfon']?.toString() ?? '')
+      };
+
+      /* ---------- hitung bolong dari /kelas ---------- */
+      final List<dynamic> kelasRows =
+          (jsonDecode(kelasRes.body)['data'] ?? []) as List<dynamic>;
+
+      final Map<String, Map<String, dynamic>> counter = {};
+
+      for (final k in kelasRows) {
+        final kelasNama = k['nama_kelas']?.toString() ?? '-';
+        final siswaRaw = k['siswa'] ?? '[]';
+
+        List<dynamic> siswaList;
+        try {
+          siswaList = jsonDecode(siswaRaw);
+        } catch (_) {
+          continue;
+        }
+
+        for (final s in siswaList) {
+          final nama = s['nama']?.toString() ?? '-';
+          final namaKey = nama.toLowerCase();
+          final email = s['email']?.toString() ?? '-';
+          var phone = (s['nomor_telfon']?.toString() ?? '').trim();
+
+          final ket = s['keterangan']?.toString().toLowerCase() ?? '';
+          if (ket != 'tidak hadir') continue;
+
+          /* jika phone kosong → cari di phone-book berdasarkan nama */
+          if (phone.isEmpty || phone == '-') {
+            phone = phoneBook[namaKey] ?? '-';
+          }
+
+          final key = '$nama|$email';
+          counter[key] ??= {
+            'nama': nama,
+            'email': email,
+            'kelas': kelasNama,
+            'noOrtu': phone,
+            'bolong': 0,
+          };
+          counter[key]!['bolong'] = (counter[key]!['bolong'] as int) + 1;
+        }
+      }
+
+      _akunSiswa = counter.values
+          .map<Map<String, String>>((m) => {
+                'nama': m['nama'],
+                'email': m['email'],
+                'kelas': m['kelas'],
+                'noOrtu': (m['noOrtu'] as String).isEmpty ? '-' : m['noOrtu'],
+                'tidakHadir': (m['bolong']).toString(),
+              })
+          .toList();
+
+      setState(() => _loading = false);
+    } catch (e) {
+      setState(() => _loading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal memuat data: $e')),
+        );
+      }
+    }
   }
 
-  /// handler RefreshIndicator
-  Future<void> _handleRefresh() async {
-    await _loadData(); // muat ulang (atau panggil API)
-  }
+  Future<void> _handleRefresh() => _loadData();
 
+  /*───────────────────────────*/
+  /*  UI                       */
+  /*───────────────────────────*/
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Status Akun Siswa',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
+        title: Text('Siswa Tidak Hadir',
+            style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: Colors.lightBlueAccent,
         leading: const BackButton(color: Colors.white),
       ),
@@ -127,97 +192,89 @@ class _StatusAkunSiswaInGuruPageState extends State<StatusAkunSiswaInGuruPage> {
         ),
         child: RefreshIndicator(
           onRefresh: _handleRefresh,
-          child: _akunSiswa.isEmpty
+          child: _loading
               ? const Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _akunSiswa.length,
-                  itemBuilder: (context, index) {
-                    final siswa = _akunSiswa[index];
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      elevation: 4,
-                      margin: const EdgeInsets.only(bottom: 16),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.person,
-                                size: 50, color: Colors.grey),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    siswa['nama'] ?? '',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      color: Colors.deepPurple,
-                                    ),
-                                  ),
-                                  Text(siswa['email'] ?? ''),
-                                  const SizedBox(height: 4),
-                                  Text('Kelas : ${siswa['kelas']}'),
-                                  Text('TTL   : ${siswa['ttl']}'),
-                                  Text('No. Absen : ${siswa['absen']}'),
-                                  Text('No. HP Ortu : ${siswa['noOrtu']}'),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    'Tidak hadir: ${siswa['tidakHadir']}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FontStyle.italic,
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  InkWell(
-                                    onTap: () async {
-                                      final ok = await openWhatsApp(
-                                        phone: siswa['noOrtu']!,
-                                        message:
-                                            'Halo Orang Tua dari ${siswa['nama']}, kami ingin menyampaikan informasi kehadiran.',
-                                      );
-                                      if (!ok && context.mounted) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              'WhatsApp tidak ditemukan di perangkat',
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    },
-                                    child: Row(
-                                      children: [
-                                        const FaIcon(FontAwesomeIcons.whatsapp,
-                                            color: Colors.green),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'Hubungi Orang Tua via WhatsApp',
-                                          style: TextStyle(
-                                            color: Colors.green[800],
-                                            fontWeight: FontWeight.w600,
-                                          ),
+              : _akunSiswa.isEmpty
+                  ? const Center(
+                      child: Text('Semua siswa hadir 🎉',
+                          style: TextStyle(color: Colors.white)))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _akunSiswa.length,
+                      itemBuilder: (_, i) {
+                        final s = _akunSiswa[i];
+                        return Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
+                          elevation: 4,
+                          margin: const EdgeInsets.only(bottom: 16),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(Icons.person,
+                                    size: 50, color: Colors.grey),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(s['nama'] ?? '',
+                                          style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                              color: Colors.deepPurple)),
+                                      Text(s['email'] ?? ''),
+                                      const SizedBox(height: 4),
+                                      Text('Kelas : ${s['kelas']}'),
+                                      Text('No. HP Ortu : ${s['noOrtu']}'),
+                                      const SizedBox(height: 6),
+                                      Text('Tidak hadir: ${s['tidakHadir']}',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontStyle: FontStyle.italic,
+                                              color: Colors.red)),
+                                      const SizedBox(height: 10),
+                                      InkWell(
+                                        onTap: () async {
+                                          final ok = await openWhatsApp(
+                                            phone: s['noOrtu'] ?? '',
+                                            message:
+                                                'Halo Orang Tua dari ${s['nama']}, siswa Anda tercatat tidak hadir sebanyak ${s['tidakHadir']} kali.',
+                                          );
+                                          if (!ok && mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(const SnackBar(
+                                                    content: Text(
+                                                        'WhatsApp tidak ditemukan di perangkat')));
+                                          }
+                                        },
+                                        child: Row(
+                                          children: [
+                                            const FaIcon(
+                                                FontAwesomeIcons.whatsapp,
+                                                color: Colors.green),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                                'Hubungi Orang Tua via WhatsApp',
+                                                style: TextStyle(
+                                                    color: Colors.green[800],
+                                                    fontWeight:
+                                                        FontWeight.w600)),
+                                          ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                          ),
+                        );
+                      },
+                    ),
         ),
       ),
     );
