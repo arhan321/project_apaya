@@ -174,16 +174,16 @@ class _MainPageGuruState extends State<MainPageGuru>
                 Get.toNamed('/rekapAbsen');
               },
             ),
-                      ListTile(
-                  leading: Icon(Icons.verified_user, color: Colors.blueAccent),
-                  title: Text(
-                    'Cek Status Akun Siswa',
-                    style: GoogleFonts.poppins(),
-                  ),
-                onTap: () {
-                  Get.toNamed(AppRoutes.statusAkunSiswaInGuru);
-                },
-                ),
+            ListTile(
+              leading: Icon(Icons.verified_user, color: Colors.blueAccent),
+              title: Text(
+                'Cek Status Akun Siswa',
+                style: GoogleFonts.poppins(),
+              ),
+              onTap: () {
+                Get.toNamed(AppRoutes.statusAkunSiswaInGuru);
+              },
+            ),
             ListTile(
               leading: Icon(Icons.logout, color: Colors.blueAccent),
               title: Text(
