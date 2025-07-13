@@ -137,7 +137,7 @@ class _StatusAkunSiswaInGuruPageState extends State<StatusAkunSiswaInGuruPage> {
           final key = '$nama|$email';
           counter[key] ??= {
             'nama': nama,
-            'email': email,
+            // 'email': email,
             'kelas': kelasNama,
             'noOrtu': phone,
             'bolong': 0,
@@ -149,7 +149,7 @@ class _StatusAkunSiswaInGuruPageState extends State<StatusAkunSiswaInGuruPage> {
       _akunSiswa = counter.values
           .map<Map<String, String>>((m) => {
                 'nama': m['nama'],
-                'email': m['email'],
+                // 'email': m['email'],
                 'kelas': m['kelas'],
                 'noOrtu': (m['noOrtu'] as String).isEmpty ? '-' : m['noOrtu'],
                 'tidakHadir': (m['bolong']).toString(),
@@ -226,7 +226,7 @@ class _StatusAkunSiswaInGuruPageState extends State<StatusAkunSiswaInGuruPage> {
                                               fontWeight: FontWeight.bold,
                                               fontSize: 16,
                                               color: Colors.deepPurple)),
-                                      Text(s['email'] ?? ''),
+                                      // Text(s['email'] ?? ''),
                                       const SizedBox(height: 4),
                                       Text('Kelas : ${s['kelas']}'),
                                       Text('No. HP Ortu : ${s['noOrtu']}'),
