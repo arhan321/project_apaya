@@ -146,10 +146,19 @@ class _StatusAkunSiswaInGuruPageState extends State<StatusAkunSiswaInGuruPage> {
         }
       }
 
+      // _akunSiswa = counter.values
+      //     .map<Map<String, String>>((m) => {
+      //           'nama': m['nama'],
+      //           // 'email': m['email'],
+      //           'kelas': m['kelas'],
+      //           'noOrtu': (m['noOrtu'] as String).isEmpty ? '-' : m['noOrtu'],
+      //           'tidakHadir': (m['bolong']).toString(),
+      //         })
+      //     .toList();
       _akunSiswa = counter.values
+          .where((m) => (m['bolong'] as int) >= 3)
           .map<Map<String, String>>((m) => {
                 'nama': m['nama'],
-                // 'email': m['email'],
                 'kelas': m['kelas'],
                 'noOrtu': (m['noOrtu'] as String).isEmpty ? '-' : m['noOrtu'],
                 'tidakHadir': (m['bolong']).toString(),
