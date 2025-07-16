@@ -32,6 +32,7 @@ class User extends Authenticatable
         'umur',
         'wali_murid',
         'wali_kelas',
+        'nomor_telfon',
     ];
 
     /**

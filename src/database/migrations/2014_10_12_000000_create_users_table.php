@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string('wali_murid')->nullable();
             $table->string('wali_kelas')->nullable();
             $table->string('umur')->nullable();
+            $table->string('nomor_telfon')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

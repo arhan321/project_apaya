@@ -207,6 +207,7 @@ class AuthController extends Controller
                 'wali_kelas' => 'nullable|string',
                 'umur' => 'nullable|integer',
                 'kelas' => 'nullable|string',
+                'nomor_telfon' => 'nullable|string',
             ]);
             \Log::info('Validated Data:', $validatedData);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -236,6 +237,7 @@ class AuthController extends Controller
         $user->wali_kelas = $request->wali_kelas ?? $user->wali_kelas;
         $user->agama = $request->agama ?? $user->agama;
         $user->umur = $request->umur ?? $user->umur;
+        $user->nomor_telfon = $request->nomor_telfon ?? $user->nomor_telfon;
     
         // Password dihash jika diperbarui
         if ($request->filled('password')) {
@@ -278,6 +280,7 @@ class AuthController extends Controller
                     'wali_murid' => $user->wali_murid,
                     'wali_kelas' => $user->wali_kelas,
                     'kelas' => $user->kelas,
+                    'nomor_telfon' => $user->nomor_telfon,
                     'image_url' => $user->photo ? asset('storage/' . $user->photo) : null,
                 ]
             ], 200);
@@ -369,6 +372,7 @@ class AuthController extends Controller
                 'kelas' => $user->kelas,
                 'wali_murid' => $user->wali_murid,
                 'wali_kelas' => $user->wali_kelas,
+                'nomor_telfon' => $user->nomor_telfon,
                 'image_url' => $user->photo ? asset('storage/' . $user->photo) : null,
                 'token' => $currentToken,
             ], 200);

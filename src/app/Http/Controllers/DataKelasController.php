@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DataKelas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class DataKelasController extends Controller
 {
@@ -12,11 +13,13 @@ class DataKelasController extends Controller
 public function index()
 {
     // Cek header 'User-Agent'
-    $userAgent = request()->header('User-Agent');
-    if ($userAgent && str_contains($userAgent, 'Mozilla')) {
+    //$userAgent = request()->header('User-Agent');
+    //if ($userAgent && str_contains($userAgent, 'Mozilla')) {
         // Jika User-Agent mengandung 'Mozilla', anggap request berasal dari browser
-        abort(404);
-    }
+    //    abort(404);
+  //  }
+        $query = DB::connection('mysql')->table('data_kelas')->get();
+   //     return response()->json($query, 200);
 
     Log::info('Request untuk mendapatkan semua data kelas diterima.');
 
