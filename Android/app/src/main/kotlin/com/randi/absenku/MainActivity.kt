@@ -1,4 +1,4 @@
-package com.example.absenku
+package com.randi.absenku
 
 import io.flutter.embedding.android.FlutterActivity
 

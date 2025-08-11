@@ -1,7 +1,7 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    // Flutter Gradle Plugin harus di-load terakhir
     id "dev.flutter.flutter-gradle-plugin"
 }
 
@@ -13,7 +13,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.example.absenku"
+    namespace = "com.randi.absenku"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -27,11 +27,13 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.absenku"
+        applicationId "com.randi.absenku"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+
+        // Ganti ini setiap kali upload ke Play Store
+        versionCode 2
+        versionName "1.0.1"
     }
 
     signingConfigs {
@@ -45,13 +47,13 @@ android {
 
     buildTypes {
         release {
-            // Pakai signing release untuk build AAB
             signingConfig signingConfigs.release
-
-            // Aktifkan optimisasi
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+        debug {
+            signingConfig signingConfigs.release // Biar bisa tes debug dengan key release
         }
     }
 }
